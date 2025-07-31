@@ -243,7 +243,7 @@ function checkCollision(obj1, obj2) {
         const pixel2Alpha = data2[(obj2PixelY * obj2.width + obj2PixelX) * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
-          console.log('Pixel-perfect collision detected! Calling endGame()...');
+          
           return true; // Collision detected
         }
       }
@@ -254,7 +254,7 @@ function checkCollision(obj1, obj2) {
 
 // --- Game Functions ---
 function initGame() {
-  console.log('initGame() called.');
+  
   player = new Player();
   obstacles = [];
   score = 0;
@@ -268,7 +268,7 @@ function initGame() {
   timeSinceLastObstacle = 0; // Initialize time for obstacle spawning
   timeSinceLastBirdObstacle = 0; // Initialize time for bird obstacle spawning
   nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set initial random spawn time for bird
-  console.log(`  initGame - timeSinceLastObstacle: ${timeSinceLastObstacle}, timeSinceLastBirdObstacle: ${timeSinceLastBirdObstacle}, nextBirdSpawnTime: ${nextBirdSpawnTime}`);
+  
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1; // Initialize difficulty
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
@@ -341,7 +341,7 @@ function gameLoop(timestamp) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
-    console.log(`DeltaTime: ${deltaTime.toFixed(4)}, GameSpeed: ${gameSpeed.toFixed(2)}, Score: ${Math.floor(score)}, Obstacles: ${obstacles.length}`);
+    
 
     // Update and draw player
     player.update(deltaTime);
@@ -350,7 +350,7 @@ function gameLoop(timestamp) {
     // Create obstacles
     timeSinceLastObstacle += deltaTime * 1000; // Convert to milliseconds
     timeSinceLastBirdObstacle += deltaTime * 1000; // Convert to milliseconds
-    console.log(`Obstacle Time: ${timeSinceLastObstacle}/${OBSTACLE_MIN_GAP_MS}, Bird Time: ${timeSinceLastBirdObstacle}/${nextBirdSpawnTime}`);
+    
 
     if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
@@ -399,7 +399,7 @@ function gameLoop(timestamp) {
     }
 
     // Update score
-    console.log(`Score update: score=${score}, accelerationActive=${accelerationActive}, deltaTime=${deltaTime}`);
+    
     const previousScore = score;
     score += (accelerationActive ? 2 : 1) * deltaTime * SCORE_BASE_PER_SECOND; // Scale score by deltaTime for consistent gain
     scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
@@ -407,7 +407,7 @@ function gameLoop(timestamp) {
     // Increase difficulty every 2000 points
     if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
       difficulty = parseFloat((difficulty + 0.1).toFixed(1)); // Ensure one decimal place
-      console.log(`Difficulty increased to: ${difficulty}`);
+      
       difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
     }
 
@@ -444,7 +444,7 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 3.5;
+    gameSpeed = 3.5 * 60;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
@@ -501,7 +501,7 @@ window.addEventListener('click', (event) => {
 
 // Initial setup
 loadAssets().then(() => {
-  console.log('All assets loaded successfully!');
+  
   initGame();
   // Display start screen initially
   startScreen.style.display = 'flex';
