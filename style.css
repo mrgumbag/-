@@ -129,3 +129,22 @@ body {
 #ranking-list li {
   margin-bottom: 5px;
 }
+
+#volume-control {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;
+}
+
+.volume-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#volume-slider {
+  width: 100px;
+}

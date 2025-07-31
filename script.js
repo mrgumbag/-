@@ -10,6 +10,15 @@ const rankingButton = document.getElementById('ranking-button');
 const rankingModal = document.getElementById('ranking-modal');
 const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
+const volumeSlider = document.getElementById('volume-slider');
+
+// Set initial BGM volume
+gameBGM.volume = volumeSlider.value / 100;
+
+// Add event listener for volume slider
+volumeSlider.addEventListener('input', (e) => {
+  gameBGM.volume = e.target.value / 100;
+});
 
 // Game settings
 const GAME_WIDTH = canvas.width;
