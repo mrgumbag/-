@@ -165,20 +165,28 @@ function checkCollision(obj1, obj2) {
     const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
     const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
 
+    console.log(`  img1: ${img1 ? 'Loaded' : 'Not Loaded'}, img2: ${img2 ? 'Loaded' : 'Not Loaded'}`);
+
     // Create temporary canvases to draw images and get pixel data
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
     tempCanvas1.width = obj1.width;
     tempCanvas1.height = obj1.height;
+    console.log('  Drawing img1 on tempCanvas1...');
     tempCtx1.drawImage(img1, 0, 0, obj1.width, obj1.height);
+    console.log('  Getting imageData for tempCanvas1...');
     const data1 = tempCtx1.getImageData(0, 0, obj1.width, obj1.height).data;
+    console.log('  imageData for tempCanvas1 obtained.');
 
     const tempCanvas2 = document.createElement('canvas');
     const tempCtx2 = tempCanvas2.getContext('2d');
     tempCanvas2.width = obj2.width;
     tempCanvas2.height = obj2.height;
+    console.log('  Drawing img2 on tempCanvas2...');
     tempCtx2.drawImage(img2, 0, 0, obj2.width, obj2.height);
+    console.log('  Getting imageData for tempCanvas2...');
     const data2 = tempCtx2.getImageData(0, 0, obj2.width, obj2.height).data;
+    console.log('  imageData for tempCanvas2 obtained.');
 
     // Calculate overlap area
     const xOverlap = Math.max(0, Math.min(obj1.x + obj1.width, obj2.x + obj2.width) - Math.max(obj1.x, obj2.x));
