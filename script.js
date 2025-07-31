@@ -41,7 +41,7 @@ const BIRD_SPAWN_MAX_FRAMES = 120; // 2 seconds at 60fps
 
 const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
 const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
-const DOUBLE_JUMP_MULTIPLIER = 0.9;
+const DOUBLE_JUMP_MULTIPLIER = 0.75;
 
 // Game state
 let score = 0;
@@ -177,6 +177,13 @@ function Obstacle(type) {
       img = assets.air_obstacle;
     } else if (this.type === 'bird') {
       img = assets.bird_obstacle;
+
+      ctx.save(); // Save the current canvas state
+      ctx.translate(this.x + this.width / 2, this.y + this.height / 2); // Move origin to center of image
+      ctx.rotate(-Math.PI / 2); // Rotate -90 degrees (counter-clockwise)
+      ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height); // Draw image at new origin
+      ctx.restore(); // Restore the canvas state
+      return; // Skip default drawImage
     }
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
   };
