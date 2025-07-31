@@ -13,7 +13,7 @@ const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const darkModeToggle = document.getElementById('dark-mode-toggle');
-const changeSongButton = document.getElementById('change-song-button');
+const changeSongButton = document.getElementById('music-selection-button');
 
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
@@ -437,11 +437,7 @@ function gameLoop(timestamp) {
 
 // --- Event Listeners ---
 document.addEventListener('keydown', (e) => {
-  if (gameState === 'start') {
-    // Any key press starts the game from start screen
-    startGame();
-    return;
-  }
+  
 
   if (gameState !== 'playing') return;
 
