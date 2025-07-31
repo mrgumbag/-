@@ -36,9 +36,16 @@ const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
+const BIRD_OBSTACLE_WIDTH = 80;
+const BIRD_OBSTACLE_HEIGHT = 80;
+const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250; // Slightly above air obstacle
+const BIRD_OBSTACLE_MAX_Y = 50; // Near the ceiling
+const BIRD_SPAWN_MIN_FRAMES = 30; // 0.5 seconds at 60fps
+const BIRD_SPAWN_MAX_FRAMES = 120; // 2 seconds at 60fps
+
 const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
 const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
-const DOUBLE_JUMP_MULTIPLIER = 0.75;
+const DOUBLE_JUMP_MULTIPLIER = 0.9;
 
 // Game state
 let score = 0;
@@ -55,6 +62,8 @@ const OBSTACLE_MIN_GAP_FRAMES = 30; // Minimum 0.5 second gap between obstacles
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02; // Base chance to spawn an obstacle per frame
 let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let spacebarPressed = false; // Track if spacebar is pressed
+let framesSinceLastBirdObstacle = 0; // New: Track frames for bird obstacle
+let nextBirdSpawnFrame = 0; // New: Next frame to spawn bird
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 let lastTime = 0; // For delta time calculation
@@ -66,6 +75,7 @@ const assetPaths = {
   player: 'assets/images/player.png',
   ground_obstacle: 'assets/images/ground_obstacle.png',
   air_obstacle: 'assets/images/air_obstacle.png',
+  bird_obstacle: 'assets/images/bird_obstacle.png',
 };
 
 function loadAssets() {
@@ -144,13 +154,34 @@ function Player() {
 // --- Obstacle Object ---
 function Obstacle(type) {
   this.type = type;
-  this.width = type === 'ground' ? GROUND_OBSTACLE_WIDTH : AIR_OBSTACLE_WIDTH;
-  this.height = type === 'ground' ? GROUND_OBSTACLE_HEIGHT : AIR_OBSTACLE_HEIGHT;
+  this.width = 0;
+  this.height = 0;
   this.x = GAME_WIDTH;
-  this.y = type === 'ground' ? GAME_HEIGHT - this.height : GAME_HEIGHT - this.height - 200; // Air obstacle higher
+  this.y = 0;
+
+  if (type === 'ground') {
+    this.width = GROUND_OBSTACLE_WIDTH;
+    this.height = GROUND_OBSTACLE_HEIGHT;
+    this.y = GAME_HEIGHT - this.height;
+  } else if (type === 'air') {
+    this.width = AIR_OBSTACLE_WIDTH;
+    this.height = AIR_OBSTACLE_HEIGHT;
+    this.y = GAME_HEIGHT - this.height - 200; // Air obstacle higher
+  } else if (type === 'bird') {
+    this.width = BIRD_OBSTACLE_WIDTH;
+    this.height = BIRD_OBSTACLE_HEIGHT;
+    this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y; // Random height
+  }
 
   this.draw = function() {
-    const img = type === 'ground' ? assets.ground_obstacle : assets.air_obstacle;
+    let img;
+    if (this.type === 'ground') {
+      img = assets.ground_obstacle;
+    } else if (this.type === 'air') {
+      img = assets.air_obstacle;
+    } else if (this.type === 'bird') {
+      img = assets.bird_obstacle;
+    }
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
   };
 
@@ -228,6 +259,8 @@ function initGame() {
   lastObstacleType = 'none';
   framesSinceLastObstacle = 0;
   consecutiveGroundObstaclesCount = 0;
+  framesSinceLastBirdObstacle = 0; // Initialize bird obstacle frame counter
+  nextBirdSpawnFrame = Math.floor(Math.random() * (BIRD_SPAWN_MAX_FRAMES - BIRD_SPAWN_MIN_FRAMES + 1)) + BIRD_SPAWN_MIN_FRAMES; // Set initial random spawn frame
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1; // Initialize difficulty
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
@@ -296,6 +329,8 @@ function gameLoop(timestamp) {
 
     // Create obstacles
     framesSinceLastObstacle++;
+    framesSinceLastBirdObstacle++; // Increment bird obstacle frame counter
+
     if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
       // If last was ground and less than 3 consecutive, prioritize ground
@@ -317,6 +352,13 @@ function gameLoop(timestamp) {
       obstacles.push(new Obstacle(type));
       lastObstacleType = type;
       framesSinceLastObstacle = 0;
+    }
+
+    // Bird obstacle spawning logic
+    if (framesSinceLastBirdObstacle >= nextBirdSpawnFrame) {
+      obstacles.push(new Obstacle('bird'));
+      framesSinceLastBirdObstacle = 0;
+      nextBirdSpawnFrame = Math.floor(Math.random() * (BIRD_SPAWN_MAX_FRAMES - BIRD_SPAWN_MIN_FRAMES + 1)) + BIRD_SPAWN_MIN_FRAMES; // Set next random spawn frame
     }
 
     // Update and draw obstacles, check collision
