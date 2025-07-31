@@ -36,11 +36,13 @@ const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
+const GRAVITY = 1 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
+
 // Game state
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 7; // Base speed
+let gameSpeed = 7 * 60; // Base speed in units per second
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -106,7 +108,7 @@ function Player() {
   this.update = function(deltaTime) {
     if (this.isJumping) {
       this.y += this.velocityY * timeFactor * deltaTime;
-      this.velocityY += (1 * timeFactor * deltaTime) * 60; // Gravity affected by time stop, scaled for 60fps base
+      this.velocityY += GRAVITY * timeFactor * deltaTime; // Gravity affected by time stop
 
       if (this.y >= GAME_HEIGHT - this.height) {
         this.y = GAME_HEIGHT - this.height;
@@ -126,7 +128,7 @@ function Player() {
   this.jump = function() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.velocityY = -20;
+      this.velocityY = -20 * 60;
     }
   };
 }
@@ -145,7 +147,7 @@ function Obstacle(type) {
   };
 
   this.update = function(deltaTime) {
-    this.x -= gameSpeed * deltaTime * 60; // Scale gameSpeed by deltaTime for consistent movement
+    this.x -= gameSpeed * deltaTime;
   };
 }
 
@@ -190,7 +192,7 @@ function checkCollision(obj1, obj2) {
     for (let y = 0; y < yOverlap; y++) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
-        const pixel2Alpha = data2[((Math.max(0, Math.max(obj1.x, obj2.x) - obj2.x) + x) + (Math.max(0, Math.max(obj1.y, obj2.y) - obj2.y) + y) * obj2.width) * 4 + 3];
+        const pixel2Alpha = data2[((yStart + y) - (obj2.y - obj1.y)) * obj2.width + ((xStart + x) - (obj2.x - obj1.x))] * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
           console.log('Pixel-perfect collision detected!');
@@ -207,7 +209,7 @@ function initGame() {
   player = new Player();
   obstacles = [];
   score = 0;
-  gameSpeed = 7;
+  gameSpeed = 7 * 60;
   accelerationActive = false;
   timeStopActive = false;
   timeStopCooldown = 0;
@@ -358,16 +360,16 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
-    gameSpeed = accelerationActive ? 10.5 : 7;
+    gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 3.5;
+    gameSpeed = 3.5 * 60;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 10.5 : 7;
+      gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
       timeFactor = 1;
     }, 3000);
   }
