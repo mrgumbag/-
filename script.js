@@ -53,6 +53,7 @@ let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let spacebarPressed = false; // Track if spacebar is pressed
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
+let lastTime = 0; // For delta time calculation
 let difficulty = 1; // New difficulty variable
 
 // Assets
@@ -102,10 +103,10 @@ function Player() {
     ctx.drawImage(assets.player, this.x, this.y, this.width, this.height);
   };
 
-  this.update = function() {
+  this.update = function(deltaTime) {
     if (this.isJumping) {
-      this.y += this.velocityY * timeFactor;
-      this.velocityY += 1 * timeFactor; // Gravity affected by time stop
+      this.y += this.velocityY * timeFactor * deltaTime;
+      this.velocityY += (1 * timeFactor * deltaTime) * 60; // Gravity affected by time stop, scaled for 60fps base
 
       if (this.y >= GAME_HEIGHT - this.height) {
         this.y = GAME_HEIGHT - this.height;
@@ -143,8 +144,8 @@ function Obstacle(type) {
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
   };
 
-  this.update = function() {
-    this.x -= gameSpeed;
+  this.update = function(deltaTime) {
+    this.x -= gameSpeed * deltaTime * 60; // Scale gameSpeed by deltaTime for consistent movement
   };
 }
 
@@ -266,13 +267,17 @@ function displayHighScores() {
   rankingModal.style.display = 'flex';
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
+  lastTime = timestamp;
+
   // Clear canvas
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
   if (gameState === 'playing') {
     // Update and draw player
-    player.update();
+    player.update(deltaTime);
     player.draw();
 
     // Create obstacles
@@ -303,7 +308,7 @@ function gameLoop() {
     // Update and draw obstacles, check collision
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obstacle = obstacles[i];
-      obstacle.update();
+      obstacle.update(deltaTime);
       obstacle.draw();
 
       if (obstacle.x + obstacle.width < 0) {
@@ -330,7 +335,7 @@ function gameLoop() {
 
     // Update cooldown
     if (timeStopCooldown > 0) {
-      timeStopCooldown -= 1000 / 60; // roughly 1 second per frame at 60fps
+      timeStopCooldown -= deltaTime * 1000; // Convert deltaTime to milliseconds
     }
   }
 
