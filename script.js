@@ -253,6 +253,7 @@ function checkCollision(obj1, obj2) {
 
 // --- Game Functions ---
 function initGame() {
+  console.log('initGame() called.');
   player = new Player();
   obstacles = [];
   score = 0;
@@ -266,6 +267,7 @@ function initGame() {
   timeSinceLastObstacle = 0; // Initialize time for obstacle spawning
   timeSinceLastBirdObstacle = 0; // Initialize time for bird obstacle spawning
   nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set initial random spawn time for bird
+  console.log(`  initGame - timeSinceLastObstacle: ${timeSinceLastObstacle}, timeSinceLastBirdObstacle: ${timeSinceLastBirdObstacle}, nextBirdSpawnTime: ${nextBirdSpawnTime}`);
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1; // Initialize difficulty
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
