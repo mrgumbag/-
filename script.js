@@ -44,6 +44,7 @@ let framesSinceLastObstacle = 0;
 const OBSTACLE_MIN_GAP_FRAMES = 30; // Minimum 0.5 second gap between obstacles
 const OBSTACLE_SPAWN_CHANCE = 0.02; // Chance to spawn an obstacle per frame
 let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
+let spacebarPressed = false; // Track if spacebar is pressed
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 
@@ -103,6 +104,9 @@ function Player() {
         this.y = GAME_HEIGHT - this.height;
         this.isJumping = false;
         this.velocityY = 0;
+        if (spacebarPressed) {
+          this.jump();
+        }
       }
       if (this.y < 0) {
         this.y = 0;
@@ -328,6 +332,7 @@ document.addEventListener('keydown', (e) => {
 
   if (e.code === 'Space') {
     player.jump();
+    spacebarPressed = true;
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
@@ -343,6 +348,12 @@ document.addEventListener('keydown', (e) => {
       gameSpeed = accelerationActive ? 10.5 : 7;
       timeFactor = 1;
     }, 3000);
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'Space') {
+    spacebarPressed = false;
   }
 });
 
