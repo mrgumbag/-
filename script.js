@@ -204,8 +204,8 @@ function checkCollision(obj1, obj2) {
       Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
 
     // 2. Pixel-perfect collision (slow, precise check)
-    const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
-    const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
+    const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : (obj1.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
+    const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : (obj2.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
 
     // Create temporary canvases to draw images and get pixel data
     const tempCanvas1 = document.createElement('canvas');
@@ -340,11 +340,6 @@ function gameLoop(timestamp) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
-
-  // Clear canvas
-  ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-  if (gameState === 'playing') {
     // Update and draw player
     player.update(deltaTime);
     player.draw();
