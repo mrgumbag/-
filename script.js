@@ -13,6 +13,14 @@ const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const darkModeToggle = document.getElementById('dark-mode-toggle');
+const changeSongButton = document.getElementById('change-song-button');
+
+const bgmPaths = [
+  { name: 'RUN', path: 'assets/audio/bgm.mp3' },
+  { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' }, // 예시, 실제 파일 경로와 이름으로 변경 필요
+  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' } // bgm3.mp3 추가
+];
+let currentBGMIndex = 0;
 
 // Set initial BGM volume
 gameBGM.volume = volumeSlider.value / 100;
@@ -21,6 +29,16 @@ gameBGM.volume = volumeSlider.value / 100;
 volumeSlider.addEventListener('input', (e) => {
   gameBGM.volume = e.target.value / 100;
 });
+
+// Function to play the next song
+function playNextSong() {
+  currentBGMIndex = (currentBGMIndex + 1) % bgmPaths.length;
+  gameBGM.src = bgmPaths[currentBGMIndex];
+  gameBGM.play();
+}
+
+// Add event listener for change song button
+changeSongButton.addEventListener('click', playNextSong);
 
 // Game settings
 const GAME_WIDTH = canvas.width;
@@ -92,13 +110,7 @@ function loadAssets() {
           resolve();
         }
       };
-      img.onerror = () => {
-        console.error(`Failed to load image: ${assetPaths[key]}`);
-        loadedCount++; // Still increment to avoid infinite loading
-        if (loadedCount === totalAssets) {
-          resolve();
-        }
-      };
+      
     }
   });
 }
@@ -287,7 +299,7 @@ function startGame() {
 
 function endGame() {
   gameState = 'gameOver';
-  finalScore.textContent = score;
+  finalScore.textContent = Math.floor(score);
   gameOverScreen.style.display = 'flex';
   saveHighScore(score);
   gameBGM.pause(); // Pause BGM
@@ -335,7 +347,7 @@ function gameLoop(timestamp) {
   if (gameState === 'playing') {
     // Ensure deltaTime is a valid number to prevent NaN issues
     if (isNaN(deltaTime) || !isFinite(deltaTime)) {
-      console.warn("Invalid deltaTime detected:", deltaTime);
+      
       // Optionally, you can skip this frame or set deltaTime to a default value
       // For now, we'll just return to prevent further issues with NaN
       gameLoopId = requestAnimationFrame(gameLoop);
@@ -444,11 +456,9 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 3.5 * 60;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
       timeFactor = 1;
     }, 3000);
   }
@@ -472,6 +482,8 @@ const patchNotesText = document.getElementById('patch-notes-text');
 const currentPatchNotes = `0.5.4V
 더블 점프 추가
 조류 장애물 추가
+음악 추가 및 변경 추가
+음악 볼륨 상세 조절 추가
 기타 버그 수정`;
 
 patchNotesButton.addEventListener('click', () => {

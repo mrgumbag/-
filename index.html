@@ -8,7 +8,7 @@
   <h1>우파루파 도주기</h1>
   <div id="volume-control">
     <span class="volume-icon">&#128266;</span> <!-- Speaker icon -->
-    <input type="range" id="volume-slider" min="0" max="100" value="100" step="10">
+    <input type="range" id="volume-slider" min="0" max="100" value="100" step="1">
   </div>
   <div id="game-container">
     <canvas id="gameCanvas" width="1200" height="600"></canvas>
@@ -22,6 +22,7 @@
       <button id="restart-button">다시하기</button>
       <button id="patch-notes-button">패치 노트</button>
       <button id="ranking-button">기록</button>
+      <button id="music-selection-button">음악 선택</button>
     </div>
   </div>
 
@@ -42,6 +43,17 @@
       <span class="close-button" data-modal="ranking-modal">&times;</span>
       <h2>기록</h2>
       <ol id="ranking-list"></ol>
+    </div>
+  </div>
+
+  <!-- Music Selection Modal -->
+  <div id="music-selection-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-button" data-modal="music-selection-modal">&times;</span>
+      <h2>음악 선택</h2>
+      <ul id="music-list">
+        <!-- Songs will be loaded here by JavaScript -->
+      </ul>
     </div>
   </div>
   <div id="score">Score: 0</div>
