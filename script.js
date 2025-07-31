@@ -53,13 +53,10 @@ let timeStopActive = false;
 let timeStopCooldown = 0;
 let timeFactor = 1; // Affects player movement and gravity
 let lastObstacleType = 'none'; // 'none', 'ground', 'air'
-let framesSinceLastObstacle = 0;
-const OBSTACLE_MIN_GAP_FRAMES = 300; // Minimum 0.5 second gap between obstacles (in ms)
+const OBSTACLE_MIN_GAP_MS = 300; // Minimum 0.5 second gap between obstacles (in ms)
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02; // Base chance to spawn an obstacle per frame
 let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let spacebarPressed = false; // Track if spacebar is pressed
-let framesSinceLastBirdObstacle = 0; // New: Track frames for bird obstacle
-let nextBirdSpawnFrame = 0; // New: Next frame to spawn bird
 let timeSinceLastObstacle = 0; // New: Track time for obstacle spawning
 let timeSinceLastBirdObstacle = 0; // New: Track time for bird obstacle spawning
 const BIRD_SPAWN_MIN_MS = 500; // 0.5 seconds in ms
@@ -265,10 +262,7 @@ function initGame() {
   timeStopCooldown = 0;
   timeFactor = 1;
   lastObstacleType = 'none';
-  framesSinceLastObstacle = 0;
   consecutiveGroundObstaclesCount = 0;
-  framesSinceLastBirdObstacle = 0; // Initialize bird obstacle frame counter
-  nextBirdSpawnFrame = Math.floor(Math.random() * (BIRD_SPAWN_MAX_FRAMES - BIRD_SPAWN_MIN_FRAMES + 1)) + BIRD_SPAWN_MIN_FRAMES; // Set initial random spawn frame
   timeSinceLastObstacle = 0; // Initialize time for obstacle spawning
   timeSinceLastBirdObstacle = 0; // Initialize time for bird obstacle spawning
   nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set initial random spawn time for bird
@@ -342,9 +336,9 @@ function gameLoop(timestamp) {
     // Create obstacles
     timeSinceLastObstacle += deltaTime * 1000; // Convert to milliseconds
     timeSinceLastBirdObstacle += deltaTime * 1000; // Convert to milliseconds
-    console.log(`Obstacle Time: ${timeSinceLastObstacle}/${OBSTACLE_MIN_GAP_FRAMES}, Bird Time: ${timeSinceLastBirdObstacle}/${nextBirdSpawnTime}`);
+    console.log(`Obstacle Time: ${timeSinceLastObstacle}/${OBSTACLE_MIN_GAP_MS}, Bird Time: ${timeSinceLastBirdObstacle}/${nextBirdSpawnTime}`);
 
-    if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
+    if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
       // If last was ground and less than 3 consecutive, prioritize ground
       if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
@@ -461,7 +455,7 @@ const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button'); // Select all close buttons
 const patchNotesText = document.getElementById('patch-notes-text');
 
-const currentPatchNotes = `0.5V
+const currentPatchNotes = `0.5.4V
 더블 점프 추가
 조류 장애물 추가
 기타 버그 수정`;
