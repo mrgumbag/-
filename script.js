@@ -320,6 +320,7 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
+  console.log(`gameLoop start: timestamp=${timestamp}, lastTime=${lastTime}`);
   if (!lastTime) lastTime = timestamp;
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
