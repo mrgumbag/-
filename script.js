@@ -36,7 +36,7 @@ const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
-const GRAVITY = 1 * 60 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
+const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
 
 // Game state
 let score = 0;
@@ -127,7 +127,7 @@ function Player() {
   this.jump = function() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.velocityY = -20 * 30;
+      this.velocityY = -890;
     }
   };
 }
