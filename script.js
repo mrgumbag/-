@@ -6,6 +6,9 @@ const gameOverScreen = document.getElementById('game-over-screen');
 const startButton = document.getElementById('start-button');
 const restartButton = document.getElementById('restart-button');
 const finalScore = document.getElementById('final-score');
+const rankingButton = document.getElementById('ranking-button');
+const rankingModal = document.getElementById('ranking-modal');
+const rankingList = document.getElementById('ranking-list');
 
 // Game settings
 const GAME_WIDTH = canvas.width;
@@ -204,6 +207,35 @@ function endGame() {
   gameState = 'gameOver';
   finalScore.textContent = score;
   gameOverScreen.style.display = 'flex';
+  saveHighScore(score);
+}
+
+// --- High Score Functions ---
+function getHighScores() {
+  const highScores = JSON.parse(localStorage.getItem('highScores') || '[]');
+  return highScores.sort((a, b) => b - a).slice(0, 10); // Top 10 scores
+}
+
+function saveHighScore(newScore) {
+  const highScores = getHighScores();
+  highScores.push(newScore);
+  highScores.sort((a, b) => b - a);
+  localStorage.setItem('highScores', JSON.stringify(highScores.slice(0, 10)));
+}
+
+function displayHighScores() {
+  const highScores = getHighScores();
+  rankingList.innerHTML = ''; // Clear previous list
+  if (highScores.length === 0) {
+    rankingList.innerHTML = '<li>아직 최고 점수가 없습니다.</li>';
+  } else {
+    highScores.forEach((s, index) => {
+      const li = document.createElement('li');
+      li.textContent = `${index + 1}. ${s} 점`;
+      rankingList.appendChild(li);
+    });
+  }
+  rankingModal.style.display = 'flex';
 }
 
 function gameLoop() {
@@ -292,9 +324,43 @@ document.addEventListener('keydown', (e) => {
 
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+rankingButton.addEventListener('click', displayHighScores);
+
 const patchNotesButton = document.getElementById('patch-notes-button');
+const patchNotesModal = document.getElementById('patch-notes-modal');
+const closeButtons = document.querySelectorAll('.close-button'); // Select all close buttons
+const patchNotesText = document.getElementById('patch-notes-text');
+
+const currentPatchNotes = `0.2V
+장애물 등장 로직 변경
+게임 기본 속도 5->10
+한국어 글자 적용
+장애물 크기 변경 100->70
+기록 기능 추가`;
+
 patchNotesButton.addEventListener('click', () => {
-  alert('패치 노트:\n0.2V\n장애물 등장 로직 변경\n게임 기본 속도 5->10\n한국어 글자 적용\n장애물 크기 변경 100->70');
+  patchNotesText.textContent = currentPatchNotes;
+  patchNotesModal.style.display = 'flex';
+});
+
+closeButtons.forEach(button => {
+  button.addEventListener('click', (event) => {
+    const modalToClose = event.target.dataset.modal;
+    if (modalToClose === 'patch-notes-modal') {
+      patchNotesModal.style.display = 'none';
+    } else if (modalToClose === 'ranking-modal') {
+      rankingModal.style.display = 'none';
+    }
+  });
+});
+
+// Close modal if clicked outside
+window.addEventListener('click', (event) => {
+  if (event.target === patchNotesModal) {
+    patchNotesModal.style.display = 'none';
+  } else if (event.target === rankingModal) {
+    rankingModal.style.display = 'none';
+  }
 });
 
 // Initial setup

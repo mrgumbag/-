@@ -119,3 +119,13 @@ body {
   margin-top: 20px;
   white-space: pre-wrap; /* Preserve whitespace and line breaks */
 }
+
+#ranking-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+  font-size: 20px;
+}
+
+#ranking-list li {
+  margin-bottom: 5px;
+}
