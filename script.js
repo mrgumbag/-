@@ -54,12 +54,17 @@ let timeStopCooldown = 0;
 let timeFactor = 1; // Affects player movement and gravity
 let lastObstacleType = 'none'; // 'none', 'ground', 'air'
 let framesSinceLastObstacle = 0;
-const OBSTACLE_MIN_GAP_FRAMES = 30; // Minimum 0.5 second gap between obstacles
+const OBSTACLE_MIN_GAP_FRAMES = 300; // Minimum 0.5 second gap between obstacles (in ms)
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02; // Base chance to spawn an obstacle per frame
 let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let spacebarPressed = false; // Track if spacebar is pressed
 let framesSinceLastBirdObstacle = 0; // New: Track frames for bird obstacle
 let nextBirdSpawnFrame = 0; // New: Next frame to spawn bird
+let timeSinceLastObstacle = 0; // New: Track time for obstacle spawning
+let timeSinceLastBirdObstacle = 0; // New: Track time for bird obstacle spawning
+const BIRD_SPAWN_MIN_MS = 500; // 0.5 seconds in ms
+const BIRD_SPAWN_MAX_MS = 2000; // 2 seconds in ms
+let nextBirdSpawnTime = 0; // New: Next time to spawn bird (in ms)
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 let lastTime = 0; // For delta time calculation
@@ -264,6 +269,9 @@ function initGame() {
   consecutiveGroundObstaclesCount = 0;
   framesSinceLastBirdObstacle = 0; // Initialize bird obstacle frame counter
   nextBirdSpawnFrame = Math.floor(Math.random() * (BIRD_SPAWN_MAX_FRAMES - BIRD_SPAWN_MIN_FRAMES + 1)) + BIRD_SPAWN_MIN_FRAMES; // Set initial random spawn frame
+  timeSinceLastObstacle = 0; // Initialize time for obstacle spawning
+  timeSinceLastBirdObstacle = 0; // Initialize time for bird obstacle spawning
+  nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set initial random spawn time for bird
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1; // Initialize difficulty
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
@@ -331,10 +339,10 @@ function gameLoop(timestamp) {
     player.draw();
 
     // Create obstacles
-    framesSinceLastObstacle++;
-    framesSinceLastBirdObstacle++; // Increment bird obstacle frame counter
+    timeSinceLastObstacle += deltaTime * 1000; // Convert to milliseconds
+    timeSinceLastBirdObstacle += deltaTime * 1000; // Convert to milliseconds
 
-    if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
+    if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
       // If last was ground and less than 3 consecutive, prioritize ground
       if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
@@ -354,14 +362,14 @@ function gameLoop(timestamp) {
 
       obstacles.push(new Obstacle(type));
       lastObstacleType = type;
-      framesSinceLastObstacle = 0;
+      timeSinceLastObstacle = 0; // Reset time
     }
 
     // Bird obstacle spawning logic
-    if (framesSinceLastBirdObstacle >= nextBirdSpawnFrame) {
+    if (timeSinceLastBirdObstacle >= nextBirdSpawnTime) {
       obstacles.push(new Obstacle('bird'));
-      framesSinceLastBirdObstacle = 0;
-      nextBirdSpawnFrame = Math.floor(Math.random() * (BIRD_SPAWN_MAX_FRAMES - BIRD_SPAWN_MIN_FRAMES + 1)) + BIRD_SPAWN_MIN_FRAMES; // Set next random spawn frame
+      timeSinceLastBirdObstacle = 0; // Reset time
+      nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set next random spawn time
     }
 
     // Update and draw obstacles, check collision
@@ -382,8 +390,8 @@ function gameLoop(timestamp) {
 
     // Update score
     const previousScore = score;
-    score += accelerationActive ? 2 : 1;
-    scoreDisplay.textContent = `Score: ${score}`;
+    score += (accelerationActive ? 2 : 1) * deltaTime * 60; // Scale score by deltaTime for consistent gain
+    scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
     // Increase difficulty every 2000 points
     if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
