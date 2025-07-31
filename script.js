@@ -32,8 +32,8 @@ const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
-const BIRD_OBSTACLE_WIDTH = 80;
-const BIRD_OBSTACLE_HEIGHT = 80;
+const BIRD_OBSTACLE_WIDTH = 50;
+const BIRD_OBSTACLE_HEIGHT = 50;
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250; // Slightly above air obstacle
 const BIRD_OBSTACLE_MAX_Y = 50; // Near the ceiling
 const BIRD_SPAWN_MIN_FRAMES = 30; // 0.5 seconds at 60fps
@@ -340,6 +340,8 @@ function gameLoop(timestamp) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
+    console.log(`DeltaTime: ${deltaTime.toFixed(4)}, GameSpeed: ${gameSpeed.toFixed(2)}, Score: ${Math.floor(score)}, Obstacles: ${obstacles.length}`);
+
     // Update and draw player
     player.update(deltaTime);
     player.draw();
