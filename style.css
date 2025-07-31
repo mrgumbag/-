@@ -63,7 +63,10 @@ body.dark-mode {
 
 #difficulty-display {
   font-size: 24px;
-  margin-top: 10px;
+  position: absolute;
+  top: 50px; /* Adjust as needed */
+  left: 10px; /* Adjust as needed */
+  z-index: 100;
 }
 
 #controls {
