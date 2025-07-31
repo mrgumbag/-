@@ -36,7 +36,7 @@ const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
-const GRAVITY = 1 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
+const GRAVITY = 1 * 60 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
 
 // Game state
 let score = 0;
@@ -120,7 +120,6 @@ function Player() {
       }
       if (this.y < 0) {
         this.y = 0;
-        this.velocityY = 0;
       }
     }
   };
@@ -128,7 +127,7 @@ function Player() {
   this.jump = function() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.velocityY = -20 * 60;
+      this.velocityY = -20 * 30;
     }
   };
 }
@@ -153,46 +152,34 @@ function Obstacle(type) {
 
 // --- Pixel-perfect Collision Detection ---
 function checkCollision(obj1, obj2) {
-  console.log('checkCollision called');
   // 1. Bounding box collision (fast check)
   if (Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
       Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
       Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
       Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
-    console.log('Bounding box collision detected');
 
     // 2. Pixel-perfect collision (slow, precise check)
     const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
     const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : assets.air_obstacle);
-
-    console.log(`  img1: ${img1 ? 'Loaded' : 'Not Loaded'}, img2: ${img2 ? 'Loaded' : 'Not Loaded'}`);
 
     // Create temporary canvases to draw images and get pixel data
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
     tempCanvas1.width = obj1.width;
     tempCanvas1.height = obj1.height;
-    console.log('  Drawing img1 on tempCanvas1...');
     tempCtx1.drawImage(img1, 0, 0, obj1.width, obj1.height);
-    console.log('  Getting imageData for tempCanvas1...');
     const data1 = tempCtx1.getImageData(0, 0, obj1.width, obj1.height).data;
-    console.log('  imageData for tempCanvas1 obtained.');
 
     const tempCanvas2 = document.createElement('canvas');
     const tempCtx2 = tempCanvas2.getContext('2d');
     tempCanvas2.width = obj2.width;
     tempCanvas2.height = obj2.height;
-    console.log('  Drawing img2 on tempCanvas2...');
     tempCtx2.drawImage(img2, 0, 0, obj2.width, obj2.height);
-    console.log('  Getting imageData for tempCanvas2...');
     const data2 = tempCtx2.getImageData(0, 0, obj2.width, obj2.height).data;
-    console.log('  imageData for tempCanvas2 obtained.');
 
     // Calculate overlap area
     const xOverlap = Math.max(0, Math.min(Math.floor(obj1.x) + obj1.width, Math.floor(obj2.x) + obj2.width) - Math.max(Math.floor(obj1.x), Math.floor(obj2.x)));
     const yOverlap = Math.max(0, Math.min(Math.floor(obj1.y) + obj1.height, Math.floor(obj2.y) + obj2.height) - Math.max(Math.floor(obj1.y), Math.floor(obj2.y)));
-
-    console.log(`  Overlap calculated: xOverlap=${xOverlap}, yOverlap=${yOverlap}`);
 
     if (xOverlap === 0 || yOverlap === 0) return false; // No actual overlap
 
@@ -208,10 +195,6 @@ function checkCollision(obj1, obj2) {
         const obj2PixelX = (Math.floor(Math.max(obj1.x, obj2.x)) - Math.floor(obj2.x)) + x;
         const obj2PixelY = (Math.floor(Math.max(obj1.y, obj2.y)) - Math.floor(obj2.y)) + y;
         const pixel2Alpha = data2[(obj2PixelY * obj2.width + obj2PixelX) * 4 + 3];
-
-        console.log(`  Overlap Pixel [${x}, ${y}]:`);
-        console.log(`    obj1 local: [${xStart + x}, ${yStart + y}], alpha: ${pixel1Alpha}`);
-        console.log(`    obj2 local: [${obj2PixelX}, ${obj2PixelY}], alpha: ${pixel2Alpha}`);
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
           console.log('Pixel-perfect collision detected! Calling endGame()...');
@@ -242,7 +225,6 @@ function initGame() {
 }
 
 function startGame() {
-  console.log('startGame() called. Setting gameState to playing.');
   initGame();
   startScreen.style.display = 'none';
   gameOverScreen.style.display = 'none';
@@ -254,7 +236,6 @@ function startGame() {
 }
 
 function endGame() {
-  console.log('endGame() called. Setting gameState to gameOver.');
   gameState = 'gameOver';
   finalScore.textContent = score;
   gameOverScreen.style.display = 'flex';
@@ -292,7 +273,6 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
-  console.log(`gameLoop() called. Current gameState: ${gameState}`);
   if (!lastTime) lastTime = timestamp;
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
@@ -417,12 +397,9 @@ const closeButtons = document.querySelectorAll('.close-button'); // Select all c
 const patchNotesText = document.getElementById('patch-notes-text');
 
 const currentPatchNotes = `0.4V
-BGM 추가
-장애물 크기 변경
-게임 속도 변경 및 스킬 변경
-버그 수정
-난이도 기능 추가
-다크 모드 기능 추가`;
+충돌 버그 수정
+점프 버그 수정
+프레임 속도 버그 수정`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
