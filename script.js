@@ -155,10 +155,10 @@ function Obstacle(type) {
 function checkCollision(obj1, obj2) {
   console.log('checkCollision called');
   // 1. Bounding box collision (fast check)
-  if (obj1.x < obj2.x + obj2.width &&
-      obj1.x + obj1.width > obj2.x &&
-      obj1.y < obj2.y + obj2.height &&
-      obj1.y + obj1.height > obj2.y) {
+  if (Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
+      Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
+      Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
+      Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
     console.log('Bounding box collision detected');
 
     // 2. Pixel-perfect collision (slow, precise check)
@@ -189,21 +189,24 @@ function checkCollision(obj1, obj2) {
     console.log('  imageData for tempCanvas2 obtained.');
 
     // Calculate overlap area
-    const xOverlap = Math.max(0, Math.min(obj1.x + obj1.width, obj2.x + obj2.width) - Math.max(obj1.x, obj2.x));
-    const yOverlap = Math.max(0, Math.min(obj1.y + obj1.height, obj2.y + obj2.height) - Math.max(obj1.y, obj2.y));
+    const xOverlap = Math.max(0, Math.min(Math.floor(obj1.x) + obj1.width, Math.floor(obj2.x) + obj2.width) - Math.max(Math.floor(obj1.x), Math.floor(obj2.x)));
+    const yOverlap = Math.max(0, Math.min(Math.floor(obj1.y) + obj1.height, Math.floor(obj2.y) + obj2.height) - Math.max(Math.floor(obj1.y), Math.floor(obj2.y)));
 
     console.log(`  Overlap calculated: xOverlap=${xOverlap}, yOverlap=${yOverlap}`);
 
     if (xOverlap === 0 || yOverlap === 0) return false; // No actual overlap
 
-    const xStart = Math.max(0, Math.max(obj1.x, obj2.x) - obj1.x);
-    const yStart = Math.max(0, Math.max(obj1.y, obj2.y) - obj1.y);
+    const xStart = Math.max(0, Math.floor(Math.max(obj1.x, obj2.x)) - Math.floor(obj1.x));
+    const yStart = Math.max(0, Math.floor(Math.max(obj1.y, obj2.y)) - Math.floor(obj1.y));
 
     for (let y = 0; y < yOverlap; y++) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
-        const obj2PixelX = (Math.max(obj1.x, obj2.x) + x) - obj2.x;
-        const obj2PixelY = (Math.max(obj1.y, obj2.y) + y) - obj2.y;
+        // Calculate the corresponding pixel coordinates in obj2's local space
+        // The x and y here are relative to the overlap area, so we need to convert them
+        // to the local coordinates of obj2.
+        const obj2PixelX = (Math.floor(Math.max(obj1.x, obj2.x)) - Math.floor(obj2.x)) + x;
+        const obj2PixelY = (Math.floor(Math.max(obj1.y, obj2.y)) - Math.floor(obj2.y)) + y;
         const pixel2Alpha = data2[(obj2PixelY * obj2.width + obj2PixelX) * 4 + 3];
 
         console.log(`  Overlap Pixel [${x}, ${y}]:`);
