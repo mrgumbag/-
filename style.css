@@ -8,34 +8,10 @@ body {
 }
 
 body.dark-mode {
-  background-color: #333;
-  color: #eee;
+  filter: invert(1);
 }
 
-body.dark-mode #game-container {
-  background-color: #555;
-  border-color: #eee;
-}
 
-body.dark-mode .screen {
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #eee;
-}
-
-body.dark-mode .modal-content {
-  background-color: #444;
-  color: #eee;
-  border-color: #777;
-}
-
-body.dark-mode .close-button {
-  color: #ccc;
-}
-
-body.dark-mode .close-button:hover,
-body.dark-mode .close-button:focus {
-  color: white;
-}
 
 #game-container {
   width: 1200px; /* Increased size */
@@ -196,6 +172,6 @@ body.dark-mode .close-button:focus {
   border-radius: 5px;
 }
 
-body.dark-mode #dark-mode-toggle {
+#dark-mode-toggle:hover {
   background-color: #0056b3;
 }
