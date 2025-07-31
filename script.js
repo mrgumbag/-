@@ -39,7 +39,7 @@ const BIRD_OBSTACLE_MAX_Y = 50; // Near the ceiling
 const BIRD_SPAWN_MIN_FRAMES = 30; // 0.5 seconds at 60fps
 const BIRD_SPAWN_MAX_FRAMES = 120; // 2 seconds at 60fps
 
-const GRAVITY = 1 * 30; // Units per second squared (assuming 1 unit/frame at 60fps)
+const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
 const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
 
@@ -47,7 +47,7 @@ const DOUBLE_JUMP_MULTIPLIER = 0.75;
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 7; // Base speed in units per second
+let gameSpeed = 7 * 60; // Base speed in units per second
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -258,7 +258,7 @@ function initGame() {
   player = new Player();
   obstacles = [];
   score = 0;
-  gameSpeed = 7;
+  gameSpeed = 7 * 60;
   accelerationActive = false;
   timeStopActive = false;
   timeStopCooldown = 0;
@@ -439,7 +439,7 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
-    gameSpeed = accelerationActive ? 10.5 : 7;
+    gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
@@ -448,7 +448,7 @@ document.addEventListener('keydown', (e) => {
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 10.5 : 7;
+      gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
       timeFactor = 1;
     }, 3000);
   }
