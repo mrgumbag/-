@@ -14,6 +14,8 @@ const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 const changeSongButton = document.getElementById('music-selection-button');
+const musicSelectionModal = document.getElementById('music-selection-modal');
+const musicList = document.getElementById('music-list');
 
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
@@ -31,14 +33,25 @@ volumeSlider.addEventListener('input', (e) => {
 });
 
 // Function to play the next song
-function playNextSong() {
-  currentBGMIndex = (currentBGMIndex + 1) % bgmPaths.length;
-  gameBGM.src = bgmPaths[currentBGMIndex];
-  gameBGM.play();
+function displayMusicSelection() {
+  musicList.innerHTML = ''; // Clear previous list
+  bgmPaths.forEach((song, index) => {
+    const li = document.createElement('li');
+    li.textContent = song.name;
+    li.dataset.index = index; // Store index for easy access
+    li.addEventListener('click', () => {
+      currentBGMIndex = index;
+      gameBGM.src = song.path;
+      gameBGM.play();
+      musicSelectionModal.style.display = 'none'; // Close modal after selection
+    });
+    musicList.appendChild(li);
+  });
+  musicSelectionModal.style.display = 'flex';
 }
 
-// Add event listener for change song button
-changeSongButton.addEventListener('click', playNextSong);
+// Add event listener for music selection button
+changeSongButton.addEventListener('click', displayMusicSelection);
 
 // Game settings
 const GAME_WIDTH = canvas.width;
@@ -494,6 +507,8 @@ closeButtons.forEach(button => {
       patchNotesModal.style.display = 'none';
     } else if (modalToClose === 'ranking-modal') {
       rankingModal.style.display = 'none';
+    } else if (modalToClose === 'music-selection-modal') {
+      musicSelectionModal.style.display = 'none';
     }
   });
 });
@@ -504,6 +519,8 @@ window.addEventListener('click', (event) => {
     patchNotesModal.style.display = 'none';
   } else if (event.target === rankingModal) {
     rankingModal.style.display = 'none';
+  } else if (event.target === musicSelectionModal) {
+    musicSelectionModal.style.display = 'none';
   }
 });
 

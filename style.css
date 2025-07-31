@@ -110,6 +110,14 @@ body {
   z-index: 100;
 }
 
+#music-selection-button {
+  position: absolute;
+  bottom: 20px;
+  right: 150px; /* Adjust as needed to not overlap with patch-notes-button */
+  font-size: 18px;
+  padding: 8px 15px;
+}
+
 /* Patch Notes Modal Styles */
 .modal {
   display: none; /* Hidden by default */
