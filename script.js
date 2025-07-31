@@ -228,6 +228,7 @@ function startGame() {
   gameOverScreen.style.display = 'none';
   gameState = 'playing';
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
+  lastTime = 0; // Reset lastTime for delta time calculation
   gameBGM.play(); // Play BGM
   gameLoop();
 }
@@ -319,7 +320,7 @@ function gameLoop(timestamp) {
 
       if (checkCollision(player, obstacle)) {
         endGame();
-        // Do not return here, let the loop continue to draw game over screen
+        return; // Stop further updates and drawing in this frame after game over
       }
     }
 
@@ -339,9 +340,12 @@ function gameLoop(timestamp) {
     if (timeStopCooldown > 0) {
       timeStopCooldown -= deltaTime * 1000; // Convert deltaTime to milliseconds
     }
-  }
 
-  gameLoopId = requestAnimationFrame(gameLoop);
+    gameLoopId = requestAnimationFrame(gameLoop);
+  } else if (gameState === 'gameOver') {
+    // Do not request next frame if game is over
+    return;
+  }
 }
 
 // --- Event Listeners ---
