@@ -9,14 +9,15 @@ const finalScore = document.getElementById('final-score');
 const rankingButton = document.getElementById('ranking-button');
 const rankingModal = document.getElementById('ranking-modal');
 const rankingList = document.getElementById('ranking-list');
+const gameBGM = document.getElementById('gameBGM');
 
 // Game settings
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const PLAYER_WIDTH = 50;
 const PLAYER_HEIGHT = 50;
-const GROUND_OBSTACLE_WIDTH = 70;
-const GROUND_OBSTACLE_HEIGHT = 70;
+const GROUND_OBSTACLE_WIDTH = 90;
+const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
@@ -24,7 +25,7 @@ const AIR_OBSTACLE_HEIGHT = 70;
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 10; // Base speed
+let gameSpeed = 7; // Base speed
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -40,9 +41,9 @@ let gameLoopId;
 // Assets
 const assets = {};
 const assetPaths = {
-  player: 'assets/player.png',
-  ground_obstacle: 'assets/ground_obstacle.png',
-  air_obstacle: 'assets/air_obstacle.png',
+  player: 'assets/images/player.png',
+  ground_obstacle: 'assets/images/ground_obstacle.png',
+  air_obstacle: 'assets/images/air_obstacle.png',
 };
 
 function loadAssets() {
@@ -185,7 +186,7 @@ function initGame() {
   player = new Player();
   obstacles = [];
   score = 0;
-  gameSpeed = 10;
+  gameSpeed = 7;
   accelerationActive = false;
   timeStopActive = false;
   timeStopCooldown = 0;
@@ -202,6 +203,7 @@ function startGame() {
   gameOverScreen.style.display = 'none';
   gameState = 'playing';
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
+  gameBGM.play(); // Play BGM
   gameLoop();
 }
 
@@ -210,6 +212,8 @@ function endGame() {
   finalScore.textContent = score;
   gameOverScreen.style.display = 'flex';
   saveHighScore(score);
+  gameBGM.pause(); // Pause BGM
+  gameBGM.currentTime = 0; // Reset BGM to start
 }
 
 // --- High Score Functions ---
@@ -318,16 +322,16 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
-    gameSpeed = accelerationActive ? 15 : 10;
+    gameSpeed = accelerationActive ? 10.5 : 7;
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 5;
+    gameSpeed = 3.5;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 15 : 10;
+      gameSpeed = accelerationActive ? 10.5 : 7;
       timeFactor = 1;
     }, 3000);
   }
@@ -342,12 +346,10 @@ const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button'); // Select all close buttons
 const patchNotesText = document.getElementById('patch-notes-text');
 
-const currentPatchNotes = `0.2V
-장애물 등장 로직 변경
-게임 기본 속도 5->10
-한국어 글자 적용
-장애물 크기 변경 100->70
-기록 기능 추가`;
+const currentPatchNotes = `0.3V
+BGM 추가
+장애물 크기 변경
+게임 속도 변경 및 스킬 변경`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
