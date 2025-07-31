@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
+const difficultyDisplay = document.getElementById('difficulty-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const startButton = document.getElementById('start-button');
@@ -42,11 +43,12 @@ let timeFactor = 1; // Affects player movement and gravity
 let lastObstacleType = 'none'; // 'none', 'ground', 'air'
 let framesSinceLastObstacle = 0;
 const OBSTACLE_MIN_GAP_FRAMES = 30; // Minimum 0.5 second gap between obstacles
-const OBSTACLE_SPAWN_CHANCE = 0.02; // Chance to spawn an obstacle per frame
+const BASE_OBSTACLE_SPAWN_CHANCE = 0.02; // Base chance to spawn an obstacle per frame
 let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let spacebarPressed = false; // Track if spacebar is pressed
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
+let difficulty = 1; // New difficulty variable
 
 // Assets
 const assets = {};
@@ -208,6 +210,8 @@ function initGame() {
   framesSinceLastObstacle = 0;
   consecutiveGroundObstaclesCount = 0;
   scoreDisplay.textContent = 'Score: 0';
+  difficulty = 1; // Initialize difficulty
+  difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
 }
 
 function startGame() {
@@ -268,7 +272,7 @@ function gameLoop() {
 
     // Create obstacles
     framesSinceLastObstacle++;
-    if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < OBSTACLE_SPAWN_CHANCE) {
+    if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
       // If last was ground and less than 3 consecutive, prioritize ground
       if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
@@ -308,8 +312,16 @@ function gameLoop() {
     }
 
     // Update score
+    const previousScore = score;
     score += accelerationActive ? 2 : 1;
     scoreDisplay.textContent = `Score: ${score}`;
+
+    // Increase difficulty every 2000 points
+    if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
+      difficulty = parseFloat((difficulty + 0.1).toFixed(1)); // Ensure one decimal place
+      console.log(`Difficulty increased to: ${difficulty}`);
+      difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+    }
 
     // Update cooldown
     if (timeStopCooldown > 0) {
@@ -370,7 +382,8 @@ const currentPatchNotes = `0.3V
 BGM 추가
 장애물 크기 변경
 게임 속도 변경 및 스킬 변경
-버그 수정`;
+버그 수정
+난이도 기능 추가`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
