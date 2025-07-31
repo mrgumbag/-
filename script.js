@@ -184,6 +184,8 @@ function checkCollision(obj1, obj2) {
     const xOverlap = Math.max(0, Math.min(obj1.x + obj1.width, obj2.x + obj2.width) - Math.max(obj1.x, obj2.x));
     const yOverlap = Math.max(0, Math.min(obj1.y + obj1.height, obj2.y + obj2.height) - Math.max(obj1.y, obj2.y));
 
+    console.log(`  Overlap calculated: xOverlap=${xOverlap}, yOverlap=${yOverlap}`);
+
     if (xOverlap === 0 || yOverlap === 0) return false; // No actual overlap
 
     const xStart = Math.max(0, Math.max(obj1.x, obj2.x) - obj1.x);
