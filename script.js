@@ -329,6 +329,7 @@ function gameLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
+  console.log(`DeltaTime: ${deltaTime}`);
 
   // Clear canvas
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -341,6 +342,7 @@ function gameLoop(timestamp) {
     // Create obstacles
     timeSinceLastObstacle += deltaTime * 1000; // Convert to milliseconds
     timeSinceLastBirdObstacle += deltaTime * 1000; // Convert to milliseconds
+    console.log(`Obstacle Time: ${timeSinceLastObstacle}/${OBSTACLE_MIN_GAP_FRAMES}, Bird Time: ${timeSinceLastBirdObstacle}/${nextBirdSpawnTime}`);
 
     if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
@@ -389,6 +391,7 @@ function gameLoop(timestamp) {
     }
 
     // Update score
+    console.log(`Score update: score=${score}, accelerationActive=${accelerationActive}, deltaTime=${deltaTime}`);
     const previousScore = score;
     score += (accelerationActive ? 2 : 1) * deltaTime * 60; // Scale score by deltaTime for consistent gain
     scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
