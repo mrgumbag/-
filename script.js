@@ -22,10 +22,6 @@ volumeSlider.addEventListener('input', (e) => {
   gameBGM.volume = e.target.value / 100;
 });
 
-darkModeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-});
-
 // Game settings
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
