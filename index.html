@@ -16,14 +16,26 @@
       <h2>Game Over</h2>
       <p>Score: <span id="final-score">0</span></p>
       <button id="restart-button">다시하기</button>
+      <button id="patch-notes-button">패치 노트</button>
+    </div>
+  </div>
+
+  <!-- Patch Notes Modal -->
+  <div id="patch-notes-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>패치 노트</h2>
+      <div id="patch-notes-text">
+        <!-- Patch notes will be loaded here by JavaScript -->
+      </div>
     </div>
   </div>
   <div id="score">Score: 0</div>
   <div id="version-info">0.2V</div>
   <div id="controls">
     <p>Space: Jump</p>
-    <p>A: Accelerate</p>
-    <p>S: Time Stop</p>
+    <p>A: 가속</p>
+    <p>S: 저속</p>
   </div>
   <script src="script.js"></script>
 </body>

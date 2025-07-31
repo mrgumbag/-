@@ -12,8 +12,8 @@ const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const PLAYER_WIDTH = 50;
 const PLAYER_HEIGHT = 50;
-const GROUND_OBSTACLE_WIDTH = 100;
-const GROUND_OBSTACLE_HEIGHT = 100;
+const GROUND_OBSTACLE_WIDTH = 70;
+const GROUND_OBSTACLE_HEIGHT = 70;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
@@ -21,11 +21,15 @@ const AIR_OBSTACLE_HEIGHT = 70;
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 5; // Base speed
+let gameSpeed = 10; // Base speed
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
 let timeFactor = 1; // Affects player movement and gravity
+let lastObstacleType = 'none'; // 'none', 'ground', 'air'
+let framesSinceLastObstacle = 0;
+const OBSTACLE_MIN_GAP_FRAMES = 60; // Minimum 1 second gap between obstacles
+const OBSTACLE_SPAWN_CHANCE = 0.02; // Chance to spawn an obstacle per frame
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 
@@ -177,11 +181,13 @@ function initGame() {
   player = new Player();
   obstacles = [];
   score = 0;
-  gameSpeed = 5;
+  gameSpeed = 10;
   accelerationActive = false;
   timeStopActive = false;
   timeStopCooldown = 0;
   timeFactor = 1;
+  lastObstacleType = 'none';
+  framesSinceLastObstacle = 0;
   scoreDisplay.textContent = 'Score: 0';
 }
 
@@ -210,9 +216,19 @@ function gameLoop() {
     player.draw();
 
     // Create obstacles
-    if (Math.random() < 0.02) {
-      const type = Math.random() < 0.5 ? 'ground' : 'air';
+    framesSinceLastObstacle++;
+    if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < OBSTACLE_SPAWN_CHANCE) {
+      let type;
+      if (lastObstacleType === 'ground') {
+        type = 'air';
+      } else if (lastObstacleType === 'air') {
+        type = 'ground';
+      } else {
+        type = Math.random() < 0.5 ? 'ground' : 'air';
+      }
       obstacles.push(new Obstacle(type));
+      lastObstacleType = type;
+      framesSinceLastObstacle = 0;
     }
 
     // Update and draw obstacles, check collision
@@ -259,16 +275,16 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
-    gameSpeed = accelerationActive ? 10 : 5;
+    gameSpeed = accelerationActive ? 15 : 10;
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 2.5;
+    gameSpeed = 5;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 10 : 5;
+      gameSpeed = accelerationActive ? 15 : 10;
       timeFactor = 1;
     }, 3000);
   }
@@ -276,6 +292,10 @@ document.addEventListener('keydown', (e) => {
 
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+const patchNotesButton = document.getElementById('patch-notes-button');
+patchNotesButton.addEventListener('click', () => {
+  alert('패치 노트:\n0.2V\n장애물 등장 로직 변경\n게임 기본 속도 5->10\n한국어 글자 적용\n장애물 크기 변경 100->70');
+});
 
 // Initial setup
 loadAssets().then(() => {
