@@ -193,9 +193,11 @@ function checkCollision(obj1, obj2) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
         // Calculate the corresponding pixel coordinates in obj2's local space
-        const obj2LocalX = (Math.max(obj1.x, obj2.x) + x) - obj2.x;
-        const obj2LocalY = (Math.max(obj1.y, obj2.y) + y) - obj2.y;
-        const pixel2Alpha = data2[(obj2LocalY * obj2.width + obj2LocalX) * 4 + 3];
+        // The x and y here are relative to the overlap area, so we need to convert them
+        // to the local coordinates of obj2.
+        const obj2PixelX = (Math.max(obj1.x, obj2.x) - obj2.x) + x;
+        const obj2PixelY = (Math.max(obj1.y, obj2.y) - obj2.y) + y;
+        const pixel2Alpha = data2[(obj2PixelY * obj2.width + obj2PixelX) * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
           console.log('Pixel-perfect collision detected! Calling endGame()...');
