@@ -37,6 +37,8 @@ const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
 
 const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
+const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
+const DOUBLE_JUMP_MULTIPLIER = 0.75;
 
 // Game state
 let score = 0;
@@ -100,6 +102,8 @@ function Player() {
   this.height = PLAYER_HEIGHT;
   this.velocityY = 0;
   this.isJumping = false;
+  this.jumpCount = 0; // Track current jumps
+  this.maxJumps = 2; // Allow single and double jump
 
   this.draw = function() {
     ctx.drawImage(assets.player, this.x, this.y, this.width, this.height);
@@ -114,6 +118,7 @@ function Player() {
         this.y = GAME_HEIGHT - this.height;
         this.isJumping = false;
         this.velocityY = 0;
+        this.jumpCount = 0; // Reset jump count on landing
         if (spacebarPressed) {
           this.jump();
         }
@@ -125,9 +130,13 @@ function Player() {
   };
 
   this.jump = function() {
-    if (!this.isJumping) {
+    if (this.jumpCount < this.maxJumps) {
       this.isJumping = true;
-      this.velocityY = -890;
+      this.velocityY = BASE_JUMP_VELOCITY; // Base jump velocity
+      if (this.jumpCount === 1) { // If it's a double jump
+        this.velocityY *= DOUBLE_JUMP_MULTIPLIER;
+      }
+      this.jumpCount++;
     }
   };
 }
@@ -396,10 +405,10 @@ const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button'); // Select all close buttons
 const patchNotesText = document.getElementById('patch-notes-text');
 
-const currentPatchNotes = `0.4V
-충돌 버그 수정
-점프 버그 수정
-프레임 속도 버그 수정`;
+const currentPatchNotes = `0.5V
+더블 점프 추가
+조류 장애물 추가
+기타 버그 수정`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
