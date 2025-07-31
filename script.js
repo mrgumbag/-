@@ -47,7 +47,7 @@ const DOUBLE_JUMP_MULTIPLIER = 0.75;
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 7 * 60; // Base speed in units per second
+let gameSpeed = 7; // Base speed in units per second
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -61,6 +61,7 @@ let timeSinceLastObstacle = 0; // New: Track time for obstacle spawning
 let timeSinceLastBirdObstacle = 0; // New: Track time for bird obstacle spawning
 const BIRD_SPAWN_MIN_MS = 500; // 0.5 seconds in ms
 const BIRD_SPAWN_MAX_MS = 2000; // 2 seconds in ms
+const SCORE_BASE_PER_SECOND = 60; // Base score gain per second
 let nextBirdSpawnTime = 0; // New: Next time to spawn bird (in ms)
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
@@ -257,7 +258,7 @@ function initGame() {
   player = new Player();
   obstacles = [];
   score = 0;
-  gameSpeed = 7 * 60;
+  gameSpeed = 7;
   accelerationActive = false;
   timeStopActive = false;
   timeStopCooldown = 0;
@@ -400,7 +401,7 @@ function gameLoop(timestamp) {
     // Update score
     console.log(`Score update: score=${score}, accelerationActive=${accelerationActive}, deltaTime=${deltaTime}`);
     const previousScore = score;
-    score += (accelerationActive ? 2 : 1) * deltaTime * 60; // Scale score by deltaTime for consistent gain
+    score += (accelerationActive ? 2 : 1) * deltaTime * SCORE_BASE_PER_SECOND; // Scale score by deltaTime for consistent gain
     scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
     // Increase difficulty every 2000 points
@@ -438,7 +439,7 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyA') {
     accelerationActive = !accelerationActive;
-    gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
+    gameSpeed = accelerationActive ? 10.5 : 7;
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
@@ -447,7 +448,7 @@ document.addEventListener('keydown', (e) => {
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
-      gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
+      gameSpeed = accelerationActive ? 10.5 : 7;
       timeFactor = 1;
     }, 3000);
   }
