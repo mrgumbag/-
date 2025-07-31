@@ -192,7 +192,7 @@ function checkCollision(obj1, obj2) {
     for (let y = 0; y < yOverlap; y++) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
-        const pixel2Alpha = data2[((yStart + y) - (obj2.y - obj1.y)) * obj2.width + ((xStart + x) - (obj2.x - obj1.x))] * 4 + 3];
+        const pixel2Alpha = data2[(((obj1.y + yStart + y) - obj2.y) * obj2.width + ((obj1.x + xStart + x) - obj2.x)) * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
           console.log('Pixel-perfect collision detected!');
