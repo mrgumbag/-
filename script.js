@@ -12,6 +12,7 @@ const rankingModal = document.getElementById('ranking-modal');
 const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
+const darkModeToggle = document.getElementById('dark-mode-toggle');
 
 // Set initial BGM volume
 gameBGM.volume = volumeSlider.value / 100;
@@ -19,6 +20,10 @@ gameBGM.volume = volumeSlider.value / 100;
 // Add event listener for volume slider
 volumeSlider.addEventListener('input', (e) => {
   gameBGM.volume = e.target.value / 100;
+});
+
+darkModeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
 });
 
 // Game settings
@@ -383,7 +388,8 @@ BGM 추가
 장애물 크기 변경
 게임 속도 변경 및 스킬 변경
 버그 수정
-난이도 기능 추가`;
+난이도 기능 추가
+다크 모드 기능 추가`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
