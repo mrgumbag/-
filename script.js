@@ -281,7 +281,7 @@ function startGame() {
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
   lastTime = 0; // Reset lastTime for delta time calculation
   gameBGM.play(); // Play BGM
-  gameLoop();
+  gameLoopId = requestAnimationFrame(gameLoop); // Call via requestAnimationFrame
 }
 
 function endGame() {
@@ -322,11 +322,24 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
-  console.log(`gameLoop start: timestamp=${timestamp}, lastTime=${lastTime}`);
-  if (!lastTime) lastTime = timestamp;
+  if (lastTime === 0) { // First frame
+    lastTime = timestamp;
+  }
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
-  console.log(`DeltaTime: ${deltaTime}`);
+
+  // Clear canvas
+  ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+  if (gameState === 'playing') {
+    // Ensure deltaTime is a valid number to prevent NaN issues
+    if (isNaN(deltaTime) || !isFinite(deltaTime)) {
+      console.warn("Invalid deltaTime detected:", deltaTime);
+      // Optionally, you can skip this frame or set deltaTime to a default value
+      // For now, we'll just return to prevent further issues with NaN
+      gameLoopId = requestAnimationFrame(gameLoop);
+      return;
+    }
 
   // Clear canvas
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
