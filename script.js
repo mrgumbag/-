@@ -192,10 +192,13 @@ function checkCollision(obj1, obj2) {
     for (let y = 0; y < yOverlap; y++) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
-        const pixel2Alpha = data2[(((obj1.y + yStart + y) - obj2.y) * obj2.width + ((obj1.x + xStart + x) - obj2.x)) * 4 + 3];
+        // Calculate the corresponding pixel coordinates in obj2's local space
+        const obj2LocalX = (Math.max(obj1.x, obj2.x) + x) - obj2.x;
+        const obj2LocalY = (Math.max(obj1.y, obj2.y) + y) - obj2.y;
+        const pixel2Alpha = data2[(obj2LocalY * obj2.width + obj2LocalX) * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
-          console.log('Pixel-perfect collision detected!');
+          console.log('Pixel-perfect collision detected! Calling endGame()...');
           return true; // Collision detected
         }
       }
@@ -223,6 +226,7 @@ function initGame() {
 }
 
 function startGame() {
+  console.log('startGame() called. Setting gameState to playing.');
   initGame();
   startScreen.style.display = 'none';
   gameOverScreen.style.display = 'none';
@@ -234,6 +238,7 @@ function startGame() {
 }
 
 function endGame() {
+  console.log('endGame() called. Setting gameState to gameOver.');
   gameState = 'gameOver';
   finalScore.textContent = score;
   gameOverScreen.style.display = 'flex';
@@ -271,6 +276,7 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
+  console.log(`gameLoop() called. Current gameState: ${gameState}`);
   if (!lastTime) lastTime = timestamp;
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
