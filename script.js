@@ -39,7 +39,7 @@ const BIRD_OBSTACLE_MAX_Y = 50; // Near the ceiling
 const BIRD_SPAWN_MIN_FRAMES = 30; // 0.5 seconds at 60fps
 const BIRD_SPAWN_MAX_FRAMES = 120; // 2 seconds at 60fps
 
-const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
+const GRAVITY = 1 * 30; // Units per second squared (assuming 1 unit/frame at 60fps)
 const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
 
@@ -444,7 +444,7 @@ document.addEventListener('keydown', (e) => {
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
     timeStopCooldown = 30000; // 30 seconds cooldown
-    gameSpeed = 3.5 * 60;
+    gameSpeed = 3.5;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
