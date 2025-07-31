@@ -31,8 +31,9 @@ let timeStopCooldown = 0;
 let timeFactor = 1; // Affects player movement and gravity
 let lastObstacleType = 'none'; // 'none', 'ground', 'air'
 let framesSinceLastObstacle = 0;
-const OBSTACLE_MIN_GAP_FRAMES = 60; // Minimum 1 second gap between obstacles
+const OBSTACLE_MIN_GAP_FRAMES = 30; // Minimum 0.5 second gap between obstacles
 const OBSTACLE_SPAWN_CHANCE = 0.02; // Chance to spawn an obstacle per frame
+let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 
@@ -191,6 +192,7 @@ function initGame() {
   timeFactor = 1;
   lastObstacleType = 'none';
   framesSinceLastObstacle = 0;
+  consecutiveGroundObstaclesCount = 0;
   scoreDisplay.textContent = 'Score: 0';
 }
 
@@ -251,13 +253,22 @@ function gameLoop() {
     framesSinceLastObstacle++;
     if (framesSinceLastObstacle >= OBSTACLE_MIN_GAP_FRAMES && Math.random() < OBSTACLE_SPAWN_CHANCE) {
       let type;
-      if (lastObstacleType === 'ground') {
-        type = 'air';
-      } else if (lastObstacleType === 'air') {
+      // If last was ground and less than 3 consecutive, prioritize ground
+      if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
         type = 'ground';
+      } else if (lastObstacleType === 'air') {
+        type = 'ground'; // After air, always try ground
       } else {
         type = Math.random() < 0.5 ? 'ground' : 'air';
       }
+
+      // Ensure not more than 3 consecutive ground obstacles
+      if (type === 'ground') {
+        consecutiveGroundObstaclesCount++;
+      } else {
+        consecutiveGroundObstaclesCount = 0;
+      }
+
       obstacles.push(new Obstacle(type));
       lastObstacleType = type;
       framesSinceLastObstacle = 0;
