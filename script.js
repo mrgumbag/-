@@ -349,7 +349,8 @@ const patchNotesText = document.getElementById('patch-notes-text');
 const currentPatchNotes = `0.3V
 BGM 추가
 장애물 크기 변경
-게임 속도 변경 및 스킬 변경`;
+게임 속도 변경 및 스킬 변경
+버그 수정`;
 
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
