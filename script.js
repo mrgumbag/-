@@ -127,7 +127,7 @@ function Player() {
   this.jump = function() {
     if (!this.isJumping) {
       this.isJumping = true;
-      this.velocityY = -3560;
+      this.velocityY = -890;
     }
   };
 }
