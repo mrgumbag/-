@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>우파루파 도주기</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>우파루파 도주기</h1>
+  <div id="game-container">
+    <canvas id="gameCanvas" width="1200" height="600"></canvas>
+    <div id="start-screen" class="screen">
+      <h2>우파루파 도주기</h2>
+      <button id="start-button">게임 시작</button>
+    </div>
+    <div id="game-over-screen" class="screen" style="display: none;">
+      <h2>Game Over</h2>
+      <p>Score: <span id="final-score">0</span></p>
+      <button id="restart-button">다시하기</button>
+    </div>
+  </div>
+  <div id="score">Score: 0</div>
+  <div id="version-info">0.1V</div>
+  <div id="controls">
+    <p>Space: Jump</p>
+    <p>A: Accelerate</p>
+    <p>S: Time Stop</p>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
