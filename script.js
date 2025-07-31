@@ -2,6 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const difficultyDisplay = document.getElementById('difficulty-display');
+const currentSongDisplay = document.getElementById('current-song-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const startButton = document.getElementById('start-button');
@@ -24,6 +25,11 @@ const bgmPaths = [
 ];
 let currentBGMIndex = 0;
 
+// Function to update the displayed current song
+function updateCurrentSongDisplay() {
+  currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
+}
+
 // Set initial BGM volume
 gameBGM.volume = volumeSlider.value / 100;
 
@@ -42,7 +48,7 @@ function displayMusicSelection() {
     li.addEventListener('click', () => {
       currentBGMIndex = index;
       gameBGM.src = song.path;
-      gameBGM.play();
+      updateCurrentSongDisplay(); // Update current song display
       musicSelectionModal.style.display = 'none'; // Close modal after selection
     });
     musicList.appendChild(li);
@@ -297,6 +303,7 @@ function initGame() {
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1; // Initialize difficulty
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+  updateCurrentSongDisplay(); // Update current song display on init
 }
 
 function startGame() {
@@ -307,6 +314,7 @@ function startGame() {
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
   lastTime = 0; // Reset lastTime for delta time calculation
   gameBGM.play(); // Play BGM
+  updateCurrentSongDisplay(); // Update current song display
   gameLoopId = requestAnimationFrame(gameLoop); // Call via requestAnimationFrame
 }
 
