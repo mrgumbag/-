@@ -57,6 +57,7 @@ const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
 const SCORE_BASE_PER_SECOND = 60;
+const BIRD_ANIMATION_SPEED = 100; // 100ms마다 프레임 변경
 
 let score = 0;
 let player = {};
@@ -84,7 +85,10 @@ const assetPaths = {
   player: 'assets/images/player.png',
   ground_obstacle: 'assets/images/ground_obstacle.png',
   air_obstacle: 'assets/images/air_obstacle.png',
-  bird_obstacle: 'assets/images/bird_obstacle.png',
+  bird_obstacle_1: 'assets/images/bird_obstacle_1.png',
+  bird_obstacle_2: 'assets/images/bird_obstacle_2.png',
+  bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
+  bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
 };
 
 // Functions
@@ -177,6 +181,16 @@ function Obstacle(type) {
   this.height = 0;
   this.x = GAME_WIDTH;
   this.y = 0;
+  
+  // Bird animation properties
+  this.animationFrame = 0;
+  this.lastFrameTime = 0;
+  this.frameImages = [
+    assets.bird_obstacle_1,
+    assets.bird_obstacle_2,
+    assets.bird_obstacle_3,
+    assets.bird_obstacle_4,
+  ];
 
   if (type === 'ground') {
     this.width = GROUND_OBSTACLE_WIDTH;
@@ -192,23 +206,28 @@ function Obstacle(type) {
     this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
   }
 
-  this.draw = function() {
+  this.draw = function(timestamp) {
     let img;
     if (this.type === 'ground') {
       img = assets.ground_obstacle;
+      ctx.drawImage(img, this.x, this.y, this.width, this.height);
     } else if (this.type === 'air') {
       img = assets.air_obstacle;
+      ctx.drawImage(img, this.x, this.y, this.width, this.height);
     } else if (this.type === 'bird') {
-      img = assets.bird_obstacle;
-
+      if (timestamp - this.lastFrameTime > BIRD_ANIMATION_SPEED) {
+        this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+        this.lastFrameTime = timestamp;
+      }
+      img = this.frameImages[this.animationFrame];
+      
+      // Rotate the bird image for a better visual effect
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
       ctx.restore();
-      return;
     }
-    ctx.drawImage(img, this.x, this.y, this.width, this.height);
   };
 
   this.update = function(deltaTime) {
@@ -222,8 +241,10 @@ function checkCollision(obj1, obj2) {
       Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
       Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
 
-    const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : (obj1.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
-    const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : (obj2.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
+    const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : assets[`${obj1.type}_${obj1.animationFrame + 1}`]);
+    const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : assets[`${obj2.type}_${obj2.animationFrame + 1}`]);
+
+    if (!img1 || !img2) return false;
 
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
@@ -384,7 +405,7 @@ function gameLoop(timestamp) {
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obstacle = obstacles[i];
       obstacle.update(gameDeltaTime);
-      obstacle.draw();
+      obstacle.draw(timestamp);
 
       if (obstacle.x + obstacle.width < 0) {
         obstacles.splice(i, 1);
