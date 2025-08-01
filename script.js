@@ -45,8 +45,8 @@ const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 70;
-const BIRD_OBSTACLE_HEIGHT = 70;
+const BIRD_OBSTACLE_WIDTH = 100; // 변경됨
+const BIRD_OBSTACLE_HEIGHT = 100; // 변경됨
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
 const BIRD_OBSTACLE_MAX_Y = 50;
 const GRAVITY = 1 * 30 * 60;
@@ -222,7 +222,7 @@ function Obstacle(type) {
 
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate(Math.PI / 2); // 변경된 부분: -Math.PI / 2에서 Math.PI / 2로 수정
+      ctx.scale(-1, 1); // 좌우 반전 추가
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
       ctx.restore();
     }
@@ -541,18 +541,6 @@ fpsOptions.addEventListener('click', (event) => {
   }
 });
 
-gameBGM.volume = volumeSlider.value / 100;
-volumeSlider.addEventListener('input', (e) => {
-  gameBGM.volume = e.target.value / 100;
-});
-changeSongButton.addEventListener('click', displayMusicSelection);
-
-
-loadAssets().then(() => {
-  initGame();
-  startScreen.style.display = 'flex';
-  gameLoop();
-});
 gameBGM.volume = volumeSlider.value / 100;
 volumeSlider.addEventListener('input', (e) => {
   gameBGM.volume = e.target.value / 100;
