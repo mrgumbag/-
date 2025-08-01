@@ -109,7 +109,8 @@ const assetPaths = {
     bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
-    dana_image_2: 'assets/images/dana_2.png'
+    dana_image_2: 'assets/images/dana_2.png',
+    coin: 'assets/images/coin.png'
 };
 
 function loadAssets() {
@@ -262,6 +263,24 @@ class Obstacle {
             ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
         }
         ctx.restore();
+    }
+
+    update(deltaTime) {
+        this.x -= gameSpeed * deltaTime;
+    }
+}
+
+class Coin {
+    constructor() {
+        this.width = 30;
+        this.height = 30;
+        this.x = GAME_WIDTH;
+        this.y = Math.random() * (GAME_HEIGHT - this.height);
+        this.image = assets.coin;
+    }
+
+    draw() {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 
     update(deltaTime) {
@@ -481,8 +500,15 @@ function gameLoop(timestamp) {
             }
 
             if (checkCollision(player, obstacle)) {
-                endGame();
-                return;
+                if (obstacle instanceof Coin) {
+                    coins++;
+                    saveCoins(coins);
+                    coinDisplay.textContent = `Coins: ${coins}`;
+                    obstacles.splice(i, 1);
+                } else {
+                    endGame();
+                    return;
+                }
             }
         }
 
@@ -650,6 +676,7 @@ volumeSlider.addEventListener('input', (e) => {
     gameBGM.volume = e.target.value / 100;
 });
 changeSongButton.addEventListener('click', displayMusicSelection);
+coinSound.src = 'assets/audio/coin.mp3';
 
 
 // ===================================
