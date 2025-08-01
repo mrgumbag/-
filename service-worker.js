@@ -5,7 +5,7 @@ const urlsToCache = [
     'style.css',
     'script.js',
     'manifest.json',
-    // 게임에 사용되는 모든 이미지와 사운드 파일 경로를 추가합니다.
+    // ӿ Ǵ  ̹   θ ߰մϴ.
     'assets/images/player.png',
     'assets/images/player_2.png',
     'assets/images/ground_obstacle.png',
@@ -20,7 +20,7 @@ const urlsToCache = [
     'assets/audio/bgm.mp3',
     'assets/audio/bgm2.mp3',
     'assets/audio/bgm3.mp3',
-    // manifest.json에 명시된 아이콘 이미지 경로를 추가합니다.
+    // manifest.json   ̹ θ ߰մϴ.
     'assets/icons/icon-192x192.png',
     'assets/icons/icon-512x512.png'
 ];
