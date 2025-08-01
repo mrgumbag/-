@@ -167,7 +167,7 @@ function Player() {
       this.isJumping = true;
       this.velocityY = BASE_JUMP_VELOCITY;
       if (this.jumpCount === 1) {
-        this.velocityY *= DOUBLE_JUMP_MULTIPLIER;
+        this.velocityY *= DOUBLE_JUMP_MULTIPLIer;
       }
       this.jumpCount++;
     }
@@ -335,32 +335,27 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
-  if (lastTime === 0) {
-    lastTime = timestamp;
-  }
-  const deltaTime = (timestamp - lastTime) / 1000;
-  lastTime = timestamp;
-
   const elapsed = timestamp - lastFrameTime;
   if (elapsed < frameInterval) {
     gameLoopId = requestAnimationFrame(gameLoop);
     return;
   }
-  lastFrameTime = timestamp - (elapsed % frameInterval);
+  const gameDeltaTime = (timestamp - lastFrameTime) / 1000;
+  lastFrameTime = timestamp;
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
   if (gameState === 'playing') {
-    if (isNaN(deltaTime) || !isFinite(deltaTime)) {
+    if (isNaN(gameDeltaTime) || !isFinite(gameDeltaTime)) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
 
-    player.update(deltaTime);
+    player.update(gameDeltaTime);
     player.draw();
 
-    timeSinceLastObstacle += deltaTime * 1000;
-    timeSinceLastBirdObstacle += deltaTime * 1000;
+    timeSinceLastObstacle += gameDeltaTime * 1000;
+    timeSinceLastBirdObstacle += gameDeltaTime * 1000;
 
     if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
@@ -391,7 +386,7 @@ function gameLoop(timestamp) {
 
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obstacle = obstacles[i];
-      obstacle.update(deltaTime);
+      obstacle.update(gameDeltaTime);
       obstacle.draw();
 
       if (obstacle.x + obstacle.width < 0) {
@@ -405,7 +400,7 @@ function gameLoop(timestamp) {
     }
 
     const previousScore = score;
-    score += (accelerationActive ? 2 : 1) * deltaTime * SCORE_BASE_PER_SECOND;
+    score += (accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
     scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
     if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
@@ -414,7 +409,7 @@ function gameLoop(timestamp) {
     }
 
     if (timeStopCooldown > 0) {
-      timeStopCooldown -= deltaTime * 1000;
+      timeStopCooldown -= gameDeltaTime * 1000;
     }
 
     gameLoopId = requestAnimationFrame(gameLoop);
