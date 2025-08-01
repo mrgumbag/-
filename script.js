@@ -1,4 +1,5 @@
 const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const difficultyDisplay = document.getElementById('difficulty-display');
@@ -332,7 +333,7 @@ function checkCollision(obj1, obj2) {
 
 function initGame() {
   player = new Player();
-  danaImage = new StaticImage(10, 480, 150, 75, assets.dana_image); // 높이는 75로, y 좌표는 480으로 변경했습니다.
+  danaImage = new StaticImage(10, 255, 300, 300, assets.dana_image); // 높이를 300으로, y 좌표를 255로 변경했습니다.
   obstacles = [];
   score = 0;
   gameSpeed = 7 * 60;
