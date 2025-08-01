@@ -527,6 +527,7 @@ function gameLoop(timestamp) {
         }
 
         if (game.timeSinceLastCoin >= game.nextCoinSpawnTime) {
+            console.log('Coin spawn condition met!'); // Debug log
             game.coins.push(new Coin());
             console.log('Coin pushed to array. Current coins array length:', game.coins.length); // Debug log
             game.timeSinceLastCoin = 0;
