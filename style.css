@@ -170,7 +170,7 @@ body {
 }
 
 #mobile-controls {
-    display: none; /* 기본적으로는 숨김 */
+    display: none;
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -342,13 +342,25 @@ body {
         bottom: 10px;
         right: 10px;
         left: 10px;
-        gap: 10px;
+        gap: 5px;
+        justify-content: space-between; /* 버튼들을 양쪽 끝으로 분산 */
     }
 
     .mobile-button {
         font-size: 0.8rem;
         padding: 10px 20px;
-        flex: 1;
+        border-radius: 8px;
+        /* 기본 flex 속성을 제거하고 개별 버튼에 크기 지정 */
+        flex: 0 0 auto;
+    }
+
+    #jump-button {
+        width: 45%; /* 절반 크기 */
+    }
+
+    #accelerate-button, #time-stop-button {
+        width: 20%; /* 1/4 크기 */
+        padding: 10px 10px;
     }
 
     /* 시작/종료 화면 UI 크기 축소 */
