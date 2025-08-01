@@ -6,7 +6,9 @@ const currentSongDisplay = document.getElementById('current-song-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const startButton = document.getElementById('start-button');
+const themeToggleButton = document.getElementById('theme-toggle-button');
 const restartButton = document.getElementById('restart-button');
+const backToStartButton = document.getElementById('back-to-start-button');
 const finalScore = document.getElementById('final-score');
 const rankingButton = document.getElementById('ranking-button');
 const rankingModal = document.getElementById('ranking-modal');
@@ -389,6 +391,9 @@ function initGame() {
     difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
     gameBGM.src = bgmPaths[currentBGMIndex].path;
     updateCurrentSongDisplay();
+
+    // 게임 오버 화면 숨기기
+    gameOverScreen.style.display = 'none';
 }
 
 function startGame() {
@@ -409,6 +414,12 @@ function endGame() {
     saveHighScore(score);
     gameBGM.pause();
     gameBGM.currentTime = 0;
+}
+
+function backToStartScreen() {
+    initGame();
+    gameOverScreen.style.display = 'none';
+    startScreen.style.display = 'flex';
 }
 
 function gameLoop(timestamp) {
@@ -446,9 +457,9 @@ function gameLoop(timestamp) {
             }
 
             if (type === 'ground') {
-                consecutiveGroundObstacleCount++;
+                consecutiveGroundObstaclesCount++;
             } else {
-                consecutiveGroundObstacleCount = 0;
+                consecutiveGroundObstaclesCount = 0;
             }
 
             obstacles.push(new Obstacle(type));
@@ -493,6 +504,19 @@ function gameLoop(timestamp) {
         gameLoopId = requestAnimationFrame(gameLoop);
     } else if (gameState === 'gameOver') {
         return;
+    }
+}
+
+// ===================================
+// 테마 전환 로직
+// ===================================
+function applyTheme(theme) {
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark-theme') {
+        themeToggleButton.textContent = '라이트 모드';
+    } else {
+        themeToggleButton.textContent = '다크 모드';
     }
 }
 
@@ -565,8 +589,18 @@ if (timeStopButton) {
     });
 }
 
+// 테마 전환 버튼 이벤트
+themeToggleButton.addEventListener('click', () => {
+    if (document.body.classList.contains('dark-theme')) {
+        applyTheme('light-theme');
+    } else {
+        applyTheme('dark-theme');
+    }
+});
+
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
+backToStartButton.addEventListener('click', backToStartScreen);
 rankingButton.addEventListener('click', displayHighScores);
 patchNotesButton.addEventListener('click', () => {
     patchNotesText.textContent = currentPatchNotes;
@@ -634,9 +668,14 @@ changeSongButton.addEventListener('click', displayMusicSelection);
 // ===================================
 // 초기화 (Initialization)
 // ===================================
-loadAssets().then(() => {
-    danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
-    initGame();
-    startScreen.style.display = 'flex';
-    gameLoop();
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'dark-theme';
+    applyTheme(savedTheme);
+
+    loadAssets().then(() => {
+        danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
+        initGame();
+        startScreen.style.display = 'flex';
+        gameLoop();
+    });
 });
