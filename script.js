@@ -45,8 +45,8 @@ const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 100; // 변경됨
-const BIRD_OBSTACLE_HEIGHT = 100; // 변경됨
+const BIRD_OBSTACLE_WIDTH = 100;
+const BIRD_OBSTACLE_HEIGHT = 100;
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
 const BIRD_OBSTACLE_MAX_Y = 50;
 const GRAVITY = 1 * 30 * 60;
@@ -57,7 +57,7 @@ const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
 const SCORE_BASE_PER_SECOND = 60;
-const ANIMATION_SPEED = 100; // 100ms마다 프레임 변경
+const ANIMATION_SPEED = 100;
 
 let score = 0;
 let player = {};
@@ -83,10 +83,10 @@ let difficulty = 1;
 const assets = {};
 const assetPaths = {
   player: 'assets/images/player.png',
-  player_2: 'assets/images/player_2.png', // 추가됨
+  player_2: 'assets/images/player_2.png',
   ground_obstacle: 'assets/images/ground_obstacle.png',
   air_obstacle: 'assets/images/air_obstacle.png',
-  air_obstacle_2: 'assets/images/air_obstacle_2.png', // 추가됨
+  air_obstacle_2: 'assets/images/air_obstacle_2.png',
   bird_obstacle_1: 'assets/images/bird_obstacle_1.png',
   bird_obstacle_2: 'assets/images/bird_obstacle_2.png',
   bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
@@ -143,9 +143,9 @@ function Player() {
   this.isJumping = false;
   this.jumpCount = 0;
   this.maxJumps = 2;
-  this.frameImages = [assets.player, assets.player_2]; // 추가됨
-  this.animationFrame = 0; // 추가됨
-  this.lastFrameTime = 0; // 추가됨
+  this.frameImages = [assets.player, assets.player_2];
+  this.animationFrame = 0;
+  this.lastFrameTime = 0;
 
   this.draw = function(timestamp) {
     if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
@@ -203,7 +203,7 @@ function Obstacle(type) {
     this.width = AIR_OBSTACLE_WIDTH;
     this.height = AIR_OBSTACLE_HEIGHT;
     this.y = GAME_HEIGHT - this.height - 200;
-    this.frameImages = [assets.air_obstacle, assets.air_obstacle_2]; // 추가됨
+    this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
   } else if (type === 'bird') {
     this.width = BIRD_OBSTACLE_WIDTH;
     this.height = BIRD_OBSTACLE_HEIGHT;
@@ -233,7 +233,8 @@ function Obstacle(type) {
       }
       let img = this.frameImages[this.animationFrame];
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate(-Math.PI / 2); // 반시계 방향 90도 회전
+      ctx.rotate(Math.PI / 2); // 시계 방향 90도 회전
+      ctx.scale(1, -1); // 상하 반전
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
     }
     ctx.restore();
