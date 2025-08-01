@@ -1,4 +1,4 @@
-/* ´ÙÅ© ¸ğµå º¯¼ö (±âº»°ª) */
+/* ë‹¤í¬ ëª¨ë“œ ìŠ¤íƒ€ì¼ (ê¸°ë³¸ê°’) */
 :root, .dark-theme {
     --body-bg: #333;
     --text-color: #eee;
@@ -23,7 +23,7 @@
     --patch-notes-bg: #222;
 }
 
-/* ¶óÀÌÆ® ¸ğµå º¯¼ö */
+/* ë¼ì´íŠ¸ ëª¨ë“œ ìŠ¤íƒ€ì¼ */
 .light-theme {
     --body-bg: #f0f0f0;
     --text-color: #333;
@@ -171,7 +171,7 @@ body {
 
 #mobile-controls {
     display: none;
-    position: absolute; /* ÀÌ ÄÁÅ×ÀÌ³Ê¸¦ ±âÁØÀ¸·Î ¹öÆ° À§Ä¡¸¦ ÀâÀ½ */
+    position: absolute; /* ê²Œì„ ì»¨í…Œì´ë„ˆë¥¼ ê¸°ì¤€ìœ¼ë¡œ ë²„íŠ¼ ìœ„ì¹˜ë¥¼ ì„¤ì • */
     bottom: 10px;
     right: 10px;
     left: 10px;
@@ -183,13 +183,13 @@ body {
     font-size: 0.9rem;
     padding: 10px 10px;
     border-radius: 8px;
-    /* ¹öÆ° Åõ¸íÇÏ°Ô ¼³Á¤ */
+    /* ë²„íŠ¼ íˆ¬ëª…í•˜ê²Œ ì„¤ì • */
     background-color: transparent;
     border: 1px solid transparent;
     color: var(--text-color);
-    /* ÅØ½ºÆ® °¡µ¶¼ºÀ» À§ÇØ ±×¸²ÀÚ Ãß°¡ */
+    /* í…ìŠ¤íŠ¸ê°€ ì˜ ë³´ì´ë„ë¡ ê·¸ë¦¼ì ì¶”ê°€ */
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    /* ¹öÆ° ³ôÀÌ 20%·Î ¼³Á¤ */
+    /* ë²„íŠ¼ ë†’ì´ 20%ë¡œ ì„¤ì • */
     height: 20%;
     position: absolute;
     bottom: 0;
@@ -197,64 +197,69 @@ body {
 }
 
     .mobile-button:active {
-        /* ´©¸¦ ¶§¸¸ ¾à°£ÀÇ ¹è°æ»ö Ç¥½Ã */
+        /* ëˆ„ë¥¸ ê²½ìš° ë°˜íˆ¬ëª…í•˜ê²Œ í‘œì‹œ */
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-/* Á¡ÇÁ ¹öÆ°À» ¿ŞÂÊ 30% Å©±â·Î ÁöÁ¤ */
+/* ì í”„ ë²„íŠ¼ì€ ì™¼ìª½ 30% í¬ê¸°ë¡œ ì„¤ì • */
 #jump-button {
     left: 0;
     width: 30%;
 }
 
-/* °¡¼Ó ¹öÆ°À» ¿À¸¥ÂÊ 15% Å©±â·Î ÁöÁ¤ÇÏ°í, Å¸ÀÓ½ºÅ¾ ¿·¿¡ ºÙµµ·Ï À§Ä¡ Á¶Á¤ */
+/* ê°€ì† ë²„íŠ¼ì€ ì˜¤ë¥¸ìª½ì— 15% í¬ê¸°ë¡œ ì„¤ì •í•˜ê³ , íƒ€ì„ìŠ¤íƒ‘ ë²„íŠ¼ ë°”ë¡œ ì˜†ì— ìœ„ì¹˜ */
 #accelerate-button {
     right: 15%;
     width: 15%;
 }
 
-/* Å¸ÀÓ½ºÅ¾ ¹öÆ°À» ¿À¸¥ÂÊ 15% Å©±â·Î ÁöÁ¤ÇÏ°í, ³¡¿¡ ºÙµµ·Ï À§Ä¡ Á¶Á¤ */
+/* íƒ€ì„ìŠ¤íƒ‘ ë²„íŠ¼ì€ ì˜¤ë¥¸ìª½ì— 15% í¬ê¸°ë¡œ ì„¤ì •í•˜ê³ , ê°€ì¥ ìë¦¬ì— ìœ„ì¹˜ */
 #time-stop-button {
     right: 0;
     width: 15%;
 }
 
-/* ½ÃÀÛ/Á¾·á È­¸é UI Å©±â Ãà¼Ò */
-.game-screen h1 {
-    font-size: 2rem;
-}
-
-.game-screen p {
-    font-size: 1rem;
-}
-
-.button-row {
-    gap: 10px;
-}
-
-.game-screen button {
-    font-size: 0.9rem;
-    padding: 8px 12px;
-}
-
-.modal-content {
-    padding: 15px;
-    width: 95%;
-    max-width: 300px;
-}
-
-    .modal-content h2 {
-        font-size: 1.2rem;
+@media (max-width: 768px) {
+    #mobile-controls {
+        display: block;
     }
 
-#ranking-list li, #music-list li {
-    font-size: 0.8rem;
-    padding: 6px;
-}
+    /* ëª¨ë°”ì¼/ì‘ì€ í™”ë©´ UI í¬ê¸° ì¡°ì • */
+    .game-screen h1 {
+        font-size: 2rem;
+    }
 
-.close-button {
-    font-size: 20px;
-    right: 10px;
-    top: 5px;
-}
+    .game-screen p {
+        font-size: 1rem;
+    }
+
+    .button-row {
+        gap: 10px;
+    }
+
+    .game-screen button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+
+    .modal-content {
+        padding: 15px;
+        width: 95%;
+        max-width: 300px;
+    }
+
+        .modal-content h2 {
+            font-size: 1.2rem;
+        }
+
+    #ranking-list li, #music-list li {
+        font-size: 0.8rem;
+        padding: 6px;
+    }
+
+    .close-button {
+        font-size: 20px;
+        right: 10px;
+        top: 5px;
+    }
 }

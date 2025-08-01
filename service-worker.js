@@ -5,7 +5,7 @@ const urlsToCache = [
     'style.css',
     'script.js',
     'manifest.json',
-    // °ÔÀÓ¿¡ »ç¿ëµÇ´Â ¸ğµç ÀÌ¹ÌÁö¿Í ¿Àµğ¿À ÆÄÀÏ °æ·Î¸¦ Ãß°¡ÇÕ´Ï´Ù.
+    // ê²Œì„ì— ì‚¬ìš©ë˜ëŠ” ëª¨ë“  ì´ë¯¸ì§€ì™€ ì‚¬ìš´ë“œ íŒŒì¼ ê²½ë¡œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
     'assets/images/player.png',
     'assets/images/player_2.png',
     'assets/images/ground_obstacle.png',
@@ -20,7 +20,7 @@ const urlsToCache = [
     'assets/audio/bgm.mp3',
     'assets/audio/bgm2.mp3',
     'assets/audio/bgm3.mp3',
-    // manifest.json¿¡ Á¤ÀÇÇÑ ¾ÆÀÌÄÜ ÀÌ¹ÌÁö °æ·Î¸¦ Ãß°¡ÇÕ´Ï´Ù.
+    // manifest.jsonì— ëª…ì‹œëœ ì•„ì´ì½˜ ì´ë¯¸ì§€ ê²½ë¡œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
     'assets/icons/icon-192x192.png',
     'assets/icons/icon-512x512.png'
 ];
