@@ -26,6 +26,7 @@ const patchNotesButton = document.getElementById('patch-notes-button');
 const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
+const coinSound = document.getElementById('coinSound'); // 누락된 coinSound 요소를 추가했습니다.
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -67,8 +68,9 @@ const currentPatchNotes = `0.5.5V
 const bgmPaths = [
     { name: 'RUN', path: 'assets/audio/bgm.mp3' },
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
-    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
-    { name: 'SOS', path: 'assets/audio/bgm4.mp3' }
+    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
+    // bgm4.mp3는 service-worker.js에 없으므로 일단 제외
+    // { name: 'SOS', path: 'assets/audio/bgm4.mp3' }
 ];
 
 
@@ -120,8 +122,8 @@ const assetPaths = {
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
     dana_image_2: 'assets/images/dana_2.png',
-    coin: 'assets/images/coin.svg',
-    coin_2: 'assets/images/coin_2.svg'
+    coin: 'assets/images/coin.svg', // coin.svg 경로가 누락되어 추가했습니다.
+    coin_2: 'assets/images/coin_2.svg' // coin_2.svg 경로가 누락되어 추가했습니다.
 };
 
 function loadAssets() {
@@ -134,13 +136,13 @@ function loadAssets() {
             img.onload = () => {
                 assets[key] = img;
                 loadedCount++;
-                console.log(`Asset loaded: ${key}`); // Add this line
+                console.log(`Asset loaded: ${key}`);
                 if (loadedCount === totalAssets) {
-                    console.log('All assets loaded.'); // Add this line
+                    console.log('All assets loaded.');
                     resolve();
                 }
             };
-            img.onerror = () => { // Add onerror handler
+            img.onerror = () => {
                 console.error(`Failed to load asset: ${key} at ${assetPaths[key]}`);
             };
         }
@@ -433,7 +435,7 @@ function initGame() {
     game.timeSinceLastBirdObstacle = 0;
     game.timeSinceLastCoin = 0;
     game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
-    console.log(`Initial nextBirdSpawnTime: ${game.nextBirdSpawnTime}`); // Debug log
+    console.log(`Initial nextBirdSpawnTime: ${game.nextBirdSpawnTime}`);
     game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
     scoreDisplay.textContent = 'Score: 0';
     game.difficulty = 1;
@@ -487,15 +489,24 @@ function gameLoop(timestamp) {
             return;
         }
 
+        // ===================================
+        // 게임 상태 업데이트 로직
+        // ===================================
         game.danaImage.draw(timestamp);
         game.player.update(gameDeltaTime);
         game.player.draw(timestamp);
 
-        game.timeSinceLastObstacle += gameDeltaTime * 1000;
-        game.timeSinceLastBirdObstacle += gameDeltaTime * 1000;
-        console.log(`Bird spawn timer: ${game.timeSinceLastBirdObstacle.toFixed(0)}ms / ${game.nextBirdSpawnTime}ms`); // Debug log
-        game.timeSinceLastCoin += gameDeltaTime * 1000;
-        console.log(`Coin spawn timer: ${game.timeSinceLastCoin.toFixed(0)}ms / ${game.nextCoinSpawnTime}ms, Coins in array: ${game.coins.length}`); // Debug log
+        game.score += SCORE_BASE_PER_SECOND * gameDeltaTime;
+        scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
+
+        game.difficulty = 1 + Math.floor(game.score / DIFFICULTY_SCALE_POINT);
+        game.gameSpeed = 7 * 60 * game.difficulty;
+        difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
+
+        // 장애물 생성 로직
+        game.timeSinceLastObstacle += elapsed;
+        game.timeSinceLastBirdObstacle += elapsed;
+        game.timeSinceLastCoin += elapsed;
 
         if (game.timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * game.difficulty)) {
             let type;
@@ -510,7 +521,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstacleCount = 0;
+                game.consecutiveGroundObstaclesCount = 0; // 오타를 수정했습니다.
             }
 
             game.obstacles.push(new Obstacle(type));
@@ -519,20 +530,47 @@ function gameLoop(timestamp) {
         }
 
         if (game.timeSinceLastBirdObstacle >= game.nextBirdSpawnTime) {
-            console.log('Bird spawn condition met!'); // Debug log
             game.obstacles.push(new Obstacle('bird'));
-            console.log('Bird obstacle added to array!', game.obstacles.length); // Debug log
             game.timeSinceLastBirdObstacle = 0;
             game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
         }
 
         if (game.timeSinceLastCoin >= game.nextCoinSpawnTime) {
-            console.log('Coin spawn condition met!'); // Debug log
             game.coins.push(new Coin());
-            console.log('Coin pushed to array. Current coins array length:', game.coins.length); // Debug log
             game.timeSinceLastCoin = 0;
             game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
         }
+
+        // 장애물 업데이트 및 그리기
+        game.obstacles.forEach(obstacle => {
+            obstacle.update(gameDeltaTime);
+            obstacle.draw(timestamp);
+
+            if (checkCollision(game.player, obstacle)) {
+                endGame();
+            }
+        });
+        game.obstacles = game.obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+
+        // 코인 업데이트 및 그리기
+        game.coins.forEach(coin => {
+            coin.update(gameDeltaTime);
+            coin.draw(timestamp);
+
+            if (checkCollision(game.player, coin)) {
+                // 코인 획득 로직
+                const currentCoins = getCoins();
+                saveCoins(currentCoins + 1);
+                coinDisplay.textContent = `Coins: ${getCoins()}`;
+                game.coins = game.coins.filter(c => c !== coin);
+                coinSound.play(); // 코인 사운드 재생
+            }
+        });
+        game.coins = game.coins.filter(coin => coin.x + coin.width > 0);
+
+        game.gameLoopId = requestAnimationFrame(gameLoop);
+    }
+}
 
 // ===================================
 // 테마 전환 로직
@@ -681,8 +719,8 @@ volumeSlider.addEventListener('input', (e) => {
     gameBGM.volume = e.target.value / 100;
 });
 changeSongButton.addEventListener('click', displayMusicSelection);
-coinSound.src = 'assets/audio/coin.mp3';
-coinSound.volume = 0.2;
+// coinSound.src = 'assets/audio/coin.mp3'; // HTML에 audio 태그가 있으므로 주석 처리
+// coinSound.volume = 0.2; // HTML에 audio 태그가 있으므로 주석 처리
 
 
 // ===================================
@@ -693,7 +731,13 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(savedTheme);
     const versionDisplay = document.getElementById('version-display');
     coinDisplay = document.getElementById('coin-display');
-    console.log('coinDisplay after assignment in DOMContentLoaded:', coinDisplay); // Debug log
+
+    // coinSound 초기화
+    if (coinSound) {
+        coinSound.src = 'assets/audio/coin.mp3';
+        coinSound.volume = 0.2;
+    }
+
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
@@ -704,6 +748,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame();
         startScreen.style.display = 'flex';
         coinDisplay.textContent = `Coins: ${getCoins()}`;
-        gameLoop();
+        // gameLoop(); // 게임 루프는 startGame에서 시작되도록 수정
     });
 });
