@@ -401,10 +401,7 @@ function startGame() {
     startScreen.style.display = 'none';
     gameOverScreen.style.display = 'none';
     gameState = 'playing';
-    if (gameLoopId) cancelAnimationFrame(gameLoopId);
     gameBGM.play();
-    updateCurrentSongDisplay();
-    gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
@@ -423,17 +420,17 @@ function backToStartScreen() {
 }
 
 function gameLoop(timestamp) {
-    const elapsed = timestamp - lastFrameTime;
-    if (elapsed < frameInterval) {
-        gameLoopId = requestAnimationFrame(gameLoop);
-        return;
-    }
-    const gameDeltaTime = elapsed / 1000;
-    lastFrameTime = timestamp;
-
-    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
     if (gameState === 'playing') {
+        const elapsed = timestamp - lastFrameTime;
+        if (elapsed < frameInterval) {
+            gameLoopId = requestAnimationFrame(gameLoop);
+            return;
+        }
+        const gameDeltaTime = elapsed / 1000;
+        lastFrameTime = timestamp;
+
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
         if (isNaN(gameDeltaTime) || !isFinite(gameDeltaTime)) {
             gameLoopId = requestAnimationFrame(gameLoop);
             return;
@@ -500,11 +497,9 @@ function gameLoop(timestamp) {
         if (timeStopCooldown > 0) {
             timeStopCooldown -= gameDeltaTime * 1000;
         }
-
-        gameLoopId = requestAnimationFrame(gameLoop);
-    } else if (gameState === 'gameOver') {
-        return;
     }
+
+    gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 // ===================================

@@ -140,20 +140,26 @@ body {
         transition: color 0.3s;
     }
 
-    .game-screen button {
-        font-size: 1.5rem;
-        padding: 10px 20px;
-        cursor: pointer;
-        border: 2px solid var(--button-border);
-        background-color: var(--button-bg);
-        color: var(--text-color);
-        border-radius: 10px;
-        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-    }
+/* 버튼들을 묶어주는 새로운 클래스 */
+.button-row {
+    display: flex;
+    gap: 20px;
+}
 
-        .game-screen button:hover {
-            background-color: var(--button-hover-bg);
-        }
+.game-screen button {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 2px solid var(--button-border);
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+    .game-screen button:hover {
+        background-color: var(--button-hover-bg);
+    }
 
 .theme-toggle-button {
     margin-top: 10px;
@@ -310,7 +316,7 @@ body {
 @media (max-width: 1200px) {
     #game-container {
         width: 100vw;
-        height: calc(100vw * 600 / 1200);
+        height: calc(100vw * 600 / 1200); /* 가로세로 비율 유지 */
         border: none;
         box-shadow: none;
     }
