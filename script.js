@@ -110,7 +110,8 @@ const assetPaths = {
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
     dana_image_2: 'assets/images/dana_2.png',
-    coin: 'assets/images/coin.png'
+    coin: 'assets/images/coin.svg',
+    coin_2: 'assets/images/coin_2.svg'
 };
 
 function loadAssets() {
@@ -276,11 +277,17 @@ class Coin {
         this.height = 30;
         this.x = GAME_WIDTH;
         this.y = Math.random() * (GAME_HEIGHT - this.height);
-        this.image = assets.coin;
+        this.frameImages = [assets.coin, assets.coin_2];
+        this.animationFrame = 0;
+        this.lastFrameTime = 0;
     }
 
-    draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    draw(timestamp) {
+        if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
+            this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+            this.lastFrameTime = timestamp;
+        }
+        ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
     }
 
     update(deltaTime) {
