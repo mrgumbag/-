@@ -80,6 +80,7 @@ let targetFPS = 60;
 let frameInterval = 1000 / targetFPS;
 let lastFrameTime = 0;
 let difficulty = 1;
+let danaImage = {};
 const assets = {};
 const assetPaths = {
   player: 'assets/images/player.png',
@@ -91,6 +92,7 @@ const assetPaths = {
   bird_obstacle_2: 'assets/images/bird_obstacle_2.png',
   bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
   bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
+  dana_image: 'assets/images/dana.png'
 };
 
 // Functions
@@ -135,7 +137,7 @@ function loadAssets() {
 }
 
 function Player() {
-  this.x = 50;
+  this.x = 100;
   this.y = GAME_HEIGHT - PLAYER_HEIGHT;
   this.width = PLAYER_WIDTH;
   this.height = PLAYER_HEIGHT;
@@ -181,6 +183,18 @@ function Player() {
       }
       this.jumpCount++;
     }
+  };
+}
+
+function StaticImage(x, y, width, height, image) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.image = image;
+
+  this.draw = function() {
+    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   };
 }
 
@@ -318,6 +332,7 @@ function checkCollision(obj1, obj2) {
 
 function initGame() {
   player = new Player();
+  danaImage = new StaticImage(10, 400, 150, 150, assets.dana_image);
   obstacles = [];
   score = 0;
   gameSpeed = 7 * 60;
@@ -401,6 +416,8 @@ function gameLoop(timestamp) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
+    
+    danaImage.draw();
 
     player.update(gameDeltaTime);
     player.draw(timestamp);
