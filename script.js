@@ -273,10 +273,7 @@ class Obstacle {
                 this.lastFrameTime = timestamp;
             }
             let img = this.frameImages[this.animationFrame];
-            ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-            ctx.rotate(Math.PI / 2);
-            ctx.scale(1, -1);
-            ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.drawImage(img, this.x, this.y, this.width, this.height);
         }
         ctx.restore();
     }
@@ -438,7 +435,6 @@ function initGame() {
     game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
     game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
     scoreDisplay.textContent = 'Score: 0';
-    coinDisplay.textContent = `Coins: ${getCoins()}`;
     game.difficulty = 1;
     difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
     gameBGM.src = bgmPaths[game.currentBGMIndex].path;
@@ -735,8 +731,9 @@ coinSound.volume = 0.2;
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
-    versionDisplay = document.getElementById('version-display');
+    const versionDisplay = document.getElementById('version-display');
     coinDisplay = document.getElementById('coin-display');
+    console.log('coinDisplay after assignment in DOMContentLoaded:', coinDisplay); // Debug log
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
@@ -746,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
         initGame();
         startScreen.style.display = 'flex';
+        coinDisplay.textContent = `Coins: ${getCoins()}`;
         gameLoop();
     });
 });
