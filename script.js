@@ -26,6 +26,37 @@ const patchNotesButton = document.getElementById('patch-notes-button');
 const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
+
+// ===================================
+// 상태 변수 (State Variables)
+// ===================================
+const game = {
+    score: 0,
+    player: null,
+    obstacles: [],
+    coins: [],
+    gameSpeed: 7 * 60, // 게임 속도도 1200x600 해상도에 맞게 고정
+    accelerationActive: false,
+    timeStopActive: false,
+    timeStopCooldown: 0,
+    timeFactor: 1,
+    lastObstacleType: 'none',
+    consecutiveGroundObstaclesCount: 0,
+    spacebarPressed: false,
+    timeSinceLastObstacle: 0,
+    timeSinceLastBirdObstacle: 0,
+    timeSinceLastCoin: 0,
+    nextBirdSpawnTime: 0,
+    nextCoinSpawnTime: 0,
+    gameState: 'start',
+    gameLoopId: null,
+    targetFPS: 60,
+    frameInterval: 1000 / 60,
+    lastFrameTime: 0,
+    difficulty: 1,
+    danaImage: null,
+    currentBGMIndex: 0
+};
 const currentPatchNotes = `0.5.5V
 더블 점프 추가
 조류 장애물 추가
@@ -39,7 +70,7 @@ const bgmPaths = [
     { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
     { name: 'SOS', path: 'assets/audio/bgm4.mp3' }
 ];
-let currentBGMIndex = 0;
+
 
 // ===================================
 // 상수 (Constants) - 1200x600 해상도 기준
@@ -71,9 +102,7 @@ const SCORE_BASE_PER_SECOND = 60;
 const ANIMATION_SPEED = 100;
 const DIFFICULTY_SCALE_POINT = 2000;
 
-// ===================================
-// 상태 변수 (State Variables)
-// ===================================
+
 
 // ===================================
 // 에셋 관리 (Asset Management)
@@ -141,8 +170,8 @@ class Player {
 
     update(deltaTime) {
         if (this.isJumping) {
-            this.y += this.velocityY * timeFactor * deltaTime;
-            this.velocityY += GRAVITY * timeFactor * deltaTime;
+            this.y += this.velocityY * game.timeFactor * deltaTime;
+            this.velocityY += GRAVITY * game.timeFactor * deltaTime;
 
             if (this.y >= GAME_HEIGHT - this.height) {
                 this.y = GAME_HEIGHT - this.height;
@@ -331,7 +360,7 @@ function checkCollision(obj1, obj2) {
 }
 
 function updateCurrentSongDisplay() {
-    currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
+    currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[game.currentBGMIndex].name}`;
 }
 
 function displayMusicSelection() {
@@ -341,7 +370,7 @@ function displayMusicSelection() {
         li.textContent = song.name;
         li.dataset.index = index;
         li.addEventListener('click', () => {
-            currentBGMIndex = index;
+            game.currentBGMIndex = index;
             gameBGM.src = song.path;
             updateCurrentSongDisplay();
             musicSelectionModal.style.display = 'none';
@@ -387,26 +416,26 @@ function saveCoins(newCoins) {
 }
 
 function initGame() {
-    player = new Player();
-    obstacles = [];
-    coins = [];
-    score = 0;
-    gameSpeed = 7 * 60;
-    accelerationActive = false;
-    timeStopActive = false;
-    timeStopCooldown = 0;
-    timeFactor = 1;
-    lastObstacleType = 'none';
-    consecutiveGroundObstaclesCount = 0;
-    timeSinceLastObstacle = 0;
-    timeSinceLastBirdObstacle = 0;
-    timeSinceLastCoin = 0;
-    nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
-    nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+    game.player = new Player();
+    game.obstacles = [];
+    game.coins = [];
+    game.score = 0;
+    game.gameSpeed = 7 * 60;
+    game.accelerationActive = false;
+    game.timeStopActive = false;
+    game.timeStopCooldown = 0;
+    game.timeFactor = 1;
+    game.lastObstacleType = 'none';
+    game.consecutiveGroundObstaclesCount = 0;
+    game.timeSinceLastObstacle = 0;
+    game.timeSinceLastBirdObstacle = 0;
+    game.timeSinceLastCoin = 0;
+    game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
+    game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
     scoreDisplay.textContent = 'Score: 0';
     coinDisplay.textContent = `Coins: ${getCoins()}`;
-    difficulty = 1;
-    difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+    game.difficulty = 1;
+    difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
     gameBGM.src = bgmPaths[game.currentBGMIndex].path;
     updateCurrentSongDisplay();
 
@@ -417,20 +446,20 @@ function startGame() {
     initGame();
     startScreen.style.display = 'none';
     gameOverScreen.style.display = 'none';
-    gameState = 'playing';
+    game.gameState = 'playing';
     gameBGM.play();
-    lastFrameTime = performance.now();
+    game.lastFrameTime = performance.now();
     gameLoop();
 }
 
 function endGame() {
-    gameState = 'gameOver';
-    finalScore.textContent = Math.floor(score);
+    game.gameState = 'gameOver';
+    finalScore.textContent = Math.floor(game.score);
     gameOverScreen.style.display = 'flex';
-    saveHighScore(score);
+    saveHighScore(game.score);
     gameBGM.pause();
     gameBGM.currentTime = 0;
-    cancelAnimationFrame(gameLoopId);
+    cancelAnimationFrame(game.gameLoopId);
 }
 
 function backToStartScreen() {
@@ -440,105 +469,105 @@ function backToStartScreen() {
 }
 
 function gameLoop(timestamp) {
-    if (gameState === 'playing') {
-        const elapsed = timestamp - lastFrameTime;
-        if (elapsed < frameInterval) {
-            gameLoopId = requestAnimationFrame(gameLoop);
+    if (game.gameState === 'playing') {
+        const elapsed = timestamp - game.lastFrameTime;
+        if (elapsed < game.frameInterval) {
+            game.gameLoopId = requestAnimationFrame(gameLoop);
             return;
         }
         const gameDeltaTime = elapsed / 1000;
-        lastFrameTime = timestamp;
+        game.lastFrameTime = timestamp;
 
         ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
         if (isNaN(gameDeltaTime) || !isFinite(gameDeltaTime)) {
-            gameLoopId = requestAnimationFrame(gameLoop);
+            game.gameLoopId = requestAnimationFrame(gameLoop);
             return;
         }
 
-        danaImage.draw(timestamp);
-        player.update(gameDeltaTime);
-        player.draw(timestamp);
+        game.danaImage.draw(timestamp);
+        game.player.update(gameDeltaTime);
+        game.player.draw(timestamp);
 
-        timeSinceLastObstacle += gameDeltaTime * 1000;
-        timeSinceLastBirdObstacle += gameDeltaTime * 1000;
+        game.timeSinceLastObstacle += gameDeltaTime * 1000;
+        game.timeSinceLastBirdObstacle += gameDeltaTime * 1000;
 
-        if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
+        if (game.timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * game.difficulty)) {
             let type;
-            if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
+            if (game.lastObstacleType === 'ground' && game.consecutiveGroundObstaclesCount < 3) {
                 type = 'ground';
-            } else if (lastObstacleType === 'air') {
+            } else if (game.lastObstacleType === 'air') {
                 type = 'ground';
             } else {
                 type = Math.random() < 0.5 ? 'ground' : 'air';
             }
 
             if (type === 'ground') {
-                consecutiveGroundObstaclesCount++;
+                game.consecutiveGroundObstaclesCount++;
             } else {
-                consecutiveGroundObstacleCount = 0;
+                game.consecutiveGroundObstacleCount = 0;
             }
 
-            obstacles.push(new Obstacle(type));
-            lastObstacleType = type;
-            timeSinceLastObstacle = 0;
+            game.obstacles.push(new Obstacle(type));
+            game.lastObstacleType = type;
+            game.timeSinceLastObstacle = 0;
         }
 
-        if (timeSinceLastCoin >= nextCoinSpawnTime) {
-            coins.push(new Coin());
-            timeSinceLastCoin = 0;
-            nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+        if (game.timeSinceLastCoin >= game.nextCoinSpawnTime) {
+            game.coins.push(new Coin());
+            game.timeSinceLastCoin = 0;
+            game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
         }
 
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            const obstacle = obstacles[i];
+        for (let i = game.obstacles.length - 1; i >= 0; i--) {
+            const obstacle = game.obstacles[i];
             obstacle.update(gameDeltaTime);
             obstacle.draw(timestamp);
 
             if (obstacle.x + obstacle.width < 0) {
-                obstacles.splice(i, 1);
+                game.obstacles.splice(i, 1);
             }
 
-            if (checkCollision(player, obstacle)) {
+            if (checkCollision(game.player, obstacle)) {
                 endGame();
                 return;
             }
         }
 
-        for (let i = coins.length - 1; i >= 0; i--) {
-            const coin = coins[i];
+        for (let i = game.coins.length - 1; i >= 0; i--) {
+            const coin = game.coins[i];
             coin.update(gameDeltaTime);
             coin.draw(timestamp);
 
             if (coin.x + coin.width < 0) {
-                coins.splice(i, 1);
+                game.coins.splice(i, 1);
             }
 
-            if (checkCollision(player, coin)) {
+            if (checkCollision(game.player, coin)) {
                 let currentCoins = getCoins();
                 currentCoins++;
                 saveCoins(currentCoins);
                 coinDisplay.textContent = `Coins: ${currentCoins}`;
-                coins.splice(i, 1);
+                game.coins.splice(i, 1);
                 coinSound.play();
             }
         }
 
-        const previousScore = score;
-        score += (accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
-        scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
+        const previousScore = game.score;
+        game.score += (game.accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
+        scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
 
-        if (Math.floor(score / DIFFICULTY_SCALE_POINT) > Math.floor(previousScore / DIFFICULTY_SCALE_POINT)) {
-            difficulty = parseFloat((difficulty + 0.1).toFixed(1));
-            difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+        if (Math.floor(game.score / DIFFICULTY_SCALE_POINT) > Math.floor(previousScore / DIFFICULTY_SCALE_POINT)) {
+            game.difficulty = parseFloat((game.difficulty + 0.1).toFixed(1));
+            difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
         }
 
-        if (timeStopCooldown > 0) {
-            timeStopCooldown -= gameDeltaTime * 1000;
+        if (game.timeStopCooldown > 0) {
+            game.timeStopCooldown -= gameDeltaTime * 1000;
         }
     }
 
-    gameLoopId = requestAnimationFrame(gameLoop);
+    game.gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 // ===================================
@@ -558,30 +587,30 @@ function applyTheme(theme) {
 // 이벤트 리스너 (Event Listeners)
 // ===================================
 document.addEventListener('keydown', (e) => {
-    if (gameState !== 'playing') return;
+    if (game.gameState !== 'playing') return;
 
     if (e.code === 'Space') {
-        player.jump();
-        spacebarPressed = true;
+        game.player.jump();
+        game.spacebarPressed = true;
     }
     if (e.code === 'KeyA') {
-        accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
+        game.accelerationActive = !game.accelerationActive;
+        game.gameSpeed = game.accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
     }
-    if (e.code === 'KeyS' && timeStopCooldown <= 0) {
-        timeStopActive = true;
-        timeStopCooldown = 30000;
-        timeFactor = 0.5;
+    if (e.code === 'KeyS' && game.timeStopCooldown <= 0) {
+        game.timeStopActive = true;
+        game.timeStopCooldown = 30000;
+        game.timeFactor = 0.5;
         setTimeout(() => {
-            timeStopActive = false;
-            timeFactor = 1;
+            game.timeStopActive = false;
+            game.timeFactor = 1;
         }, 3000);
     }
 });
 
 document.addEventListener('keyup', (e) => {
     if (e.code === 'Space') {
-        spacebarPressed = false;
+        game.spacebarPressed = false;
     }
 });
 
@@ -591,20 +620,20 @@ const timeStopButton = document.getElementById('time-stop-button');
 
 function handleTouchControls(e) {
     e.preventDefault();
-    if (gameState !== 'playing') return;
+    if (game.gameState !== 'playing') return;
 
     if (e.target.id === 'jump-button') {
-        player.jump();
+        game.player.jump();
     } else if (e.target.id === 'accelerate-button') {
-        accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
-    } else if (e.target.id === 'time-stop-button' && timeStopCooldown <= 0) {
-        timeStopActive = true;
-        timeStopCooldown = 30000;
-        timeFactor = 0.5;
+        game.accelerationActive = !game.accelerationActive;
+        game.gameSpeed = game.accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
+    } else if (e.target.id === 'time-stop-button' && game.timeStopCooldown <= 0) {
+        game.timeStopActive = true;
+        game.timeStopCooldown = 30000;
+        game.timeFactor = 0.5;
         setTimeout(() => {
-            timeStopActive = false;
-            timeFactor = 1;
+            game.timeStopActive = false;
+            game.timeFactor = 1;
         }, 3000);
     }
 }
@@ -673,9 +702,9 @@ fpsOptions.addEventListener('click', (event) => {
     if (event.target.tagName === 'BUTTON') {
         const newFPS = parseInt(event.target.dataset.fps);
         if (!isNaN(newFPS) && [30, 60, 120].includes(newFPS)) {
-            targetFPS = newFPS;
-            frameInterval = 1000 / targetFPS;
-            console.log(`FPS 변경: ${targetFPS} FPS`);
+            game.targetFPS = newFPS;
+            game.frameInterval = 1000 / game.targetFPS;
+            console.log(`FPS 변경: ${game.targetFPS} FPS`);
             document.querySelectorAll('#fps-options button').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
@@ -697,7 +726,7 @@ coinSound.src = 'assets/audio/coin.mp3';
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
-    const versionDisplay = document.getElementById('version-display');
+    versionDisplay = document.getElementById('version-display');
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
