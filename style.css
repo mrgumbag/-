@@ -66,15 +66,15 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    max-width: 1200px;
-    max-height: 600px;
+    /* 캔버스 크기에 맞게 최대 너비와 높이를 조정했습니다. */
+    max-width: 300px;
+    max-height: 150px;
     background-color: var(--game-container-bg);
     border: 5px solid var(--game-container-border);
     box-shadow: 0 0 20px var(--game-container-shadow);
     overflow: hidden;
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
-    /* 추가된 부분: aspect-ratio를 사용하여 1200:600 (2:1) 비율을 강제합니다 */
-    aspect-ratio: 1200 / 600;
+    aspect-ratio: 1200 / 600; /* 2:1 비율 유지 */
 }
 
 #gameCanvas {
@@ -321,8 +321,9 @@ body {
     #game-container {
         width: 100vw;
         height: 100vh;
-        max-width: 1200px;
-        max-height: 600px;
+        /* 캔버스 크기에 맞게 최대 너비와 높이를 조정했습니다. */
+        max-width: 300px;
+        max-height: 150px;
         border: none;
         box-shadow: none;
         aspect-ratio: 1200 / 600; /* 2:1 비율 유지 */

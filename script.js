@@ -41,31 +41,32 @@ let currentBGMIndex = 0;
 
 // ===================================
 // 상수 (Constants)
+// 모든 상수 값을 4로 나누어 수정했습니다.
 // ===================================
-const GAME_WIDTH = canvas.width;
-const GAME_HEIGHT = canvas.height;
-const PLAYER_WIDTH = 50;
-const PLAYER_HEIGHT = 50;
-const DANA_WIDTH = 300;
-const DANA_HEIGHT = 300;
-const DANA_X = -100;
+const GAME_WIDTH = 300;
+const GAME_HEIGHT = 150;
+const PLAYER_WIDTH = 12.5;
+const PLAYER_HEIGHT = 12.5;
+const DANA_WIDTH = 75;
+const DANA_HEIGHT = 75;
+const DANA_X = -25;
 const DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
-const GROUND_OBSTACLE_WIDTH = 90;
-const GROUND_OBSTACLE_HEIGHT = 90;
-const AIR_OBSTACLE_WIDTH = 70;
-const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 50;
-const BIRD_OBSTACLE_HEIGHT = 50;
-const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
-const BIRD_OBSTACLE_MAX_Y = 50;
-const GRAVITY = 1 * 30 * 60;
-const BASE_JUMP_VELOCITY = -890;
+const GROUND_OBSTACLE_WIDTH = 22.5;
+const GROUND_OBSTACLE_HEIGHT = 22.5;
+const AIR_OBSTACLE_WIDTH = 17.5;
+const AIR_OBSTACLE_HEIGHT = 17.5;
+const BIRD_OBSTACLE_WIDTH = 12.5;
+const BIRD_OBSTACLE_HEIGHT = 12.5;
+const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 62.5;
+const BIRD_OBSTACLE_MAX_Y = 12.5;
+const GRAVITY = 1 * 30 * 60 / 4;
+const BASE_JUMP_VELOCITY = -890 / 4;
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
 const OBSTACLE_MIN_GAP_MS = 300;
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
-const SCORE_BASE_PER_SECOND = 60;
+const SCORE_BASE_PER_SECOND = 60 / 4;
 const ANIMATION_SPEED = 100;
 
 // ===================================
@@ -74,7 +75,7 @@ const ANIMATION_SPEED = 100;
 let score = 0;
 let player;
 let obstacles = [];
-let gameSpeed = 7 * 60;
+let gameSpeed = 7 * 60 / 4;
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -134,7 +135,7 @@ function loadAssets() {
 // ===================================
 class Player {
     constructor() {
-        this.x = 300;
+        this.x = 75;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
@@ -224,11 +225,12 @@ class Obstacle {
         } else if (type === 'air') {
             this.width = AIR_OBSTACLE_WIDTH;
             this.height = AIR_OBSTACLE_HEIGHT;
-            this.y = GAME_HEIGHT - this.height - 200;
+            this.y = GAME_HEIGHT - this.height - 50; // 기존 200 / 4 = 50
             this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
         } else if (type === 'bird') {
             this.width = BIRD_OBSTACLE_WIDTH;
             this.height = BIRD_OBSTACLE_HEIGHT;
+            // 기존 BIRD_OBSTACLE_MIN_Y 와 BIRD_OBSTACLE_MAX_Y를 4로 나누어 수정
             this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
             this.frameImages = [
                 assets.bird_obstacle_1,
@@ -376,7 +378,7 @@ function initGame() {
     player = new Player();
     obstacles = [];
     score = 0;
-    gameSpeed = 7 * 60;
+    gameSpeed = 7 * 60 / 4;
     accelerationActive = false;
     timeStopActive = false;
     timeStopCooldown = 0;
@@ -492,7 +494,7 @@ function gameLoop(timestamp) {
         score += (accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
         scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
-        if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
+        if (Math.floor(score / (2000 / 4)) > Math.floor(previousScore / (2000 / 4))) { // 점수 기준도 4배로 줄였습니다.
             difficulty = parseFloat((difficulty + 0.1).toFixed(1));
             difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
         }
@@ -531,7 +533,7 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.code === 'KeyA') {
         accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
+        gameSpeed = accelerationActive ? (10.5 * 60 / 4) : (7 * 60 / 4);
     }
     if (e.code === 'KeyS' && timeStopCooldown <= 0) {
         timeStopActive = true;
@@ -563,7 +565,7 @@ function handleTouchControls(e) {
         player.jump();
     } else if (e.target.id === 'accelerate-button') {
         accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
+        gameSpeed = accelerationActive ? (10.5 * 60 / 4) : (7 * 60 / 4);
     } else if (e.target.id === 'time-stop-button' && timeStopCooldown <= 0) {
         timeStopActive = true;
         timeStopCooldown = 30000;
