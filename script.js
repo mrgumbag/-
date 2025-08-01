@@ -433,6 +433,7 @@ function initGame() {
     game.timeSinceLastBirdObstacle = 0;
     game.timeSinceLastCoin = 0;
     game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
+    console.log(`Initial nextBirdSpawnTime: ${game.nextBirdSpawnTime}`); // Debug log
     game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
     scoreDisplay.textContent = 'Score: 0';
     game.difficulty = 1;
@@ -517,10 +518,12 @@ function gameLoop(timestamp) {
             game.timeSinceLastObstacle = 0;
         }
 
-        if (game.timeSinceLastCoin >= game.nextCoinSpawnTime) {
-            game.coins.push(new Coin());
-            game.timeSinceLastCoin = 0;
-            game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+        if (game.timeSinceLastBirdObstacle >= game.nextBirdSpawnTime) {
+            console.log('Bird spawn condition met!'); // Debug log
+            game.obstacles.push(new Obstacle('bird'));
+            console.log('Bird obstacle added to array!', game.obstacles.length); // Debug log
+            game.timeSinceLastBirdObstacle = 0;
+            game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
         }
 
         for (let i = game.obstacles.length - 1; i >= 0; i--) {
