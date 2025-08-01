@@ -45,8 +45,8 @@ const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 50;
-const BIRD_OBSTACLE_HEIGHT = 50;
+const BIRD_OBSTACLE_WIDTH = 70;
+const BIRD_OBSTACLE_HEIGHT = 70;
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
 const BIRD_OBSTACLE_MAX_Y = 50;
 const GRAVITY = 1 * 30 * 60;
@@ -181,8 +181,7 @@ function Obstacle(type) {
   this.height = 0;
   this.x = GAME_WIDTH;
   this.y = 0;
-  
-  // Bird animation properties
+
   this.animationFrame = 0;
   this.lastFrameTime = 0;
   this.frameImages = [
@@ -220,11 +219,10 @@ function Obstacle(type) {
         this.lastFrameTime = timestamp;
       }
       img = this.frameImages[this.animationFrame];
-      
-      // Rotate the bird image for a better visual effect
+
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate(-Math.PI / 2);
+      ctx.rotate(Math.PI / 2); // 변경된 부분: -Math.PI / 2에서 Math.PI / 2로 수정
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
       ctx.restore();
     }
@@ -236,15 +234,34 @@ function Obstacle(type) {
 }
 
 function checkCollision(obj1, obj2) {
+  let img1;
+  if (obj1.type === 'bird') {
+    img1 = assets[`bird_obstacle_${obj1.animationFrame + 1}`];
+  } else if (obj1.type === 'ground') {
+    img1 = assets.ground_obstacle;
+  } else if (obj1.type === 'air') {
+    img1 = assets.air_obstacle;
+  } else {
+    img1 = assets.player;
+  }
+
+  let img2;
+  if (obj2.type === 'bird') {
+    img2 = assets[`bird_obstacle_${obj2.animationFrame + 1}`];
+  } else if (obj2.type === 'ground') {
+    img2 = assets.ground_obstacle;
+  } else if (obj2.type === 'air') {
+    img2 = assets.air_obstacle;
+  } else {
+    img2 = assets.player;
+  }
+
+  if (!img1 || !img2) return false;
+
   if (Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
       Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
       Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
       Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
-
-    const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : assets[`${obj1.type}_${obj1.animationFrame + 1}`]);
-    const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : assets[`${obj2.type}_${obj2.animationFrame + 1}`]);
-
-    if (!img1 || !img2) return false;
 
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
@@ -524,6 +541,18 @@ fpsOptions.addEventListener('click', (event) => {
   }
 });
 
+gameBGM.volume = volumeSlider.value / 100;
+volumeSlider.addEventListener('input', (e) => {
+  gameBGM.volume = e.target.value / 100;
+});
+changeSongButton.addEventListener('click', displayMusicSelection);
+
+
+loadAssets().then(() => {
+  initGame();
+  startScreen.style.display = 'flex';
+  gameLoop();
+});
 gameBGM.volume = volumeSlider.value / 100;
 volumeSlider.addEventListener('input', (e) => {
   gameBGM.volume = e.target.value / 100;
