@@ -1,74 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>우파루파 모험기</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>우파루파 모험기</h1>
-    <div id="volume-control">
-        <span class="volume-icon">&#128266;</span> <input type="range" id="volume-slider" min="0" max="100" value="100" step="1">
-    </div>
     <div id="game-container">
         <canvas id="gameCanvas" width="1200" height="600"></canvas>
-        <div id="start-screen" class="screen">
-            <h2>우파루파 모험기</h2>
+
+        <div id="game-info">
+            <h3 id="score">Score: 0</h3>
+            <h3 id="difficulty-display">Difficulty: 1.0</h3>
+            <div id="music-info">
+                <h3 id="current-song-display">재생중인 곡: RUN</h3>
+                <button id="music-selection-button">음악 변경</button>
+            </div>
+        </div>
+
+        <div id="start-screen" class="game-screen">
+            <h1>우파루파 모험기</h1>
+            <p>스페이스바를 눌러 점프하세요!</p>
             <button id="start-button">게임 시작</button>
-        </div>
-        <div id="game-over-screen" class="screen" style="display: none;">
-            <h2>Game Over</h2>
-            <p>Score: <span id="final-score">0</span></p>
-            <button id="restart-button">다시하기</button>
-            <button id="patch-notes-button">패치 노트</button>
-            <button id="ranking-button">기록</button>
-            <button id="music-selection-button">음악 선택</button>
+            <button id="ranking-button">랭킹</button>
             <button id="settings-button">설정</button>
+            <button id="patch-notes-button">패치 노트</button>
         </div>
-    </div>
 
-    <div id="settings-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button" data-modal="settings-modal">&times;</span>
-            <h2>설정</h2>
-            <h3>FPS 설정</h3>
-            <div id="fps-options">
-                <button data-fps="30">30 FPS</button>
-                <button data-fps="60">60 FPS</button>
-                <button data-fps="120">120 FPS</button>
+        <div id="game-over-screen" class="game-screen">
+            <h1>Game Over</h1>
+            <p>최종 점수: <span id="final-score">0</span></p>
+            <button id="restart-button">다시 시작</button>
+        </div>
+
+        <div id="mobile-controls">
+            <button id="jump-button" class="mobile-button">점프</button>
+            <button id="accelerate-button" class="mobile-button">가속 (A)</button>
+            <button id="time-stop-button" class="mobile-button">타임 스탑 (S)</button>
+        </div>
+
+        <div id="ranking-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" data-modal="ranking-modal">&times;</span>
+                <h2>랭킹</h2>
+                <ol id="ranking-list"></ol>
+            </div>
+        </div>
+
+        <div id="music-selection-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" data-modal="music-selection-modal">&times;</span>
+                <h2>음악 선택</h2>
+                <ul id="music-list"></ul>
+            </div>
+        </div>
+
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" data-modal="settings-modal">&times;</span>
+                <h2>설정</h2>
+                <div class="setting-option">
+                    <label for="volume-slider">배경 음악 볼륨:</label>
+                    <input type="range" id="volume-slider" min="0" max="100" value="50">
+                </div>
+                <div class="setting-option">
+                    <label>프레임 속도 (FPS):</label>
+                    <div id="fps-options">
+                        <button data-fps="30">30</button>
+                        <button data-fps="60" class="active">60</button>
+                        <button data-fps="120">120</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="patch-notes-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" data-modal="patch-notes-modal">&times;</span>
+                <h2>패치 노트</h2>
+                <pre id="patch-notes-text"></pre>
             </div>
         </div>
     </div>
 
-    <div id="patch-notes-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button" data-modal="patch-notes-modal">&times;</span>
-            <h2>패치 노트</h2>
-            <div id="patch-notes-text">
-            </div>
-        </div>
-    </div>
-
-    <div id="ranking-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button" data-modal="ranking-modal">&times;</span>
-            <h2>기록</h2>
-            <ol id="ranking-list"></ol>
-        </div>
-    </div>
-
-    <div id="music-selection-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button" data-modal="music-selection-modal">&times;</span>
-            <h2>음악 선택</h2>
-            <ul id="music-list">
-            </ul>
-        </div>
-    </div>
-    <div id="score">Score: 0</div>
-    <div id="difficulty-display">Difficulty: 1.0</div>
-    <div id="current-song-display">Current Song: RUN</div>
-    <div id="version-info">0.5.4</div>
     <audio id="gameBGM" loop></audio>
+
     <script src="script.js"></script>
 </body>
 </html>
