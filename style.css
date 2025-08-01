@@ -182,6 +182,14 @@ body {
     margin-top: 10px;
 }
 
+#version-display {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
 #mobile-controls {
     display: none;
     position: absolute; /*  ̳ʸ  ư ġ  */

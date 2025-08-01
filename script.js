@@ -26,7 +26,7 @@ const patchNotesButton = document.getElementById('patch-notes-button');
 const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
-const currentPatchNotes = `0.5.4V
+const currentPatchNotes = `0.5.5V
 더블 점프 추가
 조류 장애물 추가
 음악 추가 및 변경 추가
@@ -377,28 +377,6 @@ function getHighScores() {
     return highScores.sort((a, b) => b - a).slice(0, 10);
 }
 
-function saveHighScore(newScore) {
-    const highScores = getHighScores();
-    highScores.push(newScore);
-    highScores.sort((a, b) => b - a);
-    localStorage.setItem('highScores', JSON.stringify(highScores.slice(0, 10)));
-}
-
-function displayHighScores() {
-    const highScores = getHighScores();
-    rankingList.innerHTML = '';
-    if (highScores.length === 0) {
-        rankingList.innerHTML = '<li>아직 최고 점수가 없습니다.</li>';
-    } else {
-        highScores.forEach((s, index) => {
-            const li = document.createElement('li');
-            li.textContent = `${index + 1}. ${s} 점`;
-            rankingList.appendChild(li);
-        });
-    }
-    rankingModal.style.display = 'flex';
-}
-
 function initGame() {
     player = new Player();
     obstacles = [];
@@ -710,6 +688,7 @@ coinSound.src = 'assets/audio/coin.mp3';
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
+    versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
 
     loadAssets().then(() => {
         danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
