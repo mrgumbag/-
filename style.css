@@ -1,4 +1,4 @@
-/* 다크 모드 변수 (기본값) */
+/* 크   (羞�) */
 :root, .dark-theme {
     --body-bg: #333;
     --text-color: #eee;
@@ -23,7 +23,7 @@
     --patch-notes-bg: #222;
 }
 
-/* 라이트 모드 변수 */
+/* 트   */
 .light-theme {
     --body-bg: #f0f0f0;
     --text-color: #333;
@@ -171,7 +171,7 @@ body {
 
 #mobile-controls {
     display: none;
-    position: absolute; /* 이 컨테이너를 기준으로 버튼 위치를 잡음 */
+    position: absolute; /*  犬訶  튼 치  */
     bottom: 10px;
     right: 10px;
     left: 10px;
@@ -183,13 +183,13 @@ body {
     font-size: 0.9rem;
     padding: 10px 10px;
     border-radius: 8px;
-    /* 버튼 투명하게 설정 */
+    /* 튼 構  */
     background-color: transparent;
     border: 1px solid transparent;
     color: var(--text-color);
-    /* 텍스트 가독성을 위해 그림자 추가 */
+    /* 灣트   琉 煞 */
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    /* 버튼 높이 20%로 설정 */
+    /* 튼  20%  */
     height: 20%;
     position: absolute;
     bottom: 0;
@@ -197,29 +197,29 @@ body {
 }
 
     .mobile-button:active {
-        /* 누를 때만 약간의 배경색 표시 */
+        /*   析�  표 */
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-/* 점프 버튼을 왼쪽 30% 크기로 지정 */
+/*  튼  30% 크  */
 #jump-button {
     left: 0;
     width: 30%;
 }
 
-/* 가속 버튼을 오른쪽 15% 크기로 지정하고, 타임스탑 옆에 붙도록 위치 조정 */
+/*  튼  15% 크 構, 타擔탑  姆 치  */
 #accelerate-button {
     right: 15%;
     width: 15%;
 }
 
-/* 타임스탑 버튼을 오른쪽 15% 크기로 지정하고, 끝에 붙도록 위치 조정 */
+/* 타擔탑 튼  15% 크 構,  姆 치  */
 #time-stop-button {
     right: 0;
     width: 15%;
 }
 
-/* 시작/종료 화면 UI 크기 축소 */
+/* / 화 UI 크  */
 .game-screen h1 {
     font-size: 2rem;
 }
