@@ -219,47 +219,42 @@ body {
     width: 15%;
 }
 
-@media (max-width: 768px) {
-    #mobile-controls {
-        display: block;
+/* 모바일/작은 화면 UI 크기 조정 */
+.game-screen h1 {
+    font-size: 2rem;
+}
+
+.game-screen p {
+    font-size: 1rem;
+}
+
+.button-row {
+    gap: 10px;
+}
+
+.game-screen button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+.modal-content {
+    padding: 15px;
+    width: 95%;
+    max-width: 300px;
+}
+
+    .modal-content h2 {
+        font-size: 1.2rem;
     }
 
-    /* 모바일/작은 화면 UI 크기 조정 */
-    .game-screen h1 {
-        font-size: 2rem;
-    }
+#ranking-list li, #music-list li {
+    font-size: 0.8rem;
+    padding: 6px;
+}
 
-    .game-screen p {
-        font-size: 1rem;
-    }
-
-    .button-row {
-        gap: 10px;
-    }
-
-    .game-screen button {
-        font-size: 0.9rem;
-        padding: 8px 12px;
-    }
-
-    .modal-content {
-        padding: 15px;
-        width: 95%;
-        max-width: 300px;
-    }
-
-        .modal-content h2 {
-            font-size: 1.2rem;
-        }
-
-    #ranking-list li, #music-list li {
-        font-size: 0.8rem;
-        padding: 6px;
-    }
-
-    .close-button {
-        font-size: 20px;
-        right: 10px;
-        top: 5px;
-    }
+.close-button {
+    font-size: 20px;
+    right: 10px;
+    top: 5px;
+}
 }
