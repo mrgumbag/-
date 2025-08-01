@@ -267,7 +267,7 @@ class Obstacle {
                 this.lastFrameTime = timestamp;
             }
             ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
-        } else if (type === 'bird') {
+        } else if (this.type === 'bird') {
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
                 this.lastFrameTime = timestamp;
