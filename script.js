@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
+const coinDisplay = document.getElementById('coin-display');
 const difficultyDisplay = document.getElementById('difficulty-display');
 const currentSongDisplay = document.getElementById('current-song-display');
 const startScreen = document.getElementById('start-screen');
