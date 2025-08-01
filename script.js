@@ -134,9 +134,14 @@ function loadAssets() {
             img.onload = () => {
                 assets[key] = img;
                 loadedCount++;
+                console.log(`Asset loaded: ${key}`); // Add this line
                 if (loadedCount === totalAssets) {
+                    console.log('All assets loaded.'); // Add this line
                     resolve();
                 }
+            };
+            img.onerror = () => { // Add onerror handler
+                console.error(`Failed to load asset: ${key} at ${assetPaths[key]}`);
             };
         }
     });
