@@ -15,7 +15,7 @@ const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const changeSongButton = document.getElementById('music-selection-button');
 const musicSelectionModal = document.getElementById('music-selection-modal');
-const musicList = document.getElementById('music-list');
+const musicList = document = document.getElementById('music-list');
 const settingsButton = document.getElementById('settings-button');
 const settingsModal = document.getElementById('settings-modal');
 const fpsOptions = document.getElementById('fps-options');
@@ -46,7 +46,7 @@ const PLAYER_WIDTH = 50;
 const PLAYER_HEIGHT = 50;
 const DANA_WIDTH = 300;
 const DANA_HEIGHT = 300;
-const DANA_X = 0;
+const DANA_X = -100; // 왼쪽으로 100픽셀 이동
 const DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
 const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
@@ -218,7 +218,7 @@ class Obstacle {
       this.width = GROUND_OBSTACLE_WIDTH;
       this.height = GROUND_OBSTACLE_HEIGHT;
       this.y = GAME_HEIGHT - this.height;
-      this.image = assets.ground_obstacle; // 지상 장애물 이미지 설정
+      this.image = assets.ground_obstacle;
     } else if (type === 'air') {
       this.width = AIR_OBSTACLE_WIDTH;
       this.height = AIR_OBSTACLE_HEIGHT;
