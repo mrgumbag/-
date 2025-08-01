@@ -402,6 +402,8 @@ function startGame() {
     gameOverScreen.style.display = 'none';
     gameState = 'playing';
     gameBGM.play();
+    lastFrameTime = performance.now();
+    gameLoop();
 }
 
 function endGame() {
@@ -411,6 +413,7 @@ function endGame() {
     saveHighScore(score);
     gameBGM.pause();
     gameBGM.currentTime = 0;
+    cancelAnimationFrame(gameLoopId);
 }
 
 function backToStartScreen() {
@@ -552,36 +555,30 @@ const jumpButton = document.getElementById('jump-button');
 const accelerateButton = document.getElementById('accelerate-button');
 const timeStopButton = document.getElementById('time-stop-button');
 
+function handleTouchControls(e) {
+    e.preventDefault();
+    if (gameState !== 'playing') return;
+
+    if (e.target.id === 'jump-button') {
+        player.jump();
+    } else if (e.target.id === 'accelerate-button') {
+        accelerationActive = !accelerationActive;
+        gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
+    } else if (e.target.id === 'time-stop-button' && timeStopCooldown <= 0) {
+        timeStopActive = true;
+        timeStopCooldown = 30000;
+        timeFactor = 0.5;
+        setTimeout(() => {
+            timeStopActive = false;
+            timeFactor = 1;
+        }, 3000);
+    }
+}
+
 if (jumpButton) {
-    jumpButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState === 'playing') {
-            player.jump();
-        }
-    });
-}
-if (accelerateButton) {
-    accelerateButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState === 'playing') {
-            accelerationActive = !accelerationActive;
-            gameSpeed = accelerationActive ? 10.5 * 60 : 7 * 60;
-        }
-    });
-}
-if (timeStopButton) {
-    timeStopButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState === 'playing' && timeStopCooldown <= 0) {
-            timeStopActive = true;
-            timeStopCooldown = 30000;
-            timeFactor = 0.5;
-            setTimeout(() => {
-                timeStopActive = false;
-                timeFactor = 1;
-            }, 3000);
-        }
-    });
+    jumpButton.addEventListener('touchstart', handleTouchControls, { passive: false });
+    accelerateButton.addEventListener('touchstart', handleTouchControls, { passive: false });
+    timeStopButton.addEventListener('touchstart', handleTouchControls, { passive: false });
 }
 
 // 테마 전환 버튼 이벤트

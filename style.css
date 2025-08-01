@@ -316,13 +316,15 @@ body {
 @media (max-width: 1200px) {
     #game-container {
         width: 100vw;
-        height: calc(100vw * 600 / 1200); /* 가로세로 비율 유지 */
+        height: 100vh;
+        max-height: calc(100vw * 600 / 1200);
         border: none;
         box-shadow: none;
     }
 
     body {
-        height: auto;
+        height: 100vh;
+        align-items: flex-start;
     }
 
     #game-info {
