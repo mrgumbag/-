@@ -343,23 +343,21 @@ body {
         right: 10px;
         left: 10px;
         gap: 5px;
-        justify-content: space-between; /* 버튼들을 양쪽 끝으로 분산 */
+        /* 버튼을 양쪽 끝으로 분산 배치 */
+        justify-content: space-between;
     }
 
-    .mobile-button {
-        font-size: 0.8rem;
-        padding: 10px 20px;
-        border-radius: 8px;
-        /* 기본 flex 속성을 제거하고 개별 버튼에 크기 지정 */
-        flex: 0 0 auto;
-    }
-
+    /* 점프 버튼을 왼쪽 30% 크기로 지정 */
     #jump-button {
-        width: 45%; /* 절반 크기 */
+        flex: 0 0 30%;
+        font-size: 0.9rem;
+        padding: 10px 10px;
     }
 
+    /* 가속, 타임스탑 버튼을 각각 15% 크기로 지정 */
     #accelerate-button, #time-stop-button {
-        width: 20%; /* 1/4 크기 */
+        flex: 0 0 15%;
+        font-size: 0.9rem;
         padding: 10px 10px;
     }
 
