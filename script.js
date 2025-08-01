@@ -526,56 +526,11 @@ function gameLoop(timestamp) {
             game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
         }
 
-        for (let i = game.obstacles.length - 1; i >= 0; i--) {
-            const obstacle = game.obstacles[i];
-            obstacle.update(gameDeltaTime);
-            obstacle.draw(timestamp);
-
-            if (obstacle.x + obstacle.width < 0) {
-                game.obstacles.splice(i, 1);
-            }
-
-            if (checkCollision(game.player, obstacle)) {
-                endGame();
-                return;
-            }
+        if (game.timeSinceLastCoin >= game.nextCoinSpawnTime) {
+            game.coins.push(new Coin());
+            game.timeSinceLastCoin = 0;
+            game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
         }
-
-        for (let i = game.coins.length - 1; i >= 0; i--) {
-            const coin = game.coins[i];
-            coin.update(gameDeltaTime);
-            coin.draw(timestamp);
-
-            if (coin.x + coin.width < 0) {
-                game.coins.splice(i, 1);
-            }
-
-            if (checkCollision(game.player, coin)) {
-                let currentCoins = getCoins();
-                currentCoins++;
-                saveCoins(currentCoins);
-                coinDisplay.textContent = `Coins: ${currentCoins}`;
-                game.coins.splice(i, 1);
-                coinSound.play();
-            }
-        }
-
-        const previousScore = game.score;
-        game.score += (game.accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
-        scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
-
-        if (Math.floor(game.score / DIFFICULTY_SCALE_POINT) > Math.floor(previousScore / DIFFICULTY_SCALE_POINT)) {
-            game.difficulty = parseFloat((game.difficulty + 0.1).toFixed(1));
-            difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
-        }
-
-        if (game.timeStopCooldown > 0) {
-            game.timeStopCooldown -= gameDeltaTime * 1000;
-        }
-    }
-
-    game.gameLoopId = requestAnimationFrame(gameLoop);
-}
 
 // ===================================
 // 테마 전환 로직
