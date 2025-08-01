@@ -152,9 +152,6 @@ function Player() {
         this.isJumping = false;
         this.velocityY = 0;
         this.jumpCount = 0;
-        if (spacebarPressed) {
-          this.jump();
-        }
       }
       if (this.y < 0) {
         this.y = 0;
@@ -167,7 +164,7 @@ function Player() {
       this.isJumping = true;
       this.velocityY = BASE_JUMP_VELOCITY;
       if (this.jumpCount === 1) {
-        this.velocityY *= DOUBLE_JUMP_MULTIPLIer;
+        this.velocityY *= DOUBLE_JUMP_MULTIPLIER;
       }
       this.jumpCount++;
     }
