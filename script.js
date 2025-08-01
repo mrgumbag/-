@@ -57,7 +57,7 @@ const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
 const SCORE_BASE_PER_SECOND = 60;
-const BIRD_ANIMATION_SPEED = 100; // 100ms마다 프레임 변경
+const ANIMATION_SPEED = 100; // 100ms마다 프레임 변경
 
 let score = 0;
 let player = {};
@@ -83,8 +83,10 @@ let difficulty = 1;
 const assets = {};
 const assetPaths = {
   player: 'assets/images/player.png',
+  player_2: 'assets/images/player_2.png', // 추가됨
   ground_obstacle: 'assets/images/ground_obstacle.png',
   air_obstacle: 'assets/images/air_obstacle.png',
+  air_obstacle_2: 'assets/images/air_obstacle_2.png', // 추가됨
   bird_obstacle_1: 'assets/images/bird_obstacle_1.png',
   bird_obstacle_2: 'assets/images/bird_obstacle_2.png',
   bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
@@ -141,9 +143,16 @@ function Player() {
   this.isJumping = false;
   this.jumpCount = 0;
   this.maxJumps = 2;
+  this.frameImages = [assets.player, assets.player_2]; // 추가됨
+  this.animationFrame = 0; // 추가됨
+  this.lastFrameTime = 0; // 추가됨
 
-  this.draw = function() {
-    ctx.drawImage(assets.player, this.x, this.y, this.width, this.height);
+  this.draw = function(timestamp) {
+    if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
+      this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+      this.lastFrameTime = timestamp;
+    }
+    ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
   };
 
   this.update = function(deltaTime) {
@@ -181,15 +190,10 @@ function Obstacle(type) {
   this.height = 0;
   this.x = GAME_WIDTH;
   this.y = 0;
-
   this.animationFrame = 0;
   this.lastFrameTime = 0;
-  this.frameImages = [
-    assets.bird_obstacle_1,
-    assets.bird_obstacle_2,
-    assets.bird_obstacle_3,
-    assets.bird_obstacle_4,
-  ];
+
+  this.frameImages = [];
 
   if (type === 'ground') {
     this.width = GROUND_OBSTACLE_WIDTH;
@@ -199,33 +203,40 @@ function Obstacle(type) {
     this.width = AIR_OBSTACLE_WIDTH;
     this.height = AIR_OBSTACLE_HEIGHT;
     this.y = GAME_HEIGHT - this.height - 200;
+    this.frameImages = [assets.air_obstacle, assets.air_obstacle_2]; // 추가됨
   } else if (type === 'bird') {
     this.width = BIRD_OBSTACLE_WIDTH;
     this.height = BIRD_OBSTACLE_HEIGHT;
     this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
+    this.frameImages = [
+      assets.bird_obstacle_1,
+      assets.bird_obstacle_2,
+      assets.bird_obstacle_3,
+      assets.bird_obstacle_4,
+    ];
   }
 
   this.draw = function(timestamp) {
-    let img;
+    ctx.save();
     if (this.type === 'ground') {
-      img = assets.ground_obstacle;
-      ctx.drawImage(img, this.x, this.y, this.width, this.height);
+      ctx.drawImage(assets.ground_obstacle, this.x, this.y, this.width, this.height);
     } else if (this.type === 'air') {
-      img = assets.air_obstacle;
-      ctx.drawImage(img, this.x, this.y, this.width, this.height);
-    } else if (this.type === 'bird') {
-      if (timestamp - this.lastFrameTime > BIRD_ANIMATION_SPEED) {
+      if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
         this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
         this.lastFrameTime = timestamp;
       }
-      img = this.frameImages[this.animationFrame];
-
-      ctx.save();
+      ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
+    } else if (this.type === 'bird') {
+      if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
+        this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+        this.lastFrameTime = timestamp;
+      }
+      let img = this.frameImages[this.animationFrame];
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.scale(-1, 1); // 좌우 반전 추가
+      ctx.rotate(-Math.PI / 2); // 반시계 방향 90도 회전
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
-      ctx.restore();
     }
+    ctx.restore();
   };
 
   this.update = function(deltaTime) {
@@ -235,25 +246,28 @@ function Obstacle(type) {
 
 function checkCollision(obj1, obj2) {
   let img1;
+  let img2;
+
+  // obj1 이미지 설정
   if (obj1.type === 'bird') {
-    img1 = assets[`bird_obstacle_${obj1.animationFrame + 1}`];
+    img1 = obj1.frameImages[obj1.animationFrame];
+  } else if (obj1.type === 'air') {
+    img1 = obj1.frameImages[obj1.animationFrame];
   } else if (obj1.type === 'ground') {
     img1 = assets.ground_obstacle;
-  } else if (obj1.type === 'air') {
-    img1 = assets.air_obstacle;
   } else {
-    img1 = assets.player;
+    img1 = obj1.frameImages[obj1.animationFrame];
   }
 
-  let img2;
+  // obj2 이미지 설정
   if (obj2.type === 'bird') {
-    img2 = assets[`bird_obstacle_${obj2.animationFrame + 1}`];
+    img2 = obj2.frameImages[obj2.animationFrame];
+  } else if (obj2.type === 'air') {
+    img2 = obj2.frameImages[obj2.animationFrame];
   } else if (obj2.type === 'ground') {
     img2 = assets.ground_obstacle;
-  } else if (obj2.type === 'air') {
-    img2 = assets.air_obstacle;
   } else {
-    img2 = assets.player;
+    img2 = obj2.frameImages[obj2.animationFrame];
   }
 
   if (!img1 || !img2) return false;
@@ -387,7 +401,7 @@ function gameLoop(timestamp) {
     }
 
     player.update(gameDeltaTime);
-    player.draw();
+    player.draw(timestamp);
 
     timeSinceLastObstacle += gameDeltaTime * 1000;
     timeSinceLastBirdObstacle += gameDeltaTime * 1000;
