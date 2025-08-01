@@ -347,18 +347,34 @@ body {
         justify-content: space-between;
     }
 
+    .mobile-button {
+        font-size: 0.9rem;
+        padding: 10px 10px;
+        border-radius: 8px;
+        flex: 0 0 auto;
+        /* 버튼 투명하게 설정 */
+        background-color: transparent;
+        border: 1px solid transparent;
+        color: var(--text-color);
+        /* 텍스트 가독성을 위해 그림자 추가 */
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        /* 버튼 높이 20%로 설정 */
+        height: 20%;
+    }
+
+        .mobile-button:active {
+            /* 누를 때만 약간의 배경색 표시 */
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
     /* 점프 버튼을 왼쪽 30% 크기로 지정 */
     #jump-button {
         flex: 0 0 30%;
-        font-size: 0.9rem;
-        padding: 10px 10px;
     }
 
     /* 가속, 타임스탑 버튼을 각각 15% 크기로 지정 */
     #accelerate-button, #time-stop-button {
         flex: 0 0 15%;
-        font-size: 0.9rem;
-        padding: 10px 10px;
     }
 
     /* 시작/종료 화면 UI 크기 축소 */
