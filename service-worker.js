@@ -5,7 +5,7 @@ const urlsToCache = [
     'style.css',
     'script.js',
     'manifest.json',
-    // 게임에 사용되는 모든 이미지와 오디오 파일 경로를 추가해야 합니다.
+    // 게임에 사용되는 모든 이미지와 오디오 파일 경로를 추가합니다.
     'assets/images/player.png',
     'assets/images/player_2.png',
     'assets/images/ground_obstacle.png',
@@ -19,10 +19,10 @@ const urlsToCache = [
     'assets/images/dana_2.png',
     'assets/audio/bgm.mp3',
     'assets/audio/bgm2.mp3',
-    'assets/audio/bgm3.mp3'
-    // manifest.json에 정의한 아이콘 이미지 경로도 추가해야 합니다.
-    // 'assets/icons/icon-192x192.png',
-    // 'assets/icons/icon-512x512.png'
+    'assets/audio/bgm3.mp3',
+    // manifest.json에 정의한 아이콘 이미지 경로를 추가합니다.
+    'assets/icons/icon-192x192.png',
+    'assets/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
