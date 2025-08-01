@@ -240,7 +240,7 @@ body {
     width: 15%;
 }
 
-/* / ȭ UI ũ  */
+/* 모바일/작은 화면 UI 크기 조정 */
 .game-screen h1 {
     font-size: 2rem;
 }
@@ -277,5 +277,4 @@ body {
     font-size: 20px;
     right: 10px;
     top: 5px;
-}
 }

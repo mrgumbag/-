@@ -36,7 +36,8 @@ const currentPatchNotes = `0.5.5V
 const bgmPaths = [
     { name: 'RUN', path: 'assets/audio/bgm.mp3' },
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
-    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
+    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
+    { name: 'SOS', path: 'assets/audio/bgm4.mp3' }
 ];
 let currentBGMIndex = 0;
 
@@ -406,7 +407,7 @@ function initGame() {
     coinDisplay.textContent = `Coins: ${getCoins()}`;
     difficulty = 1;
     difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
-    gameBGM.src = bgmPaths[currentBGMIndex].path;
+    gameBGM.src = bgmPaths[game.currentBGMIndex].path;
     updateCurrentSongDisplay();
 
     gameOverScreen.style.display = 'none';
@@ -696,10 +697,11 @@ coinSound.src = 'assets/audio/coin.mp3';
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
-    
+    const versionDisplay = document.getElementById('version-display');
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
+
 
     loadAssets().then(() => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
