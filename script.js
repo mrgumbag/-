@@ -33,7 +33,7 @@ const currentPatchNotes = `0.5.4V
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
   { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
-  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
+  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mpd' }
 ];
 let currentBGMIndex = 0;
 
@@ -137,7 +137,7 @@ function loadAssets() {
 }
 
 function Player() {
-  this.x = 100;
+  this.x = 300;
   this.y = GAME_HEIGHT - PLAYER_HEIGHT;
   this.width = PLAYER_WIDTH;
   this.height = PLAYER_HEIGHT;
@@ -332,7 +332,7 @@ function checkCollision(obj1, obj2) {
 
 function initGame() {
   player = new Player();
-  danaImage = new StaticImage(10, 400, 150, 150, assets.dana_image);
+  danaImage = new StaticImage(10, 480, 150, 75, assets.dana_image); // 높이는 75로, y 좌표는 480으로 변경했습니다.
   obstacles = [];
   score = 0;
   gameSpeed = 7 * 60;
