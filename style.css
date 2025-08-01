@@ -110,10 +110,24 @@ body {
   z-index: 100;
 }
 
+#fps-options button.active {
+  background-color: #007bff; /* Active button background color */
+  color: #fff; /* Active button text color */
+  border-color: #007bff;
+}
+
 #music-selection-button {
   position: absolute;
   bottom: 20px;
   right: 150px; /* Adjust as needed to not overlap with patch-notes-button */
+  font-size: 18px;
+  padding: 8px 15px;
+}
+
+#settings-button {
+  position: absolute;
+  bottom: 20px;
+  right: 280px; /* Adjust as needed */
   font-size: 18px;
   padding: 8px 15px;
 }

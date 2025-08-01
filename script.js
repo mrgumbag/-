@@ -17,6 +17,9 @@ const darkModeToggle = document.getElementById('dark-mode-toggle');
 const changeSongButton = document.getElementById('music-selection-button');
 const musicSelectionModal = document.getElementById('music-selection-modal');
 const musicList = document.getElementById('music-list');
+const settingsButton = document.getElementById('settings-button');
+const settingsModal = document.getElementById('settings-modal');
+const fpsOptions = document.getElementById('fps-options');
 
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
@@ -103,6 +106,9 @@ let nextBirdSpawnTime = 0; // New: Next time to spawn bird (in ms)
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let gameLoopId;
 let lastTime = 0; // For delta time calculation
+const targetFPS = 60; // Target frames per second
+const frameInterval = 1000 / targetFPS; // Milliseconds per frame
+let lastFrameTime = 0; // For frame rate capping
 let difficulty = 1; // New difficulty variable
 
 // Assets
@@ -362,6 +368,14 @@ function gameLoop(timestamp) {
   const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
   lastTime = timestamp;
 
+  // Frame rate capping
+  const elapsed = timestamp - lastFrameTime;
+  if (elapsed < frameInterval) {
+    gameLoopId = requestAnimationFrame(gameLoop);
+    return;
+  }
+  lastFrameTime = timestamp - (elapsed % frameInterval); // Adjust lastFrameTime for accuracy
+
   // Clear canvas
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
@@ -517,6 +531,8 @@ closeButtons.forEach(button => {
       rankingModal.style.display = 'none';
     } else if (modalToClose === 'music-selection-modal') {
       musicSelectionModal.style.display = 'none';
+    } else if (modalToClose === 'settings-modal') {
+      settingsModal.style.display = 'none';
     }
   });
 });
@@ -526,9 +542,26 @@ window.addEventListener('click', (event) => {
   if (event.target === patchNotesModal) {
     patchNotesModal.style.display = 'none';
   } else if (event.target === rankingModal) {
-    rankingModal.style.display = 'none';
+    rankingModal.style.display = 'none
   } else if (event.target === musicSelectionModal) {
     musicSelectionModal.style.display = 'none';
+  } else if (event.target === settingsModal) {
+    settingsModal.style.display = 'none';
+  }
+});
+
+// Settings button event listener
+settingsButton.addEventListener('click', () => {
+  settingsModal.style.display = 'flex';
+});
+
+// FPS options event listener
+fpsOptions.addEventListener('click', (event) => {
+  if (event.target.tagName === 'BUTTON') {
+    const newFPS = parseInt(event.target.dataset.fps);
+    targetFPS = newFPS;
+    frameInterval = 1000 / targetFPS;
+    settingsModal.style.display = 'none';
   }
 });
 
