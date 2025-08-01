@@ -1,11 +1,10 @@
-const CACHE_NAME = 'upaloopah-adventure-v1';
+const CACHE_NAME = 'upaloopah-adventure-v3'; // 캐시 업데이트를 위해 버전 변경
 const urlsToCache = [
     './',
     'index.html',
     'style.css',
     'script.js',
     'manifest.json',
-    // ӿ Ǵ  ̹   θ ߰մϴ.
     'assets/images/player.png',
     'assets/images/player_2.png',
     'assets/images/ground_obstacle.png',
@@ -17,10 +16,14 @@ const urlsToCache = [
     'assets/images/bird_obstacle_4.png',
     'assets/images/dana.png',
     'assets/images/dana_2.png',
+    'assets/images/coin.svg',
+    'assets/images/coin_2.svg',
     'assets/audio/bgm.mp3',
     'assets/audio/bgm2.mp3',
     'assets/audio/bgm3.mp3',
-    // manifest.json   ̹ θ ߰մϴ.
+    'assets/audio/bgm4.mp3', // bgm4 추가
+    'assets/audio/bgm5.mp3', // bgm5 추가
+    'assets/audio/coin.mp3',
     'assets/icons/icon-192x192.png',
     'assets/icons/icon-512x512.png'
 ];
@@ -44,5 +47,20 @@ self.addEventListener('fetch', event => {
                 }
                 return fetch(event.request);
             })
+    );
+});
+
+self.addEventListener('activate', event => {
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
     );
 });

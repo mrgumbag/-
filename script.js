@@ -26,7 +26,7 @@ const patchNotesButton = document.getElementById('patch-notes-button');
 const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
-const coinSound = document.getElementById('coinSound'); // 누락된 coinSound 요소를 추가했습니다.
+const coinSound = document.getElementById('coinSound');
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -36,7 +36,7 @@ const game = {
     player: null,
     obstacles: [],
     coins: [],
-    gameSpeed: 7 * 60, // 게임 속도도 1200x600 해상도에 맞게 고정
+    gameSpeed: 7 * 60,
     accelerationActive: false,
     timeStopActive: false,
     timeStopCooldown: 0,
@@ -68,11 +68,10 @@ const currentPatchNotes = `0.5.5V
 const bgmPaths = [
     { name: 'RUN', path: 'assets/audio/bgm.mp3' },
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
-    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
-    // bgm4.mp3는 service-worker.js에 없으므로 일단 제외
-    // { name: 'SOS', path: 'assets/audio/bgm4.mp3' }
+    { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
+    { name: 'SOS', path: 'assets/audio/bgm4.mp3' },
+    { name: '도깨비꽃', path: 'assets/audio/bgm5.mp3' } // bgm5 추가
 ];
-
 
 // ===================================
 // 상수 (Constants) - 1200x600 해상도 기준
@@ -105,7 +104,6 @@ const ANIMATION_SPEED = 100;
 const DIFFICULTY_SCALE_POINT = 2000;
 
 
-
 // ===================================
 // 에셋 관리 (Asset Management)
 // ===================================
@@ -122,8 +120,8 @@ const assetPaths = {
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
     dana_image_2: 'assets/images/dana_2.png',
-    coin: 'assets/images/coin.svg', // coin.svg 경로가 누락되어 추가했습니다.
-    coin_2: 'assets/images/coin_2.svg' // coin_2.svg 경로가 누락되어 추가했습니다.
+    coin: 'assets/images/coin.svg',
+    coin_2: 'assets/images/coin_2.svg'
 };
 
 function loadAssets() {
@@ -269,7 +267,7 @@ class Obstacle {
                 this.lastFrameTime = timestamp;
             }
             ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
-        } else if (this.type === 'bird') {
+        } else if (type === 'bird') {
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
                 this.lastFrameTime = timestamp;
@@ -521,7 +519,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstaclesCount = 0; // 오타를 수정했습니다.
+                game.consecutiveGroundObstaclesCount = 0;
             }
 
             game.obstacles.push(new Obstacle(type));
@@ -558,12 +556,14 @@ function gameLoop(timestamp) {
             coin.draw(timestamp);
 
             if (checkCollision(game.player, coin)) {
-                // 코인 획득 로직
                 const currentCoins = getCoins();
                 saveCoins(currentCoins + 1);
                 coinDisplay.textContent = `Coins: ${getCoins()}`;
                 game.coins = game.coins.filter(c => c !== coin);
-                coinSound.play(); // 코인 사운드 재생
+                if (coinSound) {
+                    coinSound.currentTime = 0;
+                    coinSound.play();
+                }
             }
         });
         game.coins = game.coins.filter(coin => coin.x + coin.width > 0);
@@ -714,13 +714,13 @@ fpsOptions.addEventListener('click', (event) => {
     }
 });
 
-gameBGM.volume = volumeSlider.value / 100;
+if (gameBGM) {
+    gameBGM.volume = volumeSlider.value / 100;
+}
 volumeSlider.addEventListener('input', (e) => {
     gameBGM.volume = e.target.value / 100;
 });
 changeSongButton.addEventListener('click', displayMusicSelection);
-// coinSound.src = 'assets/audio/coin.mp3'; // HTML에 audio 태그가 있으므로 주석 처리
-// coinSound.volume = 0.2; // HTML에 audio 태그가 있으므로 주석 처리
 
 
 // ===================================
@@ -732,7 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const versionDisplay = document.getElementById('version-display');
     coinDisplay = document.getElementById('coin-display');
 
-    // coinSound 초기화
     if (coinSound) {
         coinSound.src = 'assets/audio/coin.mp3';
         coinSound.volume = 0.2;
@@ -742,12 +741,10 @@ document.addEventListener('DOMContentLoaded', () => {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
 
-
     loadAssets().then(() => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
         initGame();
         startScreen.style.display = 'flex';
         coinDisplay.textContent = `Coins: ${getCoins()}`;
-        // gameLoop(); // 게임 루프는 startGame에서 시작되도록 수정
     });
 });
