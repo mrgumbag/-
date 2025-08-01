@@ -496,6 +496,7 @@ function gameLoop(timestamp) {
 
         game.timeSinceLastObstacle += gameDeltaTime * 1000;
         game.timeSinceLastBirdObstacle += gameDeltaTime * 1000;
+        console.log(`Coin spawn timer: ${game.timeSinceLastCoin.toFixed(0)}ms / ${game.nextCoinSpawnTime}ms, Coins in array: ${game.coins.length}`); // Debug log
 
         if (game.timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * game.difficulty)) {
             let type;
