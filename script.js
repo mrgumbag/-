@@ -73,28 +73,7 @@ const DIFFICULTY_SCALE_POINT = 2000;
 // ===================================
 // 상태 변수 (State Variables)
 // ===================================
-let score = 0;
-let player;
-let obstacles = [];
-let coins = [];
-let gameSpeed = 7 * 60; // 게임 속도도 1200x600 해상도에 맞게 고정
-let accelerationActive = false;
-let timeStopActive = false;
-let timeStopCooldown = 0;
-let timeFactor = 1;
-let lastObstacleType = 'none';
-let consecutiveGroundObstaclesCount = 0;
-let spacebarPressed = false;
-let timeSinceLastObstacle = 0;
-let timeSinceLastBirdObstacle = 0;
-let nextBirdSpawnTime = 0;
-let gameState = 'start';
-let gameLoopId;
-let targetFPS = 60;
-let frameInterval = 1000 / targetFPS;
-let lastFrameTime = 0;
-let difficulty = 1;
-let danaImage;
+let currentBGMIndex = 0;
 
 // ===================================
 // 에셋 관리 (Asset Management)
@@ -269,7 +248,7 @@ class Obstacle {
     }
 
     update(deltaTime) {
-        this.x -= gameSpeed * deltaTime;
+        this.x -= game.gameSpeed * deltaTime;
     }
 }
 
@@ -293,7 +272,7 @@ class Coin {
     }
 
     update(deltaTime) {
-        this.x -= gameSpeed * deltaTime;
+        this.x -= game.gameSpeed * deltaTime;
     }
 }
 
@@ -375,6 +354,36 @@ function displayMusicSelection() {
 function getHighScores() {
     const highScores = JSON.parse(localStorage.getItem('highScores') || '[]');
     return highScores.sort((a, b) => b - a).slice(0, 10);
+}
+
+function saveHighScore(newScore) {
+    const highScores = getHighScores();
+    highScores.push(newScore);
+    highScores.sort((a, b) => b - a);
+    localStorage.setItem('highScores', JSON.stringify(highScores.slice(0, 10)));
+}
+
+function displayHighScores() {
+    const highScores = getHighScores();
+    rankingList.innerHTML = '';
+    if (highScores.length === 0) {
+        rankingList.innerHTML = '<li>아직 최고 점수가 없습니다.</li>';
+    } else {
+        highScores.forEach((s, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. ${s} 점`;
+            rankingList.appendChild(li);
+        });
+    }
+    rankingModal.style.display = 'flex';
+}
+
+function getCoins() {
+    return parseInt(localStorage.getItem('coins') || '0', 10);
+}
+
+function saveCoins(newCoins) {
+    localStorage.setItem('coins', newCoins);
 }
 
 function initGame() {
@@ -691,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
     versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
 
     loadAssets().then(() => {
-        danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
+        game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
         initGame();
         startScreen.style.display = 'flex';
         gameLoop();
