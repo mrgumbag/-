@@ -33,20 +33,27 @@ const currentPatchNotes = `0.5.4V
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
   { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
-  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mpd' }
+  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
 ];
 let currentBGMIndex = 0;
 
+// ===================================
+// 상수 (Constants)
+// ===================================
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const PLAYER_WIDTH = 50;
 const PLAYER_HEIGHT = 50;
+const DANA_WIDTH = 300;
+const DANA_HEIGHT = 300;
+const DANA_X = 0;
+const DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
 const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 100;
-const BIRD_OBSTACLE_HEIGHT = 100;
+const BIRD_OBSTACLE_WIDTH = 50; // 50으로 변경
+const BIRD_OBSTACLE_HEIGHT = 50; // 50으로 변경
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
 const BIRD_OBSTACLE_MAX_Y = 50;
 const GRAVITY = 1 * 30 * 60;
@@ -59,8 +66,11 @@ const BIRD_SPAWN_MAX_MS = 2000;
 const SCORE_BASE_PER_SECOND = 60;
 const ANIMATION_SPEED = 100;
 
+// ===================================
+// 상태 변수 (State Variables)
+// ===================================
 let score = 0;
-let player = {};
+let player;
 let obstacles = [];
 let gameSpeed = 7 * 60;
 let accelerationActive = false;
@@ -75,12 +85,15 @@ let timeSinceLastBirdObstacle = 0;
 let nextBirdSpawnTime = 0;
 let gameState = 'start';
 let gameLoopId;
-let lastTime = 0;
 let targetFPS = 60;
 let frameInterval = 1000 / targetFPS;
 let lastFrameTime = 0;
 let difficulty = 1;
-let danaImage = {};
+let danaImage;
+
+// ===================================
+// 에셋 관리 (Asset Management)
+// ===================================
 const assets = {};
 const assetPaths = {
   player: 'assets/images/player.png',
@@ -92,35 +105,13 @@ const assetPaths = {
   bird_obstacle_2: 'assets/images/bird_obstacle_2.png',
   bird_obstacle_3: 'assets/images/bird_obstacle_3.png',
   bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
-  dana_image: 'assets/images/dana.png'
+  dana_image: 'assets/images/dana.png',
+  dana_image_2: 'assets/images/dana_2.png'
 };
-
-// Functions
-function updateCurrentSongDisplay() {
-  currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
-}
-
-function displayMusicSelection() {
-  musicList.innerHTML = '';
-  bgmPaths.forEach((song, index) => {
-    const li = document.createElement('li');
-    li.textContent = song.name;
-    li.dataset.index = index;
-    li.addEventListener('click', () => {
-      currentBGMIndex = index;
-      gameBGM.src = song.path;
-      updateCurrentSongDisplay();
-      musicSelectionModal.style.display = 'none';
-    });
-    musicList.appendChild(li);
-  });
-  musicSelectionModal.style.display = 'flex';
-}
 
 function loadAssets() {
   let loadedCount = 0;
   const totalAssets = Object.keys(assetPaths).length;
-
   return new Promise((resolve) => {
     for (const key in assetPaths) {
       const img = new Image();
@@ -136,28 +127,33 @@ function loadAssets() {
   });
 }
 
-function Player() {
-  this.x = 300;
-  this.y = GAME_HEIGHT - PLAYER_HEIGHT;
-  this.width = PLAYER_WIDTH;
-  this.height = PLAYER_HEIGHT;
-  this.velocityY = 0;
-  this.isJumping = false;
-  this.jumpCount = 0;
-  this.maxJumps = 2;
-  this.frameImages = [assets.player, assets.player_2];
-  this.animationFrame = 0;
-  this.lastFrameTime = 0;
+// ===================================
+// 클래스 (Classes)
+// ===================================
+class Player {
+  constructor() {
+    this.x = 300;
+    this.y = GAME_HEIGHT - PLAYER_HEIGHT;
+    this.width = PLAYER_WIDTH;
+    this.height = PLAYER_HEIGHT;
+    this.velocityY = 0;
+    this.isJumping = false;
+    this.jumpCount = 0;
+    this.maxJumps = 2;
+    this.frameImages = [assets.player, assets.player_2];
+    this.animationFrame = 0;
+    this.lastFrameTime = 0;
+  }
 
-  this.draw = function(timestamp) {
+  draw(timestamp) {
     if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
       this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
       this.lastFrameTime = timestamp;
     }
     ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
-  };
+  }
 
-  this.update = function(deltaTime) {
+  update(deltaTime) {
     if (this.isJumping) {
       this.y += this.velocityY * timeFactor * deltaTime;
       this.velocityY += GRAVITY * timeFactor * deltaTime;
@@ -172,9 +168,9 @@ function Player() {
         this.y = 0;
       }
     }
-  };
+  }
 
-  this.jump = function() {
+  jump() {
     if (this.jumpCount < this.maxJumps) {
       this.isJumping = true;
       this.velocityY = BASE_JUMP_VELOCITY;
@@ -183,54 +179,63 @@ function Player() {
       }
       this.jumpCount++;
     }
-  };
+  }
 }
 
-function StaticImage(x, y, width, height, image) {
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
-  this.image = image;
-
-  this.draw = function() {
-    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-  };
-}
-
-function Obstacle(type) {
-  this.type = type;
-  this.width = 0;
-  this.height = 0;
-  this.x = GAME_WIDTH;
-  this.y = 0;
-  this.animationFrame = 0;
-  this.lastFrameTime = 0;
-
-  this.frameImages = [];
-
-  if (type === 'ground') {
-    this.width = GROUND_OBSTACLE_WIDTH;
-    this.height = GROUND_OBSTACLE_HEIGHT;
-    this.y = GAME_HEIGHT - this.height;
-  } else if (type === 'air') {
-    this.width = AIR_OBSTACLE_WIDTH;
-    this.height = AIR_OBSTACLE_HEIGHT;
-    this.y = GAME_HEIGHT - this.height - 200;
-    this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
-  } else if (type === 'bird') {
-    this.width = BIRD_OBSTACLE_WIDTH;
-    this.height = BIRD_OBSTACLE_HEIGHT;
-    this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
-    this.frameImages = [
-      assets.bird_obstacle_1,
-      assets.bird_obstacle_2,
-      assets.bird_obstacle_3,
-      assets.bird_obstacle_4,
-    ];
+class StaticImage {
+  constructor(x, y, width, height, images) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.frameImages = images;
+    this.animationFrame = 0;
+    this.lastFrameTime = 0;
   }
 
-  this.draw = function(timestamp) {
+  draw(timestamp) {
+    if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
+      this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+      this.lastFrameTime = timestamp;
+    }
+    ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
+  }
+}
+
+class Obstacle {
+  constructor(type) {
+    this.type = type;
+    this.width = 0;
+    this.height = 0;
+    this.x = GAME_WIDTH;
+    this.y = 0;
+    this.animationFrame = 0;
+    this.lastFrameTime = 0;
+    this.frameImages = [];
+
+    if (type === 'ground') {
+      this.width = GROUND_OBSTACLE_WIDTH;
+      this.height = GROUND_OBSTACLE_HEIGHT;
+      this.y = GAME_HEIGHT - this.height;
+    } else if (type === 'air') {
+      this.width = AIR_OBSTACLE_WIDTH;
+      this.height = AIR_OBSTACLE_HEIGHT;
+      this.y = GAME_HEIGHT - this.height - 200;
+      this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
+    } else if (type === 'bird') {
+      this.width = BIRD_OBSTACLE_WIDTH;
+      this.height = BIRD_OBSTACLE_HEIGHT;
+      this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
+      this.frameImages = [
+        assets.bird_obstacle_1,
+        assets.bird_obstacle_2,
+        assets.bird_obstacle_3,
+        assets.bird_obstacle_4,
+      ];
+    }
+  }
+
+  draw(timestamp) {
     ctx.save();
     if (this.type === 'ground') {
       ctx.drawImage(assets.ground_obstacle, this.x, this.y, this.width, this.height);
@@ -247,50 +252,35 @@ function Obstacle(type) {
       }
       let img = this.frameImages[this.animationFrame];
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate(Math.PI / 2); // 시계 방향 90도 회전
-      ctx.scale(1, -1); // 상하 반전
+      ctx.rotate(Math.PI / 2);
+      ctx.scale(1, -1);
       ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
     }
     ctx.restore();
-  };
+  }
 
-  this.update = function(deltaTime) {
+  update(deltaTime) {
     this.x -= gameSpeed * deltaTime;
-  };
+  }
 }
 
+// ===================================
+// 게임 로직 및 유틸리티 함수 (Game Logic & Utility Functions)
+// ===================================
+
 function checkCollision(obj1, obj2) {
-  let img1;
-  let img2;
+  // AABB (Axis-Aligned Bounding Box) 충돌 먼저 감지
+  if (
+    Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
+    Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
+    Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
+    Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)
+  ) {
+    // AABB 충돌 시에만 픽셀 충돌 감지 수행 (성능 개선)
+    const img1 = obj1.frameImages ? obj1.frameImages[obj1.animationFrame] : assets.ground_obstacle;
+    const img2 = obj2.frameImages ? obj2.frameImages[obj2.animationFrame] : assets.ground_obstacle;
 
-  // obj1 이미지 설정
-  if (obj1.type === 'bird') {
-    img1 = obj1.frameImages[obj1.animationFrame];
-  } else if (obj1.type === 'air') {
-    img1 = obj1.frameImages[obj1.animationFrame];
-  } else if (obj1.type === 'ground') {
-    img1 = assets.ground_obstacle;
-  } else {
-    img1 = obj1.frameImages[obj1.animationFrame];
-  }
-
-  // obj2 이미지 설정
-  if (obj2.type === 'bird') {
-    img2 = obj2.frameImages[obj2.animationFrame];
-  } else if (obj2.type === 'air') {
-    img2 = obj2.frameImages[obj2.animationFrame];
-  } else if (obj2.type === 'ground') {
-    img2 = assets.ground_obstacle;
-  } else {
-    img2 = obj2.frameImages[obj2.animationFrame];
-  }
-
-  if (!img1 || !img2) return false;
-
-  if (Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
-      Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
-      Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
-      Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
+    if (!img1 || !img2) return false;
 
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
@@ -330,47 +320,25 @@ function checkCollision(obj1, obj2) {
   return false;
 }
 
-function initGame() {
-  player = new Player();
-  danaImage = new StaticImage(10, 255, 300, 300, assets.dana_image); // 높이를 300으로, y 좌표를 255로 변경했습니다.
-  obstacles = [];
-  score = 0;
-  gameSpeed = 7 * 60;
-  accelerationActive = false;
-  timeStopActive = false;
-  timeStopCooldown = 0;
-  timeFactor = 1;
-  lastObstacleType = 'none';
-  consecutiveGroundObstaclesCount = 0;
-  timeSinceLastObstacle = 0;
-  timeSinceLastBirdObstacle = 0;
-  nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
-  scoreDisplay.textContent = 'Score: 0';
-  difficulty = 1;
-  difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
-  gameBGM.src = bgmPaths[currentBGMIndex].path;
-  updateCurrentSongDisplay();
+function updateCurrentSongDisplay() {
+  currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
 }
 
-function startGame() {
-  initGame();
-  startScreen.style.display = 'none';
-  gameOverScreen.style.display = 'none';
-  gameState = 'playing';
-  if (gameLoopId) cancelAnimationFrame(gameLoopId);
-  lastTime = 0;
-  gameBGM.play();
-  updateCurrentSongDisplay();
-  gameLoopId = requestAnimationFrame(gameLoop);
-}
-
-function endGame() {
-  gameState = 'gameOver';
-  finalScore.textContent = Math.floor(score);
-  gameOverScreen.style.display = 'flex';
-  saveHighScore(score);
-  gameBGM.pause();
-  gameBGM.currentTime = 0;
+function displayMusicSelection() {
+  musicList.innerHTML = '';
+  bgmPaths.forEach((song, index) => {
+    const li = document.createElement('li');
+    li.textContent = song.name;
+    li.dataset.index = index;
+    li.addEventListener('click', () => {
+      currentBGMIndex = index;
+      gameBGM.src = song.path;
+      updateCurrentSongDisplay();
+      musicSelectionModal.style.display = 'none';
+    });
+    musicList.appendChild(li);
+  });
+  musicSelectionModal.style.display = 'flex';
 }
 
 function getHighScores() {
@@ -400,13 +368,54 @@ function displayHighScores() {
   rankingModal.style.display = 'flex';
 }
 
+function initGame() {
+  player = new Player();
+  obstacles = [];
+  score = 0;
+  gameSpeed = 7 * 60;
+  accelerationActive = false;
+  timeStopActive = false;
+  timeStopCooldown = 0;
+  timeFactor = 1;
+  lastObstacleType = 'none';
+  consecutiveGroundObstaclesCount = 0;
+  timeSinceLastObstacle = 0;
+  timeSinceLastBirdObstacle = 0;
+  nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
+  scoreDisplay.textContent = 'Score: 0';
+  difficulty = 1;
+  difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+  gameBGM.src = bgmPaths[currentBGMIndex].path;
+  updateCurrentSongDisplay();
+}
+
+function startGame() {
+  initGame();
+  startScreen.style.display = 'none';
+  gameOverScreen.style.display = 'none';
+  gameState = 'playing';
+  if (gameLoopId) cancelAnimationFrame(gameLoopId);
+  gameBGM.play();
+  updateCurrentSongDisplay();
+  gameLoopId = requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+  gameState = 'gameOver';
+  finalScore.textContent = Math.floor(score);
+  gameOverScreen.style.display = 'flex';
+  saveHighScore(score);
+  gameBGM.pause();
+  gameBGM.currentTime = 0;
+}
+
 function gameLoop(timestamp) {
   const elapsed = timestamp - lastFrameTime;
   if (elapsed < frameInterval) {
     gameLoopId = requestAnimationFrame(gameLoop);
     return;
   }
-  const gameDeltaTime = (timestamp - lastFrameTime) / 1000;
+  const gameDeltaTime = elapsed / 1000;
   lastFrameTime = timestamp;
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -416,9 +425,8 @@ function gameLoop(timestamp) {
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
-    
-    danaImage.draw();
 
+    danaImage.draw(timestamp);
     player.update(gameDeltaTime);
     player.draw(timestamp);
 
@@ -486,7 +494,9 @@ function gameLoop(timestamp) {
   }
 }
 
-// Event Listeners
+// ===================================
+// 이벤트 리스너 (Event Listeners)
+// ===================================
 document.addEventListener('keydown', (e) => {
   if (gameState !== 'playing') return;
 
@@ -581,7 +591,11 @@ volumeSlider.addEventListener('input', (e) => {
 changeSongButton.addEventListener('click', displayMusicSelection);
 
 
+// ===================================
+// 초기화 (Initialization)
+// ===================================
 loadAssets().then(() => {
+  danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
   initGame();
   startScreen.style.display = 'flex';
   gameLoop();
