@@ -40,91 +40,34 @@ const bgmPaths = [
 let currentBGMIndex = 0;
 
 // ===================================
-// 상수 (Constants)
-// 화면 크기에 따라 동적으로 값을 설정합니다.
+// 상수 (Constants) - 1200x600 해상도 기준
 // ===================================
-let GAME_WIDTH;
-let GAME_HEIGHT;
-let PLAYER_WIDTH;
-let PLAYER_HEIGHT;
-let DANA_WIDTH;
-let DANA_HEIGHT;
-let DANA_X;
-let DANA_Y;
-let GROUND_OBSTACLE_WIDTH;
-let GROUND_OBSTACLE_HEIGHT;
-let AIR_OBSTACLE_WIDTH;
-let AIR_OBSTACLE_HEIGHT;
-let BIRD_OBSTACLE_WIDTH;
-let BIRD_OBSTACLE_HEIGHT;
-let BIRD_OBSTACLE_MIN_Y;
-let BIRD_OBSTACLE_MAX_Y;
-let GRAVITY;
-let BASE_JUMP_VELOCITY;
+const GAME_WIDTH = 1200;
+const GAME_HEIGHT = 600;
+const PLAYER_WIDTH = 50;
+const PLAYER_HEIGHT = 50;
+const DANA_WIDTH = 300;
+const DANA_HEIGHT = 300;
+const DANA_X = -100;
+const DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
+const GROUND_OBSTACLE_WIDTH = 90;
+const GROUND_OBSTACLE_HEIGHT = 90;
+const AIR_OBSTACLE_WIDTH = 70;
+const AIR_OBSTACLE_HEIGHT = 70;
+const BIRD_OBSTACLE_WIDTH = 50;
+const BIRD_OBSTACLE_HEIGHT = 50;
+const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
+const BIRD_OBSTACLE_MAX_Y = 50;
+const GRAVITY = 1 * 30 * 60;
+const BASE_JUMP_VELOCITY = -890;
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
 const OBSTACLE_MIN_GAP_MS = 300;
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
-let SCORE_BASE_PER_SECOND;
+const SCORE_BASE_PER_SECOND = 60;
 const ANIMATION_SPEED = 100;
-let DIFFICULTY_SCALE_POINT;
-
-// 화면 크기에 따라 게임 상수를 설정하는 함수
-function setGameConstants(isMobile) {
-    if (isMobile) {
-        // 모바일 (1/4 해상도)
-        GAME_WIDTH = 300;
-        GAME_HEIGHT = 150;
-        PLAYER_WIDTH = 12.5;
-        PLAYER_HEIGHT = 12.5;
-        DANA_WIDTH = 75;
-        DANA_HEIGHT = 75;
-        DANA_X = -25;
-        DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
-        GROUND_OBSTACLE_WIDTH = 22.5;
-        GROUND_OBSTACLE_HEIGHT = 22.5;
-        AIR_OBSTACLE_WIDTH = 17.5;
-        AIR_OBSTACLE_HEIGHT = 17.5;
-        BIRD_OBSTACLE_WIDTH = 12.5;
-        BIRD_OBSTACLE_HEIGHT = 12.5;
-        BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 62.5;
-        BIRD_OBSTACLE_MAX_Y = 12.5;
-        GRAVITY = 1 * 30 * 60 / 4;
-        BASE_JUMP_VELOCITY = -890 / 4;
-        SCORE_BASE_PER_SECOND = 60 / 4;
-        DIFFICULTY_SCALE_POINT = 2000 / 4;
-    } else {
-        // PC (원래 해상도)
-        GAME_WIDTH = 1200;
-        GAME_HEIGHT = 600;
-        PLAYER_WIDTH = 50;
-        PLAYER_HEIGHT = 50;
-        DANA_WIDTH = 300;
-        DANA_HEIGHT = 300;
-        DANA_X = -100;
-        DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
-        GROUND_OBSTACLE_WIDTH = 90;
-        GROUND_OBSTACLE_HEIGHT = 90;
-        AIR_OBSTACLE_WIDTH = 70;
-        AIR_OBSTACLE_HEIGHT = 70;
-        BIRD_OBSTACLE_WIDTH = 50;
-        BIRD_OBSTACLE_HEIGHT = 50;
-        BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
-        BIRD_OBSTACLE_MAX_Y = 50;
-        GRAVITY = 1 * 30 * 60;
-        BASE_JUMP_VELOCITY = -890;
-        SCORE_BASE_PER_SECOND = 60;
-        DIFFICULTY_SCALE_POINT = 2000;
-    }
-
-    // 캔버스 크기 재설정
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
-}
-
-// 초기 로드 시 화면 크기 체크
-setGameConstants(window.innerWidth <= 767);
+const DIFFICULTY_SCALE_POINT = 2000;
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -132,7 +75,7 @@ setGameConstants(window.innerWidth <= 767);
 let score = 0;
 let player;
 let obstacles = [];
-let gameSpeed;
+let gameSpeed = 7 * 60; // 게임 속도도 1200x600 해상도에 맞게 고정
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -192,7 +135,7 @@ function loadAssets() {
 // ===================================
 class Player {
     constructor() {
-        this.x = GAME_WIDTH / 4; // 항상 캔버스 너비의 1/4 지점에 위치
+        this.x = GAME_WIDTH / 4;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
@@ -282,7 +225,7 @@ class Obstacle {
         } else if (type === 'air') {
             this.width = AIR_OBSTACLE_WIDTH;
             this.height = AIR_OBSTACLE_HEIGHT;
-            this.y = GAME_HEIGHT - this.height - (GAME_HEIGHT / 3); // 캔버스 높이에 비례하도록 수정
+            this.y = GAME_HEIGHT - this.height - (GAME_HEIGHT / 3);
             this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
         } else if (type === 'bird') {
             this.width = BIRD_OBSTACLE_WIDTH;
@@ -429,13 +372,10 @@ function displayHighScores() {
 }
 
 function initGame() {
-    const isMobile = window.innerWidth <= 767;
-    setGameConstants(isMobile);
-
     player = new Player();
     obstacles = [];
     score = 0;
-    gameSpeed = isMobile ? (7 * 60 / 4) : (7 * 60);
+    gameSpeed = 7 * 60;
     accelerationActive = false;
     timeStopActive = false;
     timeStopCooldown = 0;
@@ -589,9 +529,6 @@ document.addEventListener('keydown', (e) => {
     if (e.code === 'KeyA') {
         accelerationActive = !accelerationActive;
         gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
-        if (window.innerWidth <= 767) {
-            gameSpeed /= 4; // 모바일에서는 4로 나눈 값 적용
-        }
     }
     if (e.code === 'KeyS' && timeStopCooldown <= 0) {
         timeStopActive = true;
@@ -623,9 +560,6 @@ function handleTouchControls(e) {
     } else if (e.target.id === 'accelerate-button') {
         accelerationActive = !accelerationActive;
         gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
-        if (window.innerWidth <= 767) {
-            gameSpeed /= 4;
-        }
     } else if (e.target.id === 'time-stop-button' && timeStopCooldown <= 0) {
         timeStopActive = true;
         timeStopCooldown = 30000;
@@ -721,10 +655,6 @@ changeSongButton.addEventListener('click', displayMusicSelection);
 // ===================================
 // 초기화 (Initialization)
 // ===================================
-window.addEventListener('resize', () => {
-    initGame(); // 화면 크기가 변경되면 게임을 다시 초기화
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);

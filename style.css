@@ -66,7 +66,7 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    max-width: 1200px; /* PC에서는 최대 크기 제한 */
+    max-width: 1200px;
     max-height: 600px;
     background-color: var(--game-container-bg);
     border: 5px solid var(--game-container-border);
@@ -81,11 +81,11 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
-    width: 100%; /* 컨테이너에 맞춰 꽉 채우도록 수정 */
-    height: 100%; /* 컨테이너에 맞춰 꽉 채우도록 수정 */
+    width: 100%; /* 컨테이너 크기에 맞춰 채우기 */
+    height: 100%; /* 컨테이너 크기에 맞춰 채우기 */
 }
 
-/* 나머지 CSS 코드는 동일합니다. */
+/* 나머지 CSS는 동일합니다. */
 #game-info {
     position: absolute;
     top: 10px;
@@ -315,14 +315,13 @@ body {
     transition: background-color 0.3s;
 }
 
-/* 모바일 환경에 대한 미디어 쿼리 */
+/* 모바일 화면에서만 컨테이너 크기를 축소 */
 @media (max-width: 767px) {
     #game-container {
-        max-width: 100vw;
-        max-height: 100vh;
-        border: none;
-        box-shadow: none;
-        aspect-ratio: auto;
+        max-width: 300px;
+        max-height: 150px;
+        border: 5px solid var(--game-container-border);
+        box-shadow: 0 0 20px var(--game-container-shadow);
     }
 
     body {
