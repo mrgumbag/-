@@ -64,8 +64,6 @@ body {
 
 #game-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
     max-width: 1200px;
     max-height: 600px;
     background-color: var(--game-container-bg);
@@ -73,7 +71,9 @@ body {
     box-shadow: 0 0 20px var(--game-container-shadow);
     overflow: hidden;
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
-    aspect-ratio: 1200 / 600; /* 2:1 비율 유지 */
+    aspect-ratio: 1200 / 600;
+    width: 100%;
+    height: auto;
 }
 
 #gameCanvas {
@@ -81,11 +81,10 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
-    width: 100%; /* 컨테이너 크기에 맞춰 채우기 */
-    height: 100%; /* 컨테이너 크기에 맞춰 채우기 */
+    width: 100%;
+    height: 100%;
 }
 
-/* 나머지 CSS는 동일합니다. */
 #game-info {
     position: absolute;
     top: 10px;
@@ -171,7 +170,7 @@ body {
 }
 
 #mobile-controls {
-    display: none;
+    display: none; /* 기본적으로는 숨김 */
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -315,13 +314,16 @@ body {
     transition: background-color 0.3s;
 }
 
-/* 모바일 화면에서만 컨테이너 크기를 축소 */
-@media (max-width: 767px) {
+/* 모바일 가로 모드에 대한 미디어 쿼리 */
+@media screen and (max-width: 900px) and (orientation: landscape) {
     #game-container {
-        max-width: 300px;
-        max-height: 150px;
-        border: 5px solid var(--game-container-border);
-        box-shadow: 0 0 20px var(--game-container-shadow);
+        max-width: 100vw;
+        max-height: 100vh;
+        width: 100%;
+        height: auto;
+        border: none;
+        box-shadow: none;
+        aspect-ratio: 1200 / 600;
     }
 
     body {
@@ -335,6 +337,35 @@ body {
     }
 
     #mobile-controls {
-        display: flex;
+        display: flex; /* 모바일 가로 모드에서만 보이게 설정 */
+    }
+
+    /* 전반적인 UI 크기 축소 */
+    .game-screen h1 {
+        font-size: 2rem;
+    }
+
+    .game-screen p {
+        font-size: 1rem;
+    }
+
+    .game-screen button {
+        font-size: 1rem;
+        padding: 8px 16px;
+    }
+
+    .modal-content {
+        padding: 20px;
+        width: 90%;
+        max-width: 400px;
+    }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+        }
+
+    #ranking-list li, #music-list li {
+        font-size: 0.9rem;
+        padding: 8px;
     }
 }
