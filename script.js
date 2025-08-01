@@ -333,6 +333,7 @@ function initGame() {
   scoreDisplay.textContent = 'Score: 0';
   difficulty = 1;
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
+  gameBGM.src = bgmPaths[currentBGMIndex].path;
   updateCurrentSongDisplay();
 }
 
