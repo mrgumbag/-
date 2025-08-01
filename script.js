@@ -725,6 +725,7 @@ volumeSlider.addEventListener('input', (e) => {
 });
 changeSongButton.addEventListener('click', displayMusicSelection);
 coinSound.src = 'assets/audio/coin.mp3';
+coinSound.volume = 0.2;
 
 
 // ===================================
