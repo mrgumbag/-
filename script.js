@@ -52,8 +52,8 @@ const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-const BIRD_OBSTACLE_WIDTH = 50; // 50으로 변경
-const BIRD_OBSTACLE_HEIGHT = 50; // 50으로 변경
+const BIRD_OBSTACLE_WIDTH = 50;
+const BIRD_OBSTACLE_HEIGHT = 50;
 const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
 const BIRD_OBSTACLE_MAX_Y = 50;
 const GRAVITY = 1 * 30 * 60;
@@ -212,11 +212,13 @@ class Obstacle {
     this.animationFrame = 0;
     this.lastFrameTime = 0;
     this.frameImages = [];
+    this.image = null;
 
     if (type === 'ground') {
       this.width = GROUND_OBSTACLE_WIDTH;
       this.height = GROUND_OBSTACLE_HEIGHT;
       this.y = GAME_HEIGHT - this.height;
+      this.image = assets.ground_obstacle; // 지상 장애물 이미지 설정
     } else if (type === 'air') {
       this.width = AIR_OBSTACLE_WIDTH;
       this.height = AIR_OBSTACLE_HEIGHT;
@@ -238,7 +240,7 @@ class Obstacle {
   draw(timestamp) {
     ctx.save();
     if (this.type === 'ground') {
-      ctx.drawImage(assets.ground_obstacle, this.x, this.y, this.width, this.height);
+      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     } else if (this.type === 'air') {
       if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
         this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
@@ -277,8 +279,8 @@ function checkCollision(obj1, obj2) {
     Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)
   ) {
     // AABB 충돌 시에만 픽셀 충돌 감지 수행 (성능 개선)
-    const img1 = obj1.frameImages ? obj1.frameImages[obj1.animationFrame] : assets.ground_obstacle;
-    const img2 = obj2.frameImages ? obj2.frameImages[obj2.animationFrame] : assets.ground_obstacle;
+    const img1 = (obj1.frameImages && obj1.frameImages.length > 0) ? obj1.frameImages[obj1.animationFrame] : obj1.image;
+    const img2 = (obj2.frameImages && obj2.frameImages.length > 0) ? obj2.frameImages[obj2.animationFrame] : obj2.image;
 
     if (!img1 || !img2) return false;
 
