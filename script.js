@@ -13,56 +13,30 @@ const rankingModal = document.getElementById('ranking-modal');
 const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
-const darkModeToggle = document.getElementById('dark-mode-toggle');
 const changeSongButton = document.getElementById('music-selection-button');
 const musicSelectionModal = document.getElementById('music-selection-modal');
 const musicList = document.getElementById('music-list');
 const settingsButton = document.getElementById('settings-button');
 const settingsModal = document.getElementById('settings-modal');
 const fpsOptions = document.getElementById('fps-options');
+const patchNotesButton = document.getElementById('patch-notes-button');
+const patchNotesModal = document.getElementById('patch-notes-modal');
+const closeButtons = document.querySelectorAll('.close-button');
+const patchNotesText = document.getElementById('patch-notes-text');
+const currentPatchNotes = `0.5.4V
+더블 점프 추가
+조류 장애물 추가
+음악 추가 및 변경 추가
+음악 볼륨 상세 조절 추가
+기타 버그 수정`;
 
 const bgmPaths = [
   { name: 'RUN', path: 'assets/audio/bgm.mp3' },
-  { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' }, // 예시, 실제 파일 경로와 이름으로 변경 필요
-  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' } // bgm3.mp3 추가
+  { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
+  { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' }
 ];
 let currentBGMIndex = 0;
 
-// Function to update the displayed current song
-function updateCurrentSongDisplay() {
-  currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
-}
-
-// Set initial BGM volume
-gameBGM.volume = volumeSlider.value / 100;
-
-// Add event listener for volume slider
-volumeSlider.addEventListener('input', (e) => {
-  gameBGM.volume = e.target.value / 100;
-});
-
-// Function to play the next song
-function displayMusicSelection() {
-  musicList.innerHTML = ''; // Clear previous list
-  bgmPaths.forEach((song, index) => {
-    const li = document.createElement('li');
-    li.textContent = song.name;
-    li.dataset.index = index; // Store index for easy access
-    li.addEventListener('click', () => {
-      currentBGMIndex = index;
-      gameBGM.src = song.path;
-      updateCurrentSongDisplay(); // Update current song display
-      musicSelectionModal.style.display = 'none'; // Close modal after selection
-    });
-    musicList.appendChild(li);
-  });
-  musicSelectionModal.style.display = 'flex';
-}
-
-// Add event listener for music selection button
-changeSongButton.addEventListener('click', displayMusicSelection);
-
-// Game settings
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const PLAYER_WIDTH = 50;
@@ -71,47 +45,40 @@ const GROUND_OBSTACLE_WIDTH = 90;
 const GROUND_OBSTACLE_HEIGHT = 90;
 const AIR_OBSTACLE_WIDTH = 70;
 const AIR_OBSTACLE_HEIGHT = 70;
-
 const BIRD_OBSTACLE_WIDTH = 50;
 const BIRD_OBSTACLE_HEIGHT = 50;
-const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250; // Slightly above air obstacle
-const BIRD_OBSTACLE_MAX_Y = 50; // Near the ceiling
-const BIRD_SPAWN_MIN_FRAMES = 30; // 0.5 seconds at 60fps
-const BIRD_SPAWN_MAX_FRAMES = 120; // 2 seconds at 60fps
-
-const GRAVITY = 1 * 30 * 60; // Units per second squared (assuming 1 unit/frame at 60fps)
-const BASE_JUMP_VELOCITY = -890; // Initial jump velocity
+const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
+const BIRD_OBSTACLE_MAX_Y = 50;
+const GRAVITY = 1 * 30 * 60;
+const BASE_JUMP_VELOCITY = -890;
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
+const OBSTACLE_MIN_GAP_MS = 300;
+const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
+const BIRD_SPAWN_MIN_MS = 500;
+const BIRD_SPAWN_MAX_MS = 2000;
+const SCORE_BASE_PER_SECOND = 60;
 
-// Game state
 let score = 0;
 let player = {};
 let obstacles = [];
-let gameSpeed = 7 * 60; // Base speed in units per second
+let gameSpeed = 7 * 60;
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
-let timeFactor = 1; // Affects player movement and gravity
-let lastObstacleType = 'none'; // 'none', 'ground', 'air'
-const OBSTACLE_MIN_GAP_MS = 300; // Minimum 0.5 second gap between obstacles (in ms)
-const BASE_OBSTACLE_SPAWN_CHANCE = 0.02; // Base chance to spawn an obstacle per frame
-let consecutiveGroundObstaclesCount = 0; // Track consecutive ground obstacles
-let spacebarPressed = false; // Track if spacebar is pressed
-let timeSinceLastObstacle = 0; // New: Track time for obstacle spawning
-let timeSinceLastBirdObstacle = 0; // New: Track time for bird obstacle spawning
-const BIRD_SPAWN_MIN_MS = 500; // 0.5 seconds in ms
-const BIRD_SPAWN_MAX_MS = 2000; // 2 seconds in ms
-const SCORE_BASE_PER_SECOND = 60; // Base score gain per second
-let nextBirdSpawnTime = 0; // New: Next time to spawn bird (in ms)
-let gameState = 'start'; // 'start', 'playing', 'gameOver'
+let timeFactor = 1;
+let lastObstacleType = 'none';
+let consecutiveGroundObstaclesCount = 0;
+let spacebarPressed = false;
+let timeSinceLastObstacle = 0;
+let timeSinceLastBirdObstacle = 0;
+let nextBirdSpawnTime = 0;
+let gameState = 'start';
 let gameLoopId;
-let lastTime = 0; // For delta time calculation
-const targetFPS = 60; // Target frames per second
-const frameInterval = 1000 / targetFPS; // Milliseconds per frame
-let lastFrameTime = 0; // For frame rate capping
-let difficulty = 1; // New difficulty variable
-
-// Assets
+let lastTime = 0;
+let targetFPS = 60;
+let frameInterval = 1000 / targetFPS;
+let lastFrameTime = 0;
+let difficulty = 1;
 const assets = {};
 const assetPaths = {
   player: 'assets/images/player.png',
@@ -119,6 +86,28 @@ const assetPaths = {
   air_obstacle: 'assets/images/air_obstacle.png',
   bird_obstacle: 'assets/images/bird_obstacle.png',
 };
+
+// Functions
+function updateCurrentSongDisplay() {
+  currentSongDisplay.textContent = `재생중인 곡: ${bgmPaths[currentBGMIndex].name}`;
+}
+
+function displayMusicSelection() {
+  musicList.innerHTML = '';
+  bgmPaths.forEach((song, index) => {
+    const li = document.createElement('li');
+    li.textContent = song.name;
+    li.dataset.index = index;
+    li.addEventListener('click', () => {
+      currentBGMIndex = index;
+      gameBGM.src = song.path;
+      updateCurrentSongDisplay();
+      musicSelectionModal.style.display = 'none';
+    });
+    musicList.appendChild(li);
+  });
+  musicSelectionModal.style.display = 'flex';
+}
 
 function loadAssets() {
   let loadedCount = 0;
@@ -135,12 +124,10 @@ function loadAssets() {
           resolve();
         }
       };
-      
     }
   });
 }
 
-// --- Player Object ---
 function Player() {
   this.x = 50;
   this.y = GAME_HEIGHT - PLAYER_HEIGHT;
@@ -148,8 +135,8 @@ function Player() {
   this.height = PLAYER_HEIGHT;
   this.velocityY = 0;
   this.isJumping = false;
-  this.jumpCount = 0; // Track current jumps
-  this.maxJumps = 2; // Allow single and double jump
+  this.jumpCount = 0;
+  this.maxJumps = 2;
 
   this.draw = function() {
     ctx.drawImage(assets.player, this.x, this.y, this.width, this.height);
@@ -158,13 +145,13 @@ function Player() {
   this.update = function(deltaTime) {
     if (this.isJumping) {
       this.y += this.velocityY * timeFactor * deltaTime;
-      this.velocityY += GRAVITY * timeFactor * deltaTime; // Gravity affected by time stop
+      this.velocityY += GRAVITY * timeFactor * deltaTime;
 
       if (this.y >= GAME_HEIGHT - this.height) {
         this.y = GAME_HEIGHT - this.height;
         this.isJumping = false;
         this.velocityY = 0;
-        this.jumpCount = 0; // Reset jump count on landing
+        this.jumpCount = 0;
         if (spacebarPressed) {
           this.jump();
         }
@@ -178,8 +165,8 @@ function Player() {
   this.jump = function() {
     if (this.jumpCount < this.maxJumps) {
       this.isJumping = true;
-      this.velocityY = BASE_JUMP_VELOCITY; // Base jump velocity
-      if (this.jumpCount === 1) { // If it's a double jump
+      this.velocityY = BASE_JUMP_VELOCITY;
+      if (this.jumpCount === 1) {
         this.velocityY *= DOUBLE_JUMP_MULTIPLIER;
       }
       this.jumpCount++;
@@ -187,7 +174,6 @@ function Player() {
   };
 }
 
-// --- Obstacle Object ---
 function Obstacle(type) {
   this.type = type;
   this.width = 0;
@@ -202,11 +188,11 @@ function Obstacle(type) {
   } else if (type === 'air') {
     this.width = AIR_OBSTACLE_WIDTH;
     this.height = AIR_OBSTACLE_HEIGHT;
-    this.y = GAME_HEIGHT - this.height - 200; // Air obstacle higher
+    this.y = GAME_HEIGHT - this.height - 200;
   } else if (type === 'bird') {
     this.width = BIRD_OBSTACLE_WIDTH;
     this.height = BIRD_OBSTACLE_HEIGHT;
-    this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y; // Random height
+    this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
   }
 
   this.draw = function() {
@@ -218,12 +204,12 @@ function Obstacle(type) {
     } else if (this.type === 'bird') {
       img = assets.bird_obstacle;
 
-      ctx.save(); // Save the current canvas state
-      ctx.translate(this.x + this.width / 2, this.y + this.height / 2); // Move origin to center of image
-      ctx.rotate(-Math.PI / 2); // Rotate -90 degrees (counter-clockwise)
-      ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height); // Draw image at new origin
-      ctx.restore(); // Restore the canvas state
-      return; // Skip default drawImage
+      ctx.save();
+      ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+      ctx.restore();
+      return;
     }
     ctx.drawImage(img, this.x, this.y, this.width, this.height);
   };
@@ -233,19 +219,15 @@ function Obstacle(type) {
   };
 }
 
-// --- Pixel-perfect Collision Detection ---
 function checkCollision(obj1, obj2) {
-  // 1. Bounding box collision (fast check)
   if (Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
       Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
       Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
       Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)) {
 
-    // 2. Pixel-perfect collision (slow, precise check)
     const img1 = obj1 === player ? assets.player : (obj1.type === 'ground' ? assets.ground_obstacle : (obj1.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
     const img2 = obj2 === player ? assets.player : (obj2.type === 'ground' ? assets.ground_obstacle : (obj2.type === 'air' ? assets.air_obstacle : assets.bird_obstacle));
 
-    // Create temporary canvases to draw images and get pixel data
     const tempCanvas1 = document.createElement('canvas');
     const tempCtx1 = tempCanvas1.getContext('2d');
     tempCanvas1.width = obj1.width;
@@ -260,11 +242,10 @@ function checkCollision(obj1, obj2) {
     tempCtx2.drawImage(img2, 0, 0, obj2.width, obj2.height);
     const data2 = tempCtx2.getImageData(0, 0, obj2.width, obj2.height).data;
 
-    // Calculate overlap area
     const xOverlap = Math.max(0, Math.min(Math.floor(obj1.x) + obj1.width, Math.floor(obj2.x) + obj2.width) - Math.max(Math.floor(obj1.x), Math.floor(obj2.x)));
     const yOverlap = Math.max(0, Math.min(Math.floor(obj1.y) + obj1.height, Math.floor(obj2.y) + obj2.height) - Math.max(Math.floor(obj1.y), Math.floor(obj2.y)));
 
-    if (xOverlap === 0 || yOverlap === 0) return false; // No actual overlap
+    if (xOverlap === 0 || yOverlap === 0) return false;
 
     const xStart = Math.max(0, Math.floor(Math.max(obj1.x, obj2.x)) - Math.floor(obj1.x));
     const yStart = Math.max(0, Math.floor(Math.max(obj1.y, obj2.y)) - Math.floor(obj1.y));
@@ -272,16 +253,12 @@ function checkCollision(obj1, obj2) {
     for (let y = 0; y < yOverlap; y++) {
       for (let x = 0; x < xOverlap; x++) {
         const pixel1Alpha = data1[((yStart + y) * obj1.width + (xStart + x)) * 4 + 3];
-        // Calculate the corresponding pixel coordinates in obj2's local space
-        // The x and y here are relative to the overlap area, so we need to convert them
-        // to the local coordinates of obj2.
         const obj2PixelX = (Math.floor(Math.max(obj1.x, obj2.x)) - Math.floor(obj2.x)) + x;
         const obj2PixelY = (Math.floor(Math.max(obj1.y, obj2.y)) - Math.floor(obj2.y)) + y;
         const pixel2Alpha = data2[(obj2PixelY * obj2.width + obj2PixelX) * 4 + 3];
 
         if (pixel1Alpha > 0 && pixel2Alpha > 0) {
-          
-          return true; // Collision detected
+          return true;
         }
       }
     }
@@ -289,9 +266,7 @@ function checkCollision(obj1, obj2) {
   return false;
 }
 
-// --- Game Functions ---
 function initGame() {
-  
   player = new Player();
   obstacles = [];
   score = 0;
@@ -302,14 +277,13 @@ function initGame() {
   timeFactor = 1;
   lastObstacleType = 'none';
   consecutiveGroundObstaclesCount = 0;
-  timeSinceLastObstacle = 0; // Initialize time for obstacle spawning
-  timeSinceLastBirdObstacle = 0; // Initialize time for bird obstacle spawning
-  nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set initial random spawn time for bird
-  
+  timeSinceLastObstacle = 0;
+  timeSinceLastBirdObstacle = 0;
+  nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
   scoreDisplay.textContent = 'Score: 0';
-  difficulty = 1; // Initialize difficulty
+  difficulty = 1;
   difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
-  updateCurrentSongDisplay(); // Update current song display on init
+  updateCurrentSongDisplay();
 }
 
 function startGame() {
@@ -318,10 +292,10 @@ function startGame() {
   gameOverScreen.style.display = 'none';
   gameState = 'playing';
   if (gameLoopId) cancelAnimationFrame(gameLoopId);
-  lastTime = 0; // Reset lastTime for delta time calculation
-  gameBGM.play(); // Play BGM
-  updateCurrentSongDisplay(); // Update current song display
-  gameLoopId = requestAnimationFrame(gameLoop); // Call via requestAnimationFrame
+  lastTime = 0;
+  gameBGM.play();
+  updateCurrentSongDisplay();
+  gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
@@ -329,14 +303,13 @@ function endGame() {
   finalScore.textContent = Math.floor(score);
   gameOverScreen.style.display = 'flex';
   saveHighScore(score);
-  gameBGM.pause(); // Pause BGM
-  gameBGM.currentTime = 0; // Reset BGM to start
+  gameBGM.pause();
+  gameBGM.currentTime = 0;
 }
 
-// --- High Score Functions ---
 function getHighScores() {
   const highScores = JSON.parse(localStorage.getItem('highScores') || '[]');
-  return highScores.sort((a, b) => b - a).slice(0, 10); // Top 10 scores
+  return highScores.sort((a, b) => b - a).slice(0, 10);
 }
 
 function saveHighScore(newScore) {
@@ -348,7 +321,7 @@ function saveHighScore(newScore) {
 
 function displayHighScores() {
   const highScores = getHighScores();
-  rankingList.innerHTML = ''; // Clear previous list
+  rankingList.innerHTML = '';
   if (highScores.length === 0) {
     rankingList.innerHTML = '<li>아직 최고 점수가 없습니다.</li>';
   } else {
@@ -362,55 +335,43 @@ function displayHighScores() {
 }
 
 function gameLoop(timestamp) {
-  if (lastTime === 0) { // First frame
+  if (lastTime === 0) {
     lastTime = timestamp;
   }
-  const deltaTime = (timestamp - lastTime) / 1000; // Convert to seconds
+  const deltaTime = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
 
-  // Frame rate capping
   const elapsed = timestamp - lastFrameTime;
   if (elapsed < frameInterval) {
     gameLoopId = requestAnimationFrame(gameLoop);
     return;
   }
-  lastFrameTime = timestamp - (elapsed % frameInterval); // Adjust lastFrameTime for accuracy
+  lastFrameTime = timestamp - (elapsed % frameInterval);
 
-  // Clear canvas
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
   if (gameState === 'playing') {
-    // Ensure deltaTime is a valid number to prevent NaN issues
     if (isNaN(deltaTime) || !isFinite(deltaTime)) {
-      
-      // Optionally, you can skip this frame or set deltaTime to a default value
-      // For now, we'll just return to prevent further issues with NaN
       gameLoopId = requestAnimationFrame(gameLoop);
       return;
     }
-    
 
-    // Update and draw player
     player.update(deltaTime);
     player.draw();
 
-    // Create obstacles
-    timeSinceLastObstacle += deltaTime * 1000; // Convert to milliseconds
-    timeSinceLastBirdObstacle += deltaTime * 1000; // Convert to milliseconds
-    
+    timeSinceLastObstacle += deltaTime * 1000;
+    timeSinceLastBirdObstacle += deltaTime * 1000;
 
     if (timeSinceLastObstacle >= OBSTACLE_MIN_GAP_MS && Math.random() < (BASE_OBSTACLE_SPAWN_CHANCE * difficulty)) {
       let type;
-      // If last was ground and less than 3 consecutive, prioritize ground
       if (lastObstacleType === 'ground' && consecutiveGroundObstaclesCount < 3) {
         type = 'ground';
       } else if (lastObstacleType === 'air') {
-        type = 'ground'; // After air, always try ground
+        type = 'ground';
       } else {
         type = Math.random() < 0.5 ? 'ground' : 'air';
       }
 
-      // Ensure not more than 3 consecutive ground obstacles
       if (type === 'ground') {
         consecutiveGroundObstaclesCount++;
       } else {
@@ -419,17 +380,15 @@ function gameLoop(timestamp) {
 
       obstacles.push(new Obstacle(type));
       lastObstacleType = type;
-      timeSinceLastObstacle = 0; // Reset time
+      timeSinceLastObstacle = 0;
     }
 
-    // Bird obstacle spawning logic
     if (timeSinceLastBirdObstacle >= nextBirdSpawnTime) {
       obstacles.push(new Obstacle('bird'));
-      timeSinceLastBirdObstacle = 0; // Reset time
-      nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS; // Set next random spawn time
+      timeSinceLastBirdObstacle = 0;
+      nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
     }
 
-    // Update and draw obstacles, check collision
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obstacle = obstacles[i];
       obstacle.update(deltaTime);
@@ -441,39 +400,31 @@ function gameLoop(timestamp) {
 
       if (checkCollision(player, obstacle)) {
         endGame();
-        return; // Stop further updates and drawing in this frame after game over
+        return;
       }
     }
 
-    // Update score
-    
     const previousScore = score;
-    score += (accelerationActive ? 2 : 1) * deltaTime * SCORE_BASE_PER_SECOND; // Scale score by deltaTime for consistent gain
+    score += (accelerationActive ? 2 : 1) * deltaTime * SCORE_BASE_PER_SECOND;
     scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
-    // Increase difficulty every 2000 points
     if (Math.floor(score / 2000) > Math.floor(previousScore / 2000)) {
-      difficulty = parseFloat((difficulty + 0.1).toFixed(1)); // Ensure one decimal place
-      
+      difficulty = parseFloat((difficulty + 0.1).toFixed(1));
       difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
     }
 
-    // Update cooldown
     if (timeStopCooldown > 0) {
-      timeStopCooldown -= deltaTime * 1000; // Convert deltaTime to milliseconds
+      timeStopCooldown -= deltaTime * 1000;
     }
 
     gameLoopId = requestAnimationFrame(gameLoop);
   } else if (gameState === 'gameOver') {
-    // Do not request next frame if game is over
     return;
   }
 }
 
-// --- Event Listeners ---
+// Event Listeners
 document.addEventListener('keydown', (e) => {
-  
-
   if (gameState !== 'playing') return;
 
   if (e.code === 'Space') {
@@ -486,7 +437,7 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyS' && timeStopCooldown <= 0) {
     timeStopActive = true;
-    timeStopCooldown = 30000; // 30 seconds cooldown
+    timeStopCooldown = 30000;
     timeFactor = 0.5;
     setTimeout(() => {
       timeStopActive = false;
@@ -504,19 +455,6 @@ document.addEventListener('keyup', (e) => {
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
 rankingButton.addEventListener('click', displayHighScores);
-
-const patchNotesButton = document.getElementById('patch-notes-button');
-const patchNotesModal = document.getElementById('patch-notes-modal');
-const closeButtons = document.querySelectorAll('.close-button'); // Select all close buttons
-const patchNotesText = document.getElementById('patch-notes-text');
-
-const currentPatchNotes = `0.5.4V
-더블 점프 추가
-조류 장애물 추가
-음악 추가 및 변경 추가
-음악 볼륨 상세 조절 추가
-기타 버그 수정`;
-
 patchNotesButton.addEventListener('click', () => {
   patchNotesText.textContent = currentPatchNotes;
   patchNotesModal.style.display = 'flex';
@@ -537,12 +475,11 @@ closeButtons.forEach(button => {
   });
 });
 
-// Close modal if clicked outside
 window.addEventListener('click', (event) => {
   if (event.target === patchNotesModal) {
     patchNotesModal.style.display = 'none';
   } else if (event.target === rankingModal) {
-    rankingModal.style.display = 'none
+    rankingModal.style.display = 'none';
   } else if (event.target === musicSelectionModal) {
     musicSelectionModal.style.display = 'none';
   } else if (event.target === settingsModal) {
@@ -550,27 +487,39 @@ window.addEventListener('click', (event) => {
   }
 });
 
-// Settings button event listener
 settingsButton.addEventListener('click', () => {
   settingsModal.style.display = 'flex';
+  document.querySelectorAll('#fps-options button').forEach(btn => {
+    btn.classList.remove('active');
+    if (parseInt(btn.dataset.fps) === targetFPS) {
+      btn.classList.add('active');
+    }
+  });
 });
 
-// FPS options event listener
 fpsOptions.addEventListener('click', (event) => {
   if (event.target.tagName === 'BUTTON') {
     const newFPS = parseInt(event.target.dataset.fps);
-    targetFPS = newFPS;
-    frameInterval = 1000 / targetFPS;
+    if (!isNaN(newFPS) && [30, 60, 120].includes(newFPS)) {
+      targetFPS = newFPS;
+      frameInterval = 1000 / targetFPS;
+      console.log(`FPS 변경: ${targetFPS} FPS`);
+      document.querySelectorAll('#fps-options button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
     settingsModal.style.display = 'none';
   }
 });
 
-// Initial setup
+gameBGM.volume = volumeSlider.value / 100;
+volumeSlider.addEventListener('input', (e) => {
+  gameBGM.volume = e.target.value / 100;
+});
+changeSongButton.addEventListener('click', displayMusicSelection);
+
+
 loadAssets().then(() => {
-  
   initGame();
-  // Display start screen initially
   startScreen.style.display = 'flex';
-  // Start the game loop to draw the initial state (e.g., start screen)
   gameLoop();
 });
