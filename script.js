@@ -41,33 +41,90 @@ let currentBGMIndex = 0;
 
 // ===================================
 // 상수 (Constants)
-// 모든 상수 값을 4로 나누어 수정했습니다.
+// 화면 크기에 따라 동적으로 값을 설정합니다.
 // ===================================
-const GAME_WIDTH = 300;
-const GAME_HEIGHT = 150;
-const PLAYER_WIDTH = 12.5;
-const PLAYER_HEIGHT = 12.5;
-const DANA_WIDTH = 75;
-const DANA_HEIGHT = 75;
-const DANA_X = -25;
-const DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
-const GROUND_OBSTACLE_WIDTH = 22.5;
-const GROUND_OBSTACLE_HEIGHT = 22.5;
-const AIR_OBSTACLE_WIDTH = 17.5;
-const AIR_OBSTACLE_HEIGHT = 17.5;
-const BIRD_OBSTACLE_WIDTH = 12.5;
-const BIRD_OBSTACLE_HEIGHT = 12.5;
-const BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 62.5;
-const BIRD_OBSTACLE_MAX_Y = 12.5;
-const GRAVITY = 1 * 30 * 60 / 4;
-const BASE_JUMP_VELOCITY = -890 / 4;
+let GAME_WIDTH;
+let GAME_HEIGHT;
+let PLAYER_WIDTH;
+let PLAYER_HEIGHT;
+let DANA_WIDTH;
+let DANA_HEIGHT;
+let DANA_X;
+let DANA_Y;
+let GROUND_OBSTACLE_WIDTH;
+let GROUND_OBSTACLE_HEIGHT;
+let AIR_OBSTACLE_WIDTH;
+let AIR_OBSTACLE_HEIGHT;
+let BIRD_OBSTACLE_WIDTH;
+let BIRD_OBSTACLE_HEIGHT;
+let BIRD_OBSTACLE_MIN_Y;
+let BIRD_OBSTACLE_MAX_Y;
+let GRAVITY;
+let BASE_JUMP_VELOCITY;
 const DOUBLE_JUMP_MULTIPLIER = 0.75;
 const OBSTACLE_MIN_GAP_MS = 300;
 const BASE_OBSTACLE_SPAWN_CHANCE = 0.02;
 const BIRD_SPAWN_MIN_MS = 500;
 const BIRD_SPAWN_MAX_MS = 2000;
-const SCORE_BASE_PER_SECOND = 60 / 4;
+let SCORE_BASE_PER_SECOND;
 const ANIMATION_SPEED = 100;
+let DIFFICULTY_SCALE_POINT;
+
+// 화면 크기에 따라 게임 상수를 설정하는 함수
+function setGameConstants(isMobile) {
+    if (isMobile) {
+        // 모바일 (1/4 해상도)
+        GAME_WIDTH = 300;
+        GAME_HEIGHT = 150;
+        PLAYER_WIDTH = 12.5;
+        PLAYER_HEIGHT = 12.5;
+        DANA_WIDTH = 75;
+        DANA_HEIGHT = 75;
+        DANA_X = -25;
+        DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
+        GROUND_OBSTACLE_WIDTH = 22.5;
+        GROUND_OBSTACLE_HEIGHT = 22.5;
+        AIR_OBSTACLE_WIDTH = 17.5;
+        AIR_OBSTACLE_HEIGHT = 17.5;
+        BIRD_OBSTACLE_WIDTH = 12.5;
+        BIRD_OBSTACLE_HEIGHT = 12.5;
+        BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 62.5;
+        BIRD_OBSTACLE_MAX_Y = 12.5;
+        GRAVITY = 1 * 30 * 60 / 4;
+        BASE_JUMP_VELOCITY = -890 / 4;
+        SCORE_BASE_PER_SECOND = 60 / 4;
+        DIFFICULTY_SCALE_POINT = 2000 / 4;
+    } else {
+        // PC (원래 해상도)
+        GAME_WIDTH = 1200;
+        GAME_HEIGHT = 600;
+        PLAYER_WIDTH = 50;
+        PLAYER_HEIGHT = 50;
+        DANA_WIDTH = 300;
+        DANA_HEIGHT = 300;
+        DANA_X = -100;
+        DANA_Y = GAME_HEIGHT - DANA_HEIGHT;
+        GROUND_OBSTACLE_WIDTH = 90;
+        GROUND_OBSTACLE_HEIGHT = 90;
+        AIR_OBSTACLE_WIDTH = 70;
+        AIR_OBSTACLE_HEIGHT = 70;
+        BIRD_OBSTACLE_WIDTH = 50;
+        BIRD_OBSTACLE_HEIGHT = 50;
+        BIRD_OBSTACLE_MIN_Y = GAME_HEIGHT - AIR_OBSTACLE_HEIGHT - 250;
+        BIRD_OBSTACLE_MAX_Y = 50;
+        GRAVITY = 1 * 30 * 60;
+        BASE_JUMP_VELOCITY = -890;
+        SCORE_BASE_PER_SECOND = 60;
+        DIFFICULTY_SCALE_POINT = 2000;
+    }
+
+    // 캔버스 크기 재설정
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+}
+
+// 초기 로드 시 화면 크기 체크
+setGameConstants(window.innerWidth <= 767);
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -75,7 +132,7 @@ const ANIMATION_SPEED = 100;
 let score = 0;
 let player;
 let obstacles = [];
-let gameSpeed = 7 * 60 / 4;
+let gameSpeed;
 let accelerationActive = false;
 let timeStopActive = false;
 let timeStopCooldown = 0;
@@ -135,7 +192,7 @@ function loadAssets() {
 // ===================================
 class Player {
     constructor() {
-        this.x = 75;
+        this.x = GAME_WIDTH / 4; // 항상 캔버스 너비의 1/4 지점에 위치
         this.y = GAME_HEIGHT - PLAYER_HEIGHT;
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
@@ -225,12 +282,11 @@ class Obstacle {
         } else if (type === 'air') {
             this.width = AIR_OBSTACLE_WIDTH;
             this.height = AIR_OBSTACLE_HEIGHT;
-            this.y = GAME_HEIGHT - this.height - 50; // 기존 200 / 4 = 50
+            this.y = GAME_HEIGHT - this.height - (GAME_HEIGHT / 3); // 캔버스 높이에 비례하도록 수정
             this.frameImages = [assets.air_obstacle, assets.air_obstacle_2];
         } else if (type === 'bird') {
             this.width = BIRD_OBSTACLE_WIDTH;
             this.height = BIRD_OBSTACLE_HEIGHT;
-            // 기존 BIRD_OBSTACLE_MIN_Y 와 BIRD_OBSTACLE_MAX_Y를 4로 나누어 수정
             this.y = Math.random() * (BIRD_OBSTACLE_MIN_Y - BIRD_OBSTACLE_MAX_Y) + BIRD_OBSTACLE_MAX_Y;
             this.frameImages = [
                 assets.bird_obstacle_1,
@@ -275,14 +331,12 @@ class Obstacle {
 // ===================================
 
 function checkCollision(obj1, obj2) {
-    // AABB (Axis-Aligned Bounding Box) 충돌 먼저 감지
     if (
         Math.floor(obj1.x) < Math.floor(obj2.x) + obj2.width &&
         Math.floor(obj1.x) + obj1.width > Math.floor(obj2.x) &&
         Math.floor(obj1.y) < Math.floor(obj2.y) + obj2.height &&
         Math.floor(obj1.y) + obj1.height > Math.floor(obj2.y)
     ) {
-        // AABB 충돌 시에만 픽셀 충돌 감지 수행 (성능 개선)
         const img1 = (obj1.frameImages && obj1.frameImages.length > 0) ? obj1.frameImages[obj1.animationFrame] : obj1.image;
         const img2 = (obj2.frameImages && obj2.frameImages.length > 0) ? obj2.frameImages[obj2.animationFrame] : obj2.image;
 
@@ -375,10 +429,13 @@ function displayHighScores() {
 }
 
 function initGame() {
+    const isMobile = window.innerWidth <= 767;
+    setGameConstants(isMobile);
+
     player = new Player();
     obstacles = [];
     score = 0;
-    gameSpeed = 7 * 60 / 4;
+    gameSpeed = isMobile ? (7 * 60 / 4) : (7 * 60);
     accelerationActive = false;
     timeStopActive = false;
     timeStopCooldown = 0;
@@ -394,7 +451,6 @@ function initGame() {
     gameBGM.src = bgmPaths[currentBGMIndex].path;
     updateCurrentSongDisplay();
 
-    // 게임 오버 화면 숨기기
     gameOverScreen.style.display = 'none';
 }
 
@@ -461,7 +517,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 consecutiveGroundObstaclesCount++;
             } else {
-                consecutiveGroundObstaclesCount = 0;
+                consecutiveGroundObstacleCount = 0;
             }
 
             obstacles.push(new Obstacle(type));
@@ -494,7 +550,7 @@ function gameLoop(timestamp) {
         score += (accelerationActive ? 2 : 1) * gameDeltaTime * SCORE_BASE_PER_SECOND;
         scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
 
-        if (Math.floor(score / (2000 / 4)) > Math.floor(previousScore / (2000 / 4))) { // 점수 기준도 4배로 줄였습니다.
+        if (Math.floor(score / DIFFICULTY_SCALE_POINT) > Math.floor(previousScore / DIFFICULTY_SCALE_POINT)) {
             difficulty = parseFloat((difficulty + 0.1).toFixed(1));
             difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
         }
@@ -523,7 +579,6 @@ function applyTheme(theme) {
 // ===================================
 // 이벤트 리스너 (Event Listeners)
 // ===================================
-// 키보드 이벤트 리스너
 document.addEventListener('keydown', (e) => {
     if (gameState !== 'playing') return;
 
@@ -533,7 +588,10 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.code === 'KeyA') {
         accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? (10.5 * 60 / 4) : (7 * 60 / 4);
+        gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
+        if (window.innerWidth <= 767) {
+            gameSpeed /= 4; // 모바일에서는 4로 나눈 값 적용
+        }
     }
     if (e.code === 'KeyS' && timeStopCooldown <= 0) {
         timeStopActive = true;
@@ -552,7 +610,6 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-// 모바일 터치 이벤트 리스너
 const jumpButton = document.getElementById('jump-button');
 const accelerateButton = document.getElementById('accelerate-button');
 const timeStopButton = document.getElementById('time-stop-button');
@@ -565,7 +622,10 @@ function handleTouchControls(e) {
         player.jump();
     } else if (e.target.id === 'accelerate-button') {
         accelerationActive = !accelerationActive;
-        gameSpeed = accelerationActive ? (10.5 * 60 / 4) : (7 * 60 / 4);
+        gameSpeed = accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
+        if (window.innerWidth <= 767) {
+            gameSpeed /= 4;
+        }
     } else if (e.target.id === 'time-stop-button' && timeStopCooldown <= 0) {
         timeStopActive = true;
         timeStopCooldown = 30000;
@@ -583,7 +643,6 @@ if (jumpButton) {
     timeStopButton.addEventListener('touchstart', handleTouchControls, { passive: false });
 }
 
-// 테마 전환 버튼 이벤트
 themeToggleButton.addEventListener('click', () => {
     if (document.body.classList.contains('dark-theme')) {
         applyTheme('light-theme');
@@ -662,6 +721,10 @@ changeSongButton.addEventListener('click', displayMusicSelection);
 // ===================================
 // 초기화 (Initialization)
 // ===================================
+window.addEventListener('resize', () => {
+    initGame(); // 화면 크기가 변경되면 게임을 다시 초기화
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);

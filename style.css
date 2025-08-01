@@ -66,8 +66,7 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    /* PC에서는 최대 크기 1200x600으로 고정 */
-    max-width: 1200px;
+    max-width: 1200px; /* PC에서는 최대 크기 제한 */
     max-height: 600px;
     background-color: var(--game-container-bg);
     border: 5px solid var(--game-container-border);
@@ -82,8 +81,11 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
+    width: 100%; /* 컨테이너에 맞춰 꽉 채우도록 수정 */
+    height: 100%; /* 컨테이너에 맞춰 꽉 채우도록 수정 */
 }
 
+/* 나머지 CSS 코드는 동일합니다. */
 #game-info {
     position: absolute;
     top: 10px;
@@ -313,45 +315,14 @@ body {
     transition: background-color 0.3s;
 }
 
-/* 768px ~ 1200px 사이의 태블릿 환경에 대한 미디어 쿼리 */
-@media (max-width: 1200px) {
+/* 모바일 환경에 대한 미디어 쿼리 */
+@media (max-width: 767px) {
     #game-container {
-        width: 100%;
-        height: 100%;
         max-width: 100vw;
         max-height: 100vh;
         border: none;
         box-shadow: none;
         aspect-ratio: auto;
-        /* 태블릿 화면에 맞게 캔버스를 꽉 채웁니다. */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #gameCanvas {
-        width: 100%;
-        height: 100%;
-    }
-}
-
-
-/* 모바일 환경에 대한 미디어 쿼리 (가장 작은 화면) */
-@media (max-width: 767px) {
-    #game-container {
-        max-width: 100vw;
-        max-height: 100vh;
-        /* 모바일에서는 캔버스를 4배 줄인 300x150 해상도로 보이게 합니다. */
-        /* 하지만 flex를 이용해 화면에 꽉 차게 보이도록 합니다. */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #gameCanvas {
-        width: 100%;
-        height: 100%;
-        /* 모바일에서는 캔버스를 4배 줄인 300x150 해상도로 보이게 합니다. */
     }
 
     body {
