@@ -696,7 +696,10 @@ coinSound.src = 'assets/audio/coin.mp3';
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
-    versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
+    
+    if (versionDisplay) {
+        versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
+    }
 
     loadAssets().then(() => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
