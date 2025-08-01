@@ -73,7 +73,6 @@ const DIFFICULTY_SCALE_POINT = 2000;
 // ===================================
 // 상태 변수 (State Variables)
 // ===================================
-let currentBGMIndex = 0;
 
 // ===================================
 // 에셋 관리 (Asset Management)
