@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
-const coinDisplay = document.getElementById('coin-display');
+let coinDisplay;
 const difficultyDisplay = document.getElementById('difficulty-display');
 const currentSongDisplay = document.getElementById('current-song-display');
 const startScreen = document.getElementById('start-screen');
@@ -496,6 +496,7 @@ function gameLoop(timestamp) {
 
         game.timeSinceLastObstacle += gameDeltaTime * 1000;
         game.timeSinceLastBirdObstacle += gameDeltaTime * 1000;
+        console.log(`Bird spawn timer: ${game.timeSinceLastBirdObstacle.toFixed(0)}ms / ${game.nextBirdSpawnTime}ms`); // Debug log
         game.timeSinceLastCoin += gameDeltaTime * 1000;
         console.log(`Coin spawn timer: ${game.timeSinceLastCoin.toFixed(0)}ms / ${game.nextCoinSpawnTime}ms, Coins in array: ${game.coins.length}`); // Debug log
 
@@ -699,7 +700,7 @@ settingsButton.addEventListener('click', () => {
     settingsModal.style.display = 'flex';
     document.querySelectorAll('#fps-options button').forEach(btn => {
         btn.classList.remove('active');
-        if (parseInt(btn.dataset.fps) === targetFPS) {
+        if (parseInt(btn.dataset.fps) === game.targetFPS) {
             btn.classList.add('active');
         }
     });
@@ -735,6 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     applyTheme(savedTheme);
     versionDisplay = document.getElementById('version-display');
+    coinDisplay = document.getElementById('coin-display');
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
