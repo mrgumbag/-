@@ -75,6 +75,7 @@ const DIFFICULTY_SCALE_POINT = 2000;
 let score = 0;
 let player;
 let obstacles = [];
+let coins = [];
 let gameSpeed = 7 * 60; // 게임 속도도 1200x600 해상도에 맞게 고정
 let accelerationActive = false;
 let timeStopActive = false;
@@ -400,6 +401,7 @@ function displayHighScores() {
 function initGame() {
     player = new Player();
     obstacles = [];
+    coins = [];
     score = 0;
     gameSpeed = 7 * 60;
     accelerationActive = false;
@@ -410,8 +412,11 @@ function initGame() {
     consecutiveGroundObstaclesCount = 0;
     timeSinceLastObstacle = 0;
     timeSinceLastBirdObstacle = 0;
+    timeSinceLastCoin = 0;
     nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
+    nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
     scoreDisplay.textContent = 'Score: 0';
+    coinDisplay.textContent = `Coins: ${getCoins()}`;
     difficulty = 1;
     difficultyDisplay.textContent = `Difficulty: ${difficulty.toFixed(1)}`;
     gameBGM.src = bgmPaths[currentBGMIndex].path;
@@ -491,10 +496,10 @@ function gameLoop(timestamp) {
             timeSinceLastObstacle = 0;
         }
 
-        if (timeSinceLastBirdObstacle >= nextBirdSpawnTime) {
-            obstacles.push(new Obstacle('bird'));
-            timeSinceLastBirdObstacle = 0;
-            nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
+        if (timeSinceLastCoin >= nextCoinSpawnTime) {
+            coins.push(new Coin());
+            timeSinceLastCoin = 0;
+            nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
         }
 
         for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -507,15 +512,27 @@ function gameLoop(timestamp) {
             }
 
             if (checkCollision(player, obstacle)) {
-                if (obstacle instanceof Coin) {
-                    coins++;
-                    saveCoins(coins);
-                    coinDisplay.textContent = `Coins: ${coins}`;
-                    obstacles.splice(i, 1);
-                } else {
-                    endGame();
-                    return;
-                }
+                endGame();
+                return;
+            }
+        }
+
+        for (let i = coins.length - 1; i >= 0; i--) {
+            const coin = coins[i];
+            coin.update(gameDeltaTime);
+            coin.draw(timestamp);
+
+            if (coin.x + coin.width < 0) {
+                coins.splice(i, 1);
+            }
+
+            if (checkCollision(player, coin)) {
+                let currentCoins = getCoins();
+                currentCoins++;
+                saveCoins(currentCoins);
+                coinDisplay.textContent = `Coins: ${currentCoins}`;
+                coins.splice(i, 1);
+                coinSound.play();
             }
         }
 
