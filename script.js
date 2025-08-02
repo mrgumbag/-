@@ -771,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
         gameOverScreen.style.display = 'none';
         shopPage.style.display = 'none';
-        document.getElementById('game-container').style.display = 'block';
+        document.getElementById('game-container').style.display = 'none';
         startScreen.style.display = 'block';
         if (coinDisplayStart) {
             coinDisplayStart.textContent = `Coins: ${getCoins()}`;
