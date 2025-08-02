@@ -70,7 +70,7 @@ const bgmPaths = [
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
     { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
     { name: 'SOS', path: 'assets/audio/bgm4.mp3' },
-    { name: '도꺠비꽃', path: 'assets/audio/bgm5.mp3' } // 제목 수정
+    { name: '도꺠비꽃', path: 'assets/audio/bgm5.mp3' }
 ];
 
 // ===================================
@@ -497,8 +497,8 @@ function gameLoop(timestamp) {
         game.score += SCORE_BASE_PER_SECOND * gameDeltaTime;
         scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
 
-        // 가속 스킬이 정상 작동하도록 속도 계산 로직 수정
-        game.difficulty = 1 + Math.floor(game.score / DIFFICULTY_SCALE_POINT);
+        // 난이도 계산 로직 수정 (0.1씩 증가)
+        game.difficulty = 1 + (Math.floor(game.score / DIFFICULTY_SCALE_POINT) * 0.1);
         let baseSpeed = 7 * 60 * game.difficulty;
         game.gameSpeed = game.accelerationActive ? baseSpeed * 1.5 : baseSpeed;
         difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
