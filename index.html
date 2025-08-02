@@ -3,116 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우파루파 모험기</title>
+    <title>Dana Runner</title>
     <link rel="stylesheet" href="style.css">
-
-    <link rel="manifest" href="manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered: ', registration);
-                    })
-                    .catch(err => {
-                        console.log('Service Worker registration failed: ', err);
-                    });
-            });
-        }
-    </script>
 </head>
-<body>
-    <div id="game-container">
-        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+<body class="dark-theme">
 
+    <div class="game-container hidden" id="game-container">
         <div id="game-info">
-            <h3 id="score">Score: 0</h3>
-            <h3 id="coin-display">Coins: 0</h3>
-            <h3 id="difficulty-display">Difficulty: 1.0</h3>
-            <div id="music-info">
-                <h3 id="current-song-display">재생중인 곡: RUN</h3>
-                <button id="music-selection-button">음악 변경</button>
-            </div>
+            <span id="score">Score: 0</span>
+            <span id="difficulty-display">Difficulty: 1.0</span>
+            <span id="coin-display">Coins: 0</span>
         </div>
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+    </div>
 
-        <div id="start-screen" class="game-screen">
-            <h1>우파루파 모험기</h1>
-            <p>스페이스바를 눌러 점프하세요!</p>
-            <div class="version-info">
-                <span id="version-display"></span>
-                <span id="coin-display-start">Coins: 0</span>
-            </div>
-            <div class="button-row">
-                <button id="start-button">게임 시작</button>
-                <button id="ranking-button">랭킹</button>
-            </div>
-            <div class="button-row">
-                <button id="settings-button">설정</button>
-                <button id="patch-notes-button">패치 노트</button>
-                <button id="theme-toggle-button">테마 변경</button>
-            </div>
+    <div class="screen" id="start-screen">
+        <h1>Dana Runner</h1>
+        <p id="version-display"></p>
+        <div class="button-group">
+            <button id="start-button">게임 시작</button>
+            <button id="ranking-button">랭킹</button>
+            <button id="settings-button">설정</button>
             <button id="shop-button-start">상점</button>
+            <button id="patch-notes-button">패치 노트</button>
+            <button id="theme-toggle-button">테마 전환</button>
         </div>
+        <div id="coin-display-start">Coins: 0</div>
+    </div>
 
-        <div id="game-over-screen" class="game-screen">
-            <h1>게임 오버</h1>
-            <p>최종 점수: <span id="final-score">0</span></p>
-            <button id="restart-button">다시 시작</button>
-            <button id="back-to-start-button">메인 화면으로</button>
+    <div class="screen hidden" id="game-over-screen">
+        <h2>게임 오버</h2>
+        <p>최종 점수: <span id="final-score">0</span></p>
+        <div class="button-group">
+            <button id="restart-button">재시작</button>
+            <button id="back-to-start-button">메인 화면</button>
             <button id="ranking-button-gameover">랭킹</button>
             <button id="shop-button-gameover">상점</button>
         </div>
+    </div>
 
-        <div id="ranking-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button" data-modal="ranking-modal">&times;</span>
-                <h2>랭킹</h2>
-                <ol id="ranking-list"></ol>
-            </div>
+    <div id="ranking-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" data-modal="ranking-modal">&times;</span>
+            <h2>최고 점수</h2>
+            <ol id="ranking-list"></ol>
         </div>
+    </div>
 
-        <div id="music-selection-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button" data-modal="music-selection-modal">&times;</span>
-                <h2>음악 선택</h2>
-                <ul id="music-list"></ul>
-            </div>
+    <div id="music-selection-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" data-modal="music-selection-modal">&times;</span>
+            <h2>음악 선택</h2>
+            <ul id="music-list"></ul>
         </div>
+    </div>
 
-        <div id="settings-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button" data-modal="settings-modal">&times;</span>
-                <h2>설정</h2>
-                <div class="setting-option">
-                    <label for="volume-slider">배경 음악 볼륨:</label>
-                    <input type="range" id="volume-slider" min="0" max="100" value="50">
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" data-modal="settings-modal">&times;</span>
+            <h2>설정</h2>
+            <div id="setting-options">
+                <p>볼륨 조절</p>
+                <input type="range" id="volume-slider" min="0" max="100" value="50">
+                <p id="current-song-display">재생중인 곡: RUN</p>
+                <button id="music-selection-button">음악 변경</button>
+                <p>FPS 설정</p>
+                <div id="fps-options">
+                    <button data-fps="30">30 FPS</button>
+                    <button data-fps="60" class="active">60 FPS</button>
+                    <button data-fps="120">120 FPS</button>
                 </div>
-                <div class="setting-option">
-                    <label>프레임 속도 (FPS):</label>
-                    <div id="fps-options">
-                        <button data-fps="30">30</button>
-                        <button data-fps="60" class="active">60</button>
-                        <button data-fps="120">120</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="patch-notes-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button" data-modal="patch-notes-modal">&times;</span>
-                <h2>패치 노트</h2>
-                <pre id="patch-notes-text"></pre>
             </div>
         </div>
     </div>
 
-    <div id="shop-page" class="game-screen" style="display: none;">
-        <h1>상점</h1>
-        <div id="shop-items">
-            <p>상점 아이템이 여기에 표시됩니다.</p>
+    <div id="patch-notes-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" data-modal="patch-notes-modal">&times;</span>
+            <h2>패치 노트</h2>
+            <pre id="patch-notes-text"></pre>
         </div>
-        <button id="back-to-start-from-shop">메인 화면으로</button>
+    </div>
+
+    <div class="screen hidden" id="shop-page">
+        <h2>상점</h2>
+        <p id="shop-coin-display">Coins: 0</p>
+        <p>상점 기능은 아직 개발 중입니다.</p>
+        <button id="back-to-start-from-shop">메인 화면</button>
     </div>
 
     <audio id="gameBGM" loop></audio>
