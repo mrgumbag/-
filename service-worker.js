@@ -1,4 +1,4 @@
-const CACHE_NAME = 'upaloopah-adventure-v4';
+const CACHE_NAME = 'upaloopah-adventure-v5'; // 캐시 업데이트를 위해 버전 변경
 const urlsToCache = [
     './',
     'index.html',

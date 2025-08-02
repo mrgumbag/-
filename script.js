@@ -70,7 +70,7 @@ const bgmPaths = [
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
     { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
     { name: 'SOS', path: 'assets/audio/bgm4.mp3' },
-    { name: 'New BGM Title', path: 'assets/audio/bgm5.mp3' }
+    { name: '도꺠비꽃', path: 'assets/audio/bgm5.mp3' } // 제목 수정
 ];
 
 // ===================================
@@ -267,7 +267,7 @@ class Obstacle {
                 this.lastFrameTime = timestamp;
             }
             ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
-        } else if (this.type === 'bird') { // 수정된 부분
+        } else if (this.type === 'bird') {
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
                 this.lastFrameTime = timestamp;
@@ -497,8 +497,10 @@ function gameLoop(timestamp) {
         game.score += SCORE_BASE_PER_SECOND * gameDeltaTime;
         scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
 
+        // 가속 스킬이 정상 작동하도록 속도 계산 로직 수정
         game.difficulty = 1 + Math.floor(game.score / DIFFICULTY_SCALE_POINT);
-        game.gameSpeed = 7 * 60 * game.difficulty;
+        let baseSpeed = 7 * 60 * game.difficulty;
+        game.gameSpeed = game.accelerationActive ? baseSpeed * 1.5 : baseSpeed;
         difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
 
         // 장애물 생성 로직
@@ -596,8 +598,8 @@ document.addEventListener('keydown', (e) => {
         game.spacebarPressed = true;
     }
     if (e.code === 'KeyA') {
+        // 가속 상태만 토글하도록 수정
         game.accelerationActive = !game.accelerationActive;
-        game.gameSpeed = game.accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
     }
     if (e.code === 'KeyS' && game.timeStopCooldown <= 0) {
         game.timeStopActive = true;
@@ -628,7 +630,6 @@ function handleTouchControls(e) {
         game.player.jump();
     } else if (e.target.id === 'accelerate-button') {
         game.accelerationActive = !game.accelerationActive;
-        game.gameSpeed = game.accelerationActive ? (7 * 60 * 1.5) : (7 * 60);
     } else if (e.target.id === 'time-stop-button' && game.timeStopCooldown <= 0) {
         game.timeStopActive = true;
         game.timeStopCooldown = 30000;
