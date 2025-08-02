@@ -56,7 +56,8 @@ const game = {
     lastFrameTime: 0,
     difficulty: 1,
     danaImage: null,
-    currentBGMIndex: 0
+    currentBGMIndex: 0,
+    originalDanaImages: null // 원래 dana 이미지들을 저장할 변수 추가
 };
 const currentPatchNotes = `0.5.5V
 더블 점프 추가
@@ -120,7 +121,7 @@ const assetPaths = {
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
     dana_image_2: 'assets/images/dana_2.png',
-    dana_shocked: 'assets/images/dana_shocked.png', // 새로운 충돌 이미지
+    dana_shocked: 'assets/images/dana_shocked.png',
     coin: 'assets/images/coin.svg',
     coin_2: 'assets/images/coin_2.svg'
 };
@@ -215,6 +216,7 @@ class StaticImage {
     }
 
     draw(timestamp) {
+        // frameImages가 1개 이상일 때만 애니메이션 적용
         if (this.frameImages.length > 1) {
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
@@ -473,6 +475,11 @@ function backToStartScreen() {
     startScreen.style.display = 'flex';
 }
 
+// Dana의 이미지를 원래 애니메이션으로 되돌리는 함수 추가
+function revertDanaImage() {
+    game.danaImage.frameImages = game.originalDanaImages;
+}
+
 function gameLoop(timestamp) {
     if (game.gameState === 'playing') {
         const elapsed = timestamp - game.lastFrameTime;
@@ -543,7 +550,7 @@ function gameLoop(timestamp) {
             game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
         }
 
-        // 장애물 업데이트 및 그리기
+        // 플레이어와 장애물 충돌 감지
         game.obstacles.forEach(obstacle => {
             obstacle.update(gameDeltaTime);
             obstacle.draw(timestamp);
@@ -553,16 +560,15 @@ function gameLoop(timestamp) {
             }
         });
 
-        // Dana와 Ground 장애물 충돌 감지 로직 추가
+        // Dana와 Ground 장애물 충돌 감지 및 처리 로직
         const newObstacles = [];
         for (const obstacle of game.obstacles) {
             if (obstacle.type === 'ground' && checkCollision(game.danaImage, obstacle)) {
-                // 충돌한 지상 장애물은 제거
                 console.log("Dana collided with a ground obstacle!");
-                // dana 이미지 변경
                 game.danaImage.frameImages = [assets.dana_shocked];
-                game.danaImage.animationFrame = 0; // 단일 프레임이므로 애니메이션 프레임 고정
-                // 충돌한 장애물은 제거하고 배열에 추가하지 않음
+                game.danaImage.animationFrame = 0;
+                // 0.5초 후에 원래 이미지로 되돌리기
+                setTimeout(revertDanaImage, 500);
             } else {
                 newObstacles.push(obstacle);
             }
@@ -761,7 +767,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadAssets().then(() => {
-        game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, [assets.dana_image, assets.dana_image_2]);
+        game.originalDanaImages = [assets.dana_image, assets.dana_image_2]; // 원래 이미지 저장
+        game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
         initGame();
         startScreen.style.display = 'flex';
         coinDisplay.textContent = `Coins: ${getCoins()}`;
