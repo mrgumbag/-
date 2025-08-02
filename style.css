@@ -1,277 +1,148 @@
-/* ũ   (⺻) */
-:root, .dark-theme {
-    --body-bg: #333;
-    --text-color: #eee;
-    --game-container-bg: #0c0c0c;
-    --game-container-border: #fff;
-    --game-container-shadow: rgba(255, 255, 255, 0.5);
-    --game-screen-bg: rgba(0, 0, 0, 0.8);
-    --button-bg: #444;
-    --button-hover-bg: #666;
-    --button-border: #fff;
-    --modal-bg: rgba(0, 0, 0, 0.8);
-    --modal-content-bg: #333;
-    --modal-content-border: #fff;
-    --modal-close-color: #fff;
-    --modal-close-hover-color: #bbb;
-    --list-item-bg: #444;
-    --list-item-hover-bg: #666;
-    --fps-button-bg: #555;
-    --fps-button-border: #777;
-    --fps-button-active-bg: #fff;
-    --fps-button-active-color: #333;
-    --patch-notes-bg: #222;
+:root {
+    --dark-bg: #282c34;
+    --dark-text: #fff;
+    --light-bg: #e0e0e0;
+    --light-text: #333;
+    --button-bg: #61afef;
+    --button-text: #fff;
+    --button-hover: #529bcc;
+    --modal-bg: rgba(40, 44, 52, 0.9);
+    --modal-border: #333;
 }
 
-/* Ʈ   */
+.dark-theme {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
 .light-theme {
-    --body-bg: #f0f0f0;
-    --text-color: #333;
-    --game-container-bg: #f9f9f9;
-    --game-container-border: #555;
-    --game-container-shadow: rgba(0, 0, 0, 0.2);
-    --game-screen-bg: rgba(255, 255, 255, 0.8);
-    --button-bg: #ddd;
-    --button-hover-bg: #ccc;
-    --button-border: #555;
-    --modal-bg: rgba(255, 255, 255, 0.8);
-    --modal-content-bg: #f9f9f9;
-    --modal-content-border: #555;
-    --modal-close-color: #333;
-    --modal-close-hover-color: #777;
-    --list-item-bg: #eee;
-    --list-item-hover-bg: #ddd;
-    --fps-button-bg: #aaa;
-    --fps-button-border: #888;
-    --fps-button-active-bg: #333;
-    --fps-button-active-color: #fff;
-    --patch-notes-bg: #fff;
+    background-color: var(--light-bg);
+    color: var(--light-text);
 }
 
 body {
-    background-color: var(--body-bg);
-    color: var(--text-color);
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    overflow: hidden;
-    position: relative;
     transition: background-color 0.3s, color 0.3s;
 }
 
-#game-container {
+.game-container {
+    text-align: center;
     position: relative;
-    max-width: 1200px;
-    max-height: 600px;
-    background-color: var(--game-container-bg);
-    border: 5px solid var(--game-container-border);
-    box-shadow: 0 0 10px var(--game-container-shadow);
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-#gameCanvas {
+canvas {
+    background-color: #f0f0f0;
+    border: 2px solid #333;
     display: block;
-    background-color: #87ceeb;
+    margin: 0 auto;
 }
 
 #game-info {
-    position: absolute;
-    top: 10px;
-    left: 10px;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    color: var(--text-color);
-    font-size: 20px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
 }
 
-#start-screen, #game-over-screen, #shop-page {
+#score, #coin-display, #difficulty-display {
+    padding: 0 15px;
+}
+
+.screen {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: center;
-    background-color: var(--game-screen-bg);
-    padding: 30px;
-    border-radius: 10px;
-    color: var(--text-color);
     width: 80%;
     max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    z-index: 20;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
 }
 
-h1 {
-    font-size: 3em;
-    margin-bottom: 10px;
-}
+    .screen h1, .screen h2 {
+        margin-top: 0;
+    }
 
-p {
-    font-size: 1.2em;
-    margin: 0;
-}
-
-.version-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9em;
-    color: var(--text-color);
-    margin-top: 10px;
-}
-
-button {
+.button-group button {
     padding: 10px 20px;
     font-size: 1.2em;
-    cursor: pointer;
-    background-color: var(--button-bg);
-    color: var(--text-color);
-    border: 2px solid var(--button-border);
+    margin: 5px;
+    border: none;
     border-radius: 5px;
-    transition: background-color 0.3s, transform 0.1s;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-    button:hover {
-        background-color: var(--button-hover-bg);
+    .button-group button:hover {
+        background-color: var(--button-hover);
     }
 
-    button:active {
-        transform: scale(0.98);
-    }
-
-.button-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-#music-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-}
-
-    #music-info button {
-        font-size: 0.8em;
-        padding: 5px 10px;
-    }
-
-/* 모달 (Modal) 스타일 */
 .modal {
-    display: none;
     position: fixed;
     z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
     background-color: var(--modal-bg);
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    background-color: var(--modal-content-bg);
-    border: 2px solid var(--modal-content-border);
-    padding: 30px;
-    border-radius: 10px;
+    background-color: var(--dark-bg);
+    padding: 20px;
+    border: 1px solid var(--modal-border);
     width: 80%;
-    max-width: 600px;
+    max-width: 400px;
+    border-radius: 10px;
     position: relative;
-    text-align: center;
+    color: var(--dark-text);
 }
 
 .close-button {
-    color: var(--modal-close-color);
+    color: #aaa;
+    float: right;
     font-size: 28px;
     font-weight: bold;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    cursor: pointer;
 }
 
     .close-button:hover,
     .close-button:focus {
-        color: var(--modal-close-hover-color);
+        color: #fff;
         text-decoration: none;
         cursor: pointer;
     }
 
-#ranking-list {
-    list-style-position: inside;
-    padding: 0;
+#music-list li {
+    cursor: pointer;
+    padding: 8px;
+    border-bottom: 1px solid #444;
 }
 
-    #ranking-list li {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--button-border);
-        font-size: 1.1em;
+    #music-list li:hover {
+        background-color: #555;
     }
 
-        #ranking-list li:last-child {
-            border-bottom: none;
-        }
-
-#music-list {
-    list-style: none;
-    padding: 0;
-}
-
-    #music-list li {
-        padding: 10px;
-        margin: 5px 0;
-        cursor: pointer;
-        background-color: var(--list-item-bg);
-        border-radius: 5px;
-        transition: background-color 0.3s;
-    }
-
-        #music-list li:hover {
-            background-color: var(--list-item-hover-bg);
-        }
-
-.setting-option {
-    margin-bottom: 20px;
-}
-
-    .setting-option label {
-        display: block;
-        margin-bottom: 10px;
-        font-size: 1.1em;
-    }
-
-#fps-options {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-    #fps-options button {
-        background-color: var(--fps-button-bg);
-        border: 1px solid var(--fps-button-border);
-        color: var(--text-color);
-    }
-
-        #fps-options button.active {
-            background-color: var(--fps-button-active-bg);
-            color: var(--fps-button-active-color);
-        }
-
-#patch-notes-text {
-    text-align: left;
-    white-space: pre-wrap;
-    background-color: var(--patch-notes-bg);
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid var(--button-border);
+.hidden {
+    display: none !important;
 }

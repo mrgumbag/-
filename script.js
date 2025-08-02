@@ -389,11 +389,11 @@ function displayMusicSelection() {
             game.currentBGMIndex = index;
             gameBGM.src = song.path;
             updateCurrentSongDisplay();
-            musicSelectionModal.style.display = 'none';
+            musicSelectionModal.classList.add('hidden');
         });
         musicList.appendChild(li);
     });
-    musicSelectionModal.style.display = 'flex';
+    musicSelectionModal.classList.remove('hidden');
 }
 
 function getHighScores() {
@@ -420,7 +420,7 @@ function displayHighScores() {
             rankingList.appendChild(li);
         });
     }
-    rankingModal.style.display = 'flex';
+    rankingModal.classList.remove('hidden');
 }
 
 function getCoins() {
@@ -434,29 +434,28 @@ function saveCoins(newCoins) {
 // 모든 화면을 관리하는 새로운 함수 추가
 function switchScreen(screenId) {
     // 모든 화면 숨기기
-    startScreen.style.display = 'none';
-    gameOverScreen.style.display = 'none';
-    shopPage.style.display = 'none';
-    gameContainer.style.display = 'none';
+    const screens = [startScreen, gameOverScreen, shopPage, gameContainer];
+    screens.forEach(screen => {
+        if (screen) {
+            screen.classList.add('hidden');
+        }
+    });
 
     // 요청된 화면만 표시
-    switch (screenId) {
-        case 'start-screen':
-            startScreen.style.display = 'block';
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.remove('hidden');
+        if (screenId === 'start-screen') {
             game.gameState = 'start';
-            break;
-        case 'game-container':
-            gameContainer.style.display = 'block';
+        } else if (screenId === 'game-container') {
             game.gameState = 'playing';
-            break;
-        case 'game-over-screen':
-            gameOverScreen.style.display = 'block';
+        } else if (screenId === 'game-over-screen') {
             game.gameState = 'gameOver';
-            break;
-        case 'shop-page':
-            shopPage.style.display = 'flex';
+        } else if (screenId === 'shop-page') {
             game.gameState = 'shop';
-            break;
+        }
+    } else {
+        console.error(`Error: Screen with ID "${screenId}" not found.`);
     }
 }
 
@@ -478,17 +477,17 @@ function initGame() {
     game.nextBirdSpawnTime = Math.floor(Math.random() * (BIRD_SPAWN_MAX_MS - BIRD_SPAWN_MIN_MS + 1)) + BIRD_SPAWN_MIN_MS;
     console.log(`Initial nextBirdSpawnTime: ${game.nextBirdSpawnTime}`);
     game.nextCoinSpawnTime = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
-    scoreDisplay.textContent = 'Score: 0';
+    if (scoreDisplay) scoreDisplay.textContent = 'Score: 0';
     game.difficulty = 1;
-    difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
-    gameBGM.src = bgmPaths[game.currentBGMIndex].path;
+    if (difficultyDisplay) difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
+    if (gameBGM) gameBGM.src = bgmPaths[game.currentBGMIndex].path;
     updateCurrentSongDisplay();
 }
 
 function startGame() {
     initGame();
     switchScreen('game-container'); // 게임 컨테이너 화면 표시
-    gameBGM.play();
+    if (gameBGM) gameBGM.play();
     game.lastFrameTime = performance.now();
     gameLoop();
 }
@@ -496,15 +495,19 @@ function startGame() {
 function endGame() {
     cancelAnimationFrame(game.gameLoopId);
     switchScreen('game-over-screen'); // 게임 오버 화면 표시
-    finalScore.textContent = Math.floor(game.score);
+    if (finalScore) finalScore.textContent = Math.floor(game.score);
     saveHighScore(game.score);
-    gameBGM.pause();
-    gameBGM.currentTime = 0;
+    if (gameBGM) {
+        gameBGM.pause();
+        gameBGM.currentTime = 0;
+    }
 }
 
 function backToStartScreen() {
     switchScreen('start-screen'); // 메인 화면으로 돌아가기
-    coinDisplayStart.textContent = `Coins: ${getCoins()}`;
+    if (coinDisplayStart) {
+        coinDisplayStart.textContent = `Coins: ${getCoins()}`;
+    }
 }
 
 // 상점 관련 함수 수정
@@ -543,17 +546,19 @@ function gameLoop(timestamp) {
         // ===================================
         // 게임 상태 업데이트 로직
         // ===================================
-        game.danaImage.draw(timestamp);
-        game.player.update(gameDeltaTime);
-        game.player.draw(timestamp);
+        if (game.danaImage) game.danaImage.draw(timestamp);
+        if (game.player) {
+            game.player.update(gameDeltaTime);
+            game.player.draw(timestamp);
+        }
 
         game.score += SCORE_BASE_PER_SECOND * gameDeltaTime;
-        scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
+        if (scoreDisplay) scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
 
         game.difficulty = 1 + (Math.floor(game.score / DIFFICULTY_SCALE_POINT) * 0.1);
         let baseSpeed = 7 * 60 * game.difficulty;
         game.gameSpeed = game.accelerationActive ? baseSpeed * 1.5 : baseSpeed;
-        difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
+        if (difficultyDisplay) difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
 
         // 장애물 생성 로직
         game.timeSinceLastObstacle += elapsed;
@@ -598,7 +603,7 @@ function gameLoop(timestamp) {
             obstacle.update(gameDeltaTime);
             obstacle.draw(timestamp);
 
-            if (checkCollision(game.player, obstacle)) {
+            if (game.player && checkCollision(game.player, obstacle)) {
                 endGame();
             }
         });
@@ -606,7 +611,7 @@ function gameLoop(timestamp) {
         // Dana와 Ground 장애물 충돌 감지 및 처리 로직
         const newObstacles = [];
         for (const obstacle of game.obstacles) {
-            if (obstacle.type === 'ground' && checkCollision(game.danaImage, obstacle)) {
+            if (game.danaImage && obstacle.type === 'ground' && checkCollision(game.danaImage, obstacle)) {
                 console.log("Dana collided with a ground obstacle!");
                 game.danaImage.frameImages = [assets.dana_shocked];
                 game.danaImage.animationFrame = 0;
@@ -624,10 +629,10 @@ function gameLoop(timestamp) {
             coin.update(gameDeltaTime);
             coin.draw(timestamp);
 
-            if (checkCollision(game.player, coin)) {
+            if (game.player && checkCollision(game.player, coin)) {
                 const currentCoins = getCoins();
                 saveCoins(currentCoins + 1);
-                coinDisplay.textContent = `Coins: ${getCoins()}`;
+                if (coinDisplay) coinDisplay.textContent = `Coins: ${getCoins()}`;
                 game.coins = game.coins.filter(c => c !== coin);
                 if (coinSound) {
                     coinSound.currentTime = 0;
@@ -645,7 +650,7 @@ function gameLoop(timestamp) {
 // 이벤트 리스너 (Event Listeners)
 // ===================================
 document.addEventListener('keydown', (e) => {
-    if (game.gameState !== 'playing') return;
+    if (game.gameState !== 'playing' || !game.player) return;
     if (e.code === 'Space' && !game.spacebarPressed) {
         game.player.jump();
         game.spacebarPressed = true;
@@ -673,7 +678,7 @@ document.addEventListener('keyup', (e) => {
 const mobileControls = document.getElementById('mobile-controls');
 if (mobileControls) {
     mobileControls.addEventListener('touchstart', (e) => {
-        if (game.gameState !== 'playing') return;
+        if (game.gameState !== 'playing' || !game.player) return;
         if (e.target.id === 'jump-button') {
             game.player.jump();
         } else if (e.target.id === 'accelerate-button') {
@@ -690,16 +695,16 @@ if (mobileControls) {
     });
 }
 
-startButton.addEventListener('click', startGame);
-restartButton.addEventListener('click', startGame);
-backToStartButton.addEventListener('click', backToStartScreen);
-rankingButton.addEventListener('click', displayHighScores);
-rankingButtonGameover.addEventListener('click', displayHighScores);
-patchNotesButton.addEventListener('click', () => {
-    patchNotesText.textContent = currentPatchNotes;
-    patchNotesModal.style.display = 'flex';
+if (startButton) startButton.addEventListener('click', startGame);
+if (restartButton) restartButton.addEventListener('click', startGame);
+if (backToStartButton) backToStartButton.addEventListener('click', backToStartScreen);
+if (rankingButton) rankingButton.addEventListener('click', displayHighScores);
+if (rankingButtonGameover) rankingButtonGameover.addEventListener('click', displayHighScores);
+if (patchNotesButton) patchNotesButton.addEventListener('click', () => {
+    if (patchNotesText) patchNotesText.textContent = currentPatchNotes;
+    if (patchNotesModal) patchNotesModal.classList.remove('hidden');
 });
-themeToggleButton.addEventListener('click', () => {
+if (themeToggleButton) themeToggleButton.addEventListener('click', () => {
     const body = document.body;
     const currentTheme = body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
     if (currentTheme === 'light-theme') {
@@ -714,27 +719,22 @@ themeToggleButton.addEventListener('click', () => {
 });
 
 // 상점 버튼 이벤트 리스너 수정
-shopButtonStart.addEventListener('click', showShopScreen);
-shopButtonGameover.addEventListener('click', showShopScreen);
-backToStartFromShopButton.addEventListener('click', backToStartFromShop);
+if (shopButtonStart) shopButtonStart.addEventListener('click', showShopScreen);
+if (shopButtonGameover) shopButtonGameover.addEventListener('click', showShopScreen);
+if (backToStartFromShopButton) backToStartFromShopButton.addEventListener('click', backToStartFromShop);
 
 closeButtons.forEach(button => {
     button.addEventListener('click', (event) => {
         const modalToClose = event.target.dataset.modal;
-        if (modalToClose === 'patch-notes-modal') {
-            patchNotesModal.style.display = 'none';
-        } else if (modalToClose === 'ranking-modal') {
-            rankingModal.style.display = 'none';
-        } else if (modalToClose === 'music-selection-modal') {
-            musicSelectionModal.style.display = 'none';
-        } else if (modalToClose === 'settings-modal') {
-            settingsModal.style.display = 'none';
+        const modalElement = document.getElementById(modalToClose);
+        if (modalElement) {
+            modalElement.classList.add('hidden');
         }
     });
 });
 
-settingsButton.addEventListener('click', () => {
-    settingsModal.style.display = 'flex';
+if (settingsButton) settingsButton.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.remove('hidden');
     document.querySelectorAll('#fps-options button').forEach(btn => {
         btn.classList.remove('active');
         if (parseInt(btn.dataset.fps) === game.targetFPS) {
@@ -743,7 +743,7 @@ settingsButton.addEventListener('click', () => {
     });
 });
 
-fpsOptions.addEventListener('click', (event) => {
+if (fpsOptions) fpsOptions.addEventListener('click', (event) => {
     if (event.target.tagName === 'BUTTON') {
         const newFPS = parseInt(event.target.dataset.fps);
         if (!isNaN(newFPS) && [30, 60, 120].includes(newFPS)) {
@@ -753,18 +753,21 @@ fpsOptions.addEventListener('click', (event) => {
             document.querySelectorAll('#fps-options button').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
-        settingsModal.style.display = 'none';
+        if (settingsModal) settingsModal.classList.add('hidden');
     }
 });
 
-gameBGM.volume = volumeSlider.value / 100;
-volumeSlider.addEventListener('input', (e) => {
-    gameBGM.volume = e.target.value / 100;
-});
-changeSongButton.addEventListener('click', displayMusicSelection);
-coinSound.src = 'assets/audio/coin.mp3';
-coinSound.volume = 0.2;
-
+if (gameBGM && volumeSlider) {
+    gameBGM.volume = volumeSlider.value / 100;
+    volumeSlider.addEventListener('input', (e) => {
+        gameBGM.volume = e.target.value / 100;
+    });
+}
+if (changeSongButton) changeSongButton.addEventListener('click', displayMusicSelection);
+if (coinSound) {
+    coinSound.src = 'assets/audio/coin.mp3';
+    coinSound.volume = 0.2;
+}
 
 // ===================================
 // 초기화 (Initialization)
@@ -781,7 +784,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 에셋 로드와 관계없이 시작 화면을 즉시 표시
-    switchScreen('start-screen');
+    // switchScreen('start-screen');
+    // 초기 로드 시 모든 화면을 숨기고 시작 화면만 표시
+    if (startScreen) startScreen.classList.remove('hidden');
+    if (gameOverScreen) gameOverScreen.classList.add('hidden');
+    if (shopPage) shopPage.classList.add('hidden');
+    if (gameContainer) gameContainer.classList.add('hidden');
+
     if (coinDisplayStart) {
         coinDisplayStart.textContent = `Coins: ${getCoins()}`;
     }
