@@ -7,7 +7,6 @@ const currentSongDisplay = document.getElementById('current-song-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const startButton = document.getElementById('start-button');
-const themeToggleButton = document.getElementById('theme-toggle-button');
 const restartButton = document.getElementById('restart-button');
 const backToStartButton = document.getElementById('back-to-start-button');
 const finalScore = document.getElementById('final-score');
@@ -564,7 +563,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstaclesCount = 0; // 오타 수정: consecutiveGroundObstacleCount -> consecutiveGroundObstaclesCount
+                game.consecutiveGroundObstaclesCount = 0;
             }
 
             game.obstacles.push(new Obstacle(type));
@@ -768,9 +767,4 @@ document.addEventListener('DOMContentLoaded', () => {
             coinDisplayStart.textContent = `Coins: ${getCoins()}`;
         }
     });
-
-    if (themeToggleButton) {
-        document.body.className = savedTheme;
-        themeToggleButton.textContent = savedTheme === 'dark-theme' ? '☀️' : '🌙';
-    }
 });
