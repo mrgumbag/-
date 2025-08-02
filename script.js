@@ -34,6 +34,7 @@ const shopButtonStart = document.getElementById('shop-button-start');
 const shopButtonGameover = document.getElementById('shop-button-gameover');
 const shopPage = document.getElementById('shop-page');
 const backToStartFromShopButton = document.getElementById('back-to-start-from-shop');
+const coinDisplayStart = document.getElementById('coin-display-start');
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -455,7 +456,7 @@ function initGame() {
 
     gameOverScreen.style.display = 'none';
     startScreen.style.display = 'none';
-    shopPage.style.display = 'none'; // 상점 페이지 숨기기
+    shopPage.style.display = 'none';
     document.getElementById('game-container').style.display = 'block';
 }
 
@@ -488,7 +489,8 @@ function backToStartScreen() {
 
     coinDisplayStart.textContent = `Coins: ${getCoins()}`;
 
-    initGame();
+    //initGame() 함수에서 모든 화면을 숨기고 게임 컨테이너를 표시하는 대신,
+    //메인 화면으로 돌아갈 때는 메인 화면만 표시되도록 수정
 }
 
 // 상점 관련 함수 수정
@@ -497,7 +499,7 @@ function showShopScreen() {
     startScreen.style.display = 'none';
     gameOverScreen.style.display = 'none';
     document.getElementById('game-container').style.display = 'none';
-    shopPage.style.display = 'flex'; // 상점 페이지 보여주기
+    shopPage.style.display = 'flex';
     if (game.gameLoopId) {
         cancelAnimationFrame(game.gameLoopId);
     }
@@ -562,7 +564,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstacleCount = 0;
+                game.consecutiveGroundObstaclesCount = 0; // 오타 수정: consecutiveGroundObstacleCount -> consecutiveGroundObstaclesCount
             }
 
             game.obstacles.push(new Obstacle(type));
@@ -748,7 +750,6 @@ coinSound.volume = 0.2;
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     const versionDisplay = document.getElementById('version-display');
-    const coinDisplayStart = document.getElementById('coin-display-start');
 
     coinDisplay = document.getElementById('coin-display');
 
@@ -761,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
         document.getElementById('game-container').style.display = 'none';
         gameOverScreen.style.display = 'none';
-        shopPage.style.display = 'none'; // 상점 페이지 숨기기
+        shopPage.style.display = 'none';
         startScreen.style.display = 'block';
         if (coinDisplayStart) {
             coinDisplayStart.textContent = `Coins: ${getCoins()}`;
