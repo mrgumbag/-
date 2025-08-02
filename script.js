@@ -482,7 +482,7 @@ function backToStartScreen() {
     game.gameState = 'start';
     gameOverScreen.style.display = 'none';
     shopPage.style.display = 'none';
-
+    document.getElementById('game-container').style.display = 'none';
     startScreen.style.display = 'block';
 
     coinDisplayStart.textContent = `Coins: ${getCoins()}`;
@@ -559,7 +559,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstaclesCount = 0;
+                game.consecutiveGroundObstacleCount = 0;
             }
 
             game.obstacles.push(new Obstacle(type));
