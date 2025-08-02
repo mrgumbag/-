@@ -27,6 +27,7 @@ const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
 const coinSound = document.getElementById('coinSound');
 const rankingButtonGameover = document.getElementById('ranking-button-gameover');
+const themeToggleButton = document.getElementById('theme-toggle-button');
 
 // 상점 관련 변수 추가 및 수정
 const shopButtonStart = document.getElementById('shop-button-start');
@@ -475,7 +476,8 @@ function endGame() {
     gameBGM.pause();
     gameBGM.currentTime = 0;
     cancelAnimationFrame(game.gameLoopId);
-    document.getElementById('game-container').style.display = 'none';
+    // 이 줄을 제거하여 게임 오버 화면이 사라지는 문제를 해결
+    // document.getElementById('game-container').style.display = 'none';
 }
 
 function backToStartScreen() {
@@ -689,6 +691,19 @@ patchNotesButton.addEventListener('click', () => {
     patchNotesText.textContent = currentPatchNotes;
     patchNotesModal.style.display = 'flex';
 });
+themeToggleButton.addEventListener('click', () => {
+    const body = document.body;
+    const currentTheme = body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
+    if (currentTheme === 'light-theme') {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark-theme');
+    } else {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light-theme');
+    }
+});
 
 // 상점 버튼 이벤트 리스너 수정
 shopButtonStart.addEventListener('click', showShopScreen);
@@ -750,6 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     const versionDisplay = document.getElementById('version-display');
 
+    document.body.classList.add(savedTheme);
     coinDisplay = document.getElementById('coin-display');
 
     if (versionDisplay) {
@@ -759,10 +775,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAssets().then(() => {
         game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
-        // 이 부분을 제거하여 게임 화면이 로드된 후 다시 숨겨지는 문제를 해결합니다.
-        // document.getElementById('game-container').style.display = 'none';
         gameOverScreen.style.display = 'none';
         shopPage.style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
         startScreen.style.display = 'block';
         if (coinDisplayStart) {
             coinDisplayStart.textContent = `Coins: ${getCoins()}`;
