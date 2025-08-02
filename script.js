@@ -780,13 +780,15 @@ document.addEventListener('DOMContentLoaded', () => {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
     }
 
+    // 에셋 로드와 관계없이 시작 화면을 즉시 표시
+    switchScreen('start-screen');
+    if (coinDisplayStart) {
+        coinDisplayStart.textContent = `Coins: ${getCoins()}`;
+    }
+
+    // 에셋 로드는 비동기적으로 처리하여 초기 화면 표시를 막지 않도록 함
     loadAssets().then(() => {
         game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
-        // 초기 로드 시 메인 화면을 명확하게 표시
-        switchScreen('start-screen');
-        if (coinDisplayStart) {
-            coinDisplayStart.textContent = `Coins: ${getCoins()}`;
-        }
     });
 });
