@@ -759,7 +759,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAssets().then(() => {
         game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
-        document.getElementById('game-container').style.display = 'none';
+        // 이 부분을 제거하여 게임 화면이 로드된 후 다시 숨겨지는 문제를 해결합니다.
+        // document.getElementById('game-container').style.display = 'none';
         gameOverScreen.style.display = 'none';
         shopPage.style.display = 'none';
         startScreen.style.display = 'block';
