@@ -38,6 +38,10 @@
         <div id="start-screen" class="game-screen">
             <h1>우파루파 모험기</h1>
             <p>스페이스바를 눌러 점프하세요!</p>
+            <div class="version-info">
+                <span id="version-display"></span>
+                <span id="coin-display-start">Coins: 0</span>
+            </div>
             <div class="button-row">
                 <button id="start-button">게임 시작</button>
                 <button id="ranking-button">랭킹</button>
@@ -46,21 +50,16 @@
                 <button id="settings-button">설정</button>
                 <button id="patch-notes-button">패치 노트</button>
             </div>
-            <button id="theme-toggle-button" class="theme-toggle-button">라이트 모드</button>
-            <div id="version-display"></div>
+            <button id="shop-button-start">상점</button>
         </div>
 
         <div id="game-over-screen" class="game-screen">
-            <h1>Game Over</h1>
+            <h1>게임 오버</h1>
             <p>최종 점수: <span id="final-score">0</span></p>
             <button id="restart-button">다시 시작</button>
-            <button id="back-to-start-button">시작 화면으로</button>
-        </div>
-
-        <div id="mobile-controls">
-            <button id="jump-button" class="mobile-button">점프</button>
-            <button id="accelerate-button" class="mobile-button">가속 (A)</button>
-            <button id="time-stop-button" class="mobile-button">타임 스탑 (S)</button>
+            <button id="back-to-start-button">메인 화면으로</button>
+            <button id="ranking-button-gameover">랭킹</button>
+            <button id="shop-button-gameover">상점</button>
         </div>
 
         <div id="ranking-modal" class="modal">
@@ -107,9 +106,16 @@
         </div>
     </div>
 
+    <div id="shop-page" class="game-screen" style="display: none;">
+        <h1>상점</h1>
+        <div id="shop-items">
+            <p>상점 아이템이 여기에 표시됩니다.</p>
+        </div>
+        <button id="back-to-start-from-shop">메인 화면으로</button>
+    </div>
+
     <audio id="gameBGM" loop></audio>
     <audio id="coinSound"></audio>
-
     <script src="script.js"></script>
 </body>
 </html>

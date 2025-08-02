@@ -27,6 +27,13 @@ const patchNotesModal = document.getElementById('patch-notes-modal');
 const closeButtons = document.querySelectorAll('.close-button');
 const patchNotesText = document.getElementById('patch-notes-text');
 const coinSound = document.getElementById('coinSound');
+const rankingButtonGameover = document.getElementById('ranking-button-gameover');
+
+// 상점 관련 변수 추가 및 수정
+const shopButtonStart = document.getElementById('shop-button-start');
+const shopButtonGameover = document.getElementById('shop-button-gameover');
+const shopPage = document.getElementById('shop-page');
+const backToStartFromShopButton = document.getElementById('back-to-start-from-shop');
 
 // ===================================
 // 상태 변수 (State Variables)
@@ -59,6 +66,7 @@ const game = {
     currentBGMIndex: 0,
     originalDanaImages: null
 };
+
 const currentPatchNotes = `0.5.5V
 더블 점프 추가
 조류 장애물 추가
@@ -446,12 +454,13 @@ function initGame() {
     updateCurrentSongDisplay();
 
     gameOverScreen.style.display = 'none';
+    startScreen.style.display = 'none';
+    shopPage.style.display = 'none'; // 상점 페이지 숨기기
+    document.getElementById('game-container').style.display = 'block';
 }
 
 function startGame() {
     initGame();
-    startScreen.style.display = 'none';
-    gameOverScreen.style.display = 'none';
     game.gameState = 'playing';
     gameBGM.play();
     game.lastFrameTime = performance.now();
@@ -461,17 +470,42 @@ function startGame() {
 function endGame() {
     game.gameState = 'gameOver';
     finalScore.textContent = Math.floor(game.score);
-    gameOverScreen.style.display = 'flex';
+    gameOverScreen.style.display = 'block';
     saveHighScore(game.score);
     gameBGM.pause();
     gameBGM.currentTime = 0;
     cancelAnimationFrame(game.gameLoopId);
+    document.getElementById('game-container').style.display = 'none';
 }
 
 function backToStartScreen() {
-    initGame();
+    game.gameState = 'start';
     gameOverScreen.style.display = 'none';
-    startScreen.style.display = 'flex';
+    shopPage.style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+
+    startScreen.style.display = 'block';
+
+    coinDisplayStart.textContent = `Coins: ${getCoins()}`;
+
+    initGame();
+}
+
+// 상점 관련 함수 수정
+function showShopScreen() {
+    game.gameState = 'shop';
+    startScreen.style.display = 'none';
+    gameOverScreen.style.display = 'none';
+    document.getElementById('game-container').style.display = 'none';
+    shopPage.style.display = 'flex'; // 상점 페이지 보여주기
+    if (game.gameLoopId) {
+        cancelAnimationFrame(game.gameLoopId);
+    }
+}
+
+function backToStartFromShop() {
+    shopPage.style.display = 'none';
+    backToStartScreen();
 }
 
 function revertDanaImage() {
@@ -528,7 +562,7 @@ function gameLoop(timestamp) {
             if (type === 'ground') {
                 game.consecutiveGroundObstaclesCount++;
             } else {
-                game.consecutiveGroundObstaclesCount = 0;
+                game.consecutiveGroundObstacleCount = 0;
             }
 
             game.obstacles.push(new Obstacle(type));
@@ -565,7 +599,7 @@ function gameLoop(timestamp) {
                 console.log("Dana collided with a ground obstacle!");
                 game.danaImage.frameImages = [assets.dana_shocked];
                 game.danaImage.animationFrame = 0;
-                setTimeout(revertDanaImage, 300); // 0.3초 후 원래 이미지로 되돌리기
+                setTimeout(revertDanaImage, 300);
             } else {
                 newObstacles.push(obstacle);
             }
@@ -597,25 +631,11 @@ function gameLoop(timestamp) {
 }
 
 // ===================================
-// 테마 전환 로직
-// ===================================
-function applyTheme(theme) {
-    document.body.className = theme;
-    localStorage.setItem('theme', theme);
-    if (theme === 'dark-theme') {
-        themeToggleButton.textContent = '라이트 모드';
-    } else {
-        themeToggleButton.textContent = '다크 모드';
-    }
-}
-
-// ===================================
 // 이벤트 리스너 (Event Listeners)
 // ===================================
 document.addEventListener('keydown', (e) => {
     if (game.gameState !== 'playing') return;
-
-    if (e.code === 'Space') {
+    if (e.code === 'Space' && !game.spacebarPressed) {
         game.player.jump();
         game.spacebarPressed = true;
     }
@@ -624,11 +644,11 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.code === 'KeyS' && game.timeStopCooldown <= 0) {
         game.timeStopActive = true;
-        game.timeStopCooldown = 30000;
-        game.timeFactor = 0.5;
+        game.timeStopCooldown = 30000; // 30초 쿨타임
+        game.timeFactor = 0.5; // 게임 속도 50%
         setTimeout(() => {
             game.timeStopActive = false;
-            game.timeFactor = 1;
+            game.timeFactor = 1; // 3초 후 원래 속도로 복귀
         }, 3000);
     }
 });
@@ -639,51 +659,40 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-const jumpButton = document.getElementById('jump-button');
-const accelerateButton = document.getElementById('accelerate-button');
-const timeStopButton = document.getElementById('time-stop-button');
-
-function handleTouchControls(e) {
-    e.preventDefault();
-    if (game.gameState !== 'playing') return;
-
-    if (e.target.id === 'jump-button') {
-        game.player.jump();
-    } else if (e.target.id === 'accelerate-button') {
-        game.accelerationActive = !game.accelerationActive;
-    } else if (e.target.id === 'time-stop-button' && game.timeStopCooldown <= 0) {
-        game.timeStopActive = true;
-        game.timeStopCooldown = 30000;
-        game.timeFactor = 0.5;
-        setTimeout(() => {
-            game.timeStopActive = false;
-            game.timeFactor = 1;
-        }, 3000);
-    }
+const mobileControls = document.getElementById('mobile-controls');
+if (mobileControls) {
+    mobileControls.addEventListener('touchstart', (e) => {
+        if (game.gameState !== 'playing') return;
+        if (e.target.id === 'jump-button') {
+            game.player.jump();
+        } else if (e.target.id === 'accelerate-button') {
+            game.accelerationActive = !game.accelerationActive;
+        } else if (e.target.id === 'time-stop-button' && game.timeStopCooldown <= 0) {
+            game.timeStopActive = true;
+            game.timeStopCooldown = 30000;
+            game.timeFactor = 0.5;
+            setTimeout(() => {
+                game.timeStopActive = false;
+                game.timeFactor = 1;
+            }, 3000);
+        }
+    });
 }
-
-if (jumpButton) {
-    jumpButton.addEventListener('touchstart', handleTouchControls, { passive: false });
-    accelerateButton.addEventListener('touchstart', handleTouchControls, { passive: false });
-    timeStopButton.addEventListener('touchstart', handleTouchControls, { passive: false });
-}
-
-themeToggleButton.addEventListener('click', () => {
-    if (document.body.classList.contains('dark-theme')) {
-        applyTheme('light-theme');
-    } else {
-        applyTheme('dark-theme');
-    }
-});
 
 startButton.addEventListener('click', startGame);
 restartButton.addEventListener('click', startGame);
 backToStartButton.addEventListener('click', backToStartScreen);
 rankingButton.addEventListener('click', displayHighScores);
+rankingButtonGameover.addEventListener('click', displayHighScores);
 patchNotesButton.addEventListener('click', () => {
     patchNotesText.textContent = currentPatchNotes;
     patchNotesModal.style.display = 'flex';
 });
+
+// 상점 버튼 이벤트 리스너 수정
+shopButtonStart.addEventListener('click', showShopScreen);
+shopButtonGameover.addEventListener('click', showShopScreen);
+backToStartFromShopButton.addEventListener('click', backToStartFromShop);
 
 closeButtons.forEach(button => {
     button.addEventListener('click', (event) => {
@@ -698,18 +707,6 @@ closeButtons.forEach(button => {
             settingsModal.style.display = 'none';
         }
     });
-});
-
-window.addEventListener('click', (event) => {
-    if (event.target === patchNotesModal) {
-        patchNotesModal.style.display = 'none';
-    } else if (event.target === rankingModal) {
-        rankingModal.style.display = 'none';
-    } else if (event.target === musicSelectionModal) {
-        musicSelectionModal.style.display = 'none';
-    } else if (event.target === settingsModal) {
-        settingsModal.style.display = 'none';
-    }
 });
 
 settingsButton.addEventListener('click', () => {
@@ -736,13 +733,13 @@ fpsOptions.addEventListener('click', (event) => {
     }
 });
 
-if (gameBGM) {
-    gameBGM.volume = volumeSlider.value / 100;
-}
+gameBGM.volume = volumeSlider.value / 100;
 volumeSlider.addEventListener('input', (e) => {
     gameBGM.volume = e.target.value / 100;
 });
 changeSongButton.addEventListener('click', displayMusicSelection);
+coinSound.src = 'assets/audio/coin.mp3';
+coinSound.volume = 0.2;
 
 
 // ===================================
@@ -750,14 +747,10 @@ changeSongButton.addEventListener('click', displayMusicSelection);
 // ===================================
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
-    applyTheme(savedTheme);
     const versionDisplay = document.getElementById('version-display');
-    coinDisplay = document.getElementById('coin-display');
+    const coinDisplayStart = document.getElementById('coin-display-start');
 
-    if (coinSound) {
-        coinSound.src = 'assets/audio/coin.mp3';
-        coinSound.volume = 0.2;
-    }
+    coinDisplay = document.getElementById('coin-display');
 
     if (versionDisplay) {
         versionDisplay.textContent = `v${currentPatchNotes.split('\n')[0]}`;
@@ -766,8 +759,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAssets().then(() => {
         game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
-        initGame();
-        startScreen.style.display = 'flex';
-        coinDisplay.textContent = `Coins: ${getCoins()}`;
+        document.getElementById('game-container').style.display = 'none';
+        gameOverScreen.style.display = 'none';
+        shopPage.style.display = 'none'; // 상점 페이지 숨기기
+        startScreen.style.display = 'block';
+        if (coinDisplayStart) {
+            coinDisplayStart.textContent = `Coins: ${getCoins()}`;
+        }
     });
+
+    if (themeToggleButton) {
+        document.body.className = savedTheme;
+        themeToggleButton.textContent = savedTheme === 'dark-theme' ? '☀️' : '🌙';
+    }
 });
