@@ -120,6 +120,7 @@ const assetPaths = {
     bird_obstacle_4: 'assets/images/bird_obstacle_4.png',
     dana_image: 'assets/images/dana.png',
     dana_image_2: 'assets/images/dana_2.png',
+    dana_shocked: 'assets/images/dana_shocked.png', // 새로운 충돌 이미지
     coin: 'assets/images/coin.svg',
     coin_2: 'assets/images/coin_2.svg'
 };
@@ -214,9 +215,11 @@ class StaticImage {
     }
 
     draw(timestamp) {
-        if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
-            this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
-            this.lastFrameTime = timestamp;
+        if (this.frameImages.length > 1) {
+            if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
+                this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
+                this.lastFrameTime = timestamp;
+            }
         }
         ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
     }
@@ -497,7 +500,6 @@ function gameLoop(timestamp) {
         game.score += SCORE_BASE_PER_SECOND * gameDeltaTime;
         scoreDisplay.textContent = `Score: ${Math.floor(game.score)}`;
 
-        // 난이도 계산 로직 수정 (0.1씩 증가)
         game.difficulty = 1 + (Math.floor(game.score / DIFFICULTY_SCALE_POINT) * 0.1);
         let baseSpeed = 7 * 60 * game.difficulty;
         game.gameSpeed = game.accelerationActive ? baseSpeed * 1.5 : baseSpeed;
@@ -550,6 +552,23 @@ function gameLoop(timestamp) {
                 endGame();
             }
         });
+
+        // Dana와 Ground 장애물 충돌 감지 로직 추가
+        const newObstacles = [];
+        for (const obstacle of game.obstacles) {
+            if (obstacle.type === 'ground' && checkCollision(game.danaImage, obstacle)) {
+                // 충돌한 지상 장애물은 제거
+                console.log("Dana collided with a ground obstacle!");
+                // dana 이미지 변경
+                game.danaImage.frameImages = [assets.dana_shocked];
+                game.danaImage.animationFrame = 0; // 단일 프레임이므로 애니메이션 프레임 고정
+                // 충돌한 장애물은 제거하고 배열에 추가하지 않음
+            } else {
+                newObstacles.push(obstacle);
+            }
+        }
+        game.obstacles = newObstacles;
+
         game.obstacles = game.obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
 
         // 코인 업데이트 및 그리기
@@ -598,7 +617,6 @@ document.addEventListener('keydown', (e) => {
         game.spacebarPressed = true;
     }
     if (e.code === 'KeyA') {
-        // 가속 상태만 토글하도록 수정
         game.accelerationActive = !game.accelerationActive;
     }
     if (e.code === 'KeyS' && game.timeStopCooldown <= 0) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'upaloopah-adventure-v5'; // 캐시 업데이트를 위해 버전 변경
+const CACHE_NAME = 'upaloopah-adventure-v2';
 const urlsToCache = [
     './',
     'index.html',
@@ -16,6 +16,7 @@ const urlsToCache = [
     'assets/images/bird_obstacle_4.png',
     'assets/images/dana.png',
     'assets/images/dana_2.png',
+    'assets/images/dana_shocked.png',
     'assets/images/coin.svg',
     'assets/images/coin_2.svg',
     'assets/audio/bgm.mp3',
