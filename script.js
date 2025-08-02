@@ -16,7 +16,7 @@ const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const changeSongButton = document.getElementById('music-selection-button');
-const musicSelectionModal = document.getElementById('music-selection-modal');
+const musicSelectionModal = document = document.getElementById('music-selection-modal');
 const musicList = document.getElementById('music-list');
 const settingsButton = document.getElementById('settings-button');
 const settingsModal = document.getElementById('settings-modal');
@@ -457,11 +457,11 @@ function initGame() {
     gameOverScreen.style.display = 'none';
     startScreen.style.display = 'none';
     shopPage.style.display = 'none';
-    document.getElementById('game-container').style.display = 'block';
 }
 
 function startGame() {
     initGame();
+    document.getElementById('game-container').style.display = 'block';
     game.gameState = 'playing';
     gameBGM.play();
     game.lastFrameTime = performance.now();
