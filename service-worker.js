@@ -1,4 +1,4 @@
-const CACHE_NAME = 'upaloopah-adventure-v3'; // 캐시 업데이트를 위해 버전 변경
+const CACHE_NAME = 'upaloopah-adventure-v4';
 const urlsToCache = [
     './',
     'index.html',
@@ -21,8 +21,8 @@ const urlsToCache = [
     'assets/audio/bgm.mp3',
     'assets/audio/bgm2.mp3',
     'assets/audio/bgm3.mp3',
-    'assets/audio/bgm4.mp3', // bgm4 추가
-    'assets/audio/bgm5.mp3', // bgm5 추가
+    'assets/audio/bgm4.mp3',
+    'assets/audio/bgm5.mp3',
     'assets/audio/coin.mp3',
     'assets/icons/icon-192x192.png',
     'assets/icons/icon-512x512.png'

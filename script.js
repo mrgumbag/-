@@ -70,7 +70,7 @@ const bgmPaths = [
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
     { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
     { name: 'SOS', path: 'assets/audio/bgm4.mp3' },
-    { name: '도깨비꽃', path: 'assets/audio/bgm5.mp3' } // bgm5 추가
+    { name: 'New BGM Title', path: 'assets/audio/bgm5.mp3' }
 ];
 
 // ===================================
@@ -267,7 +267,7 @@ class Obstacle {
                 this.lastFrameTime = timestamp;
             }
             ctx.drawImage(this.frameImages[this.animationFrame], this.x, this.y, this.width, this.height);
-        } else if (this.type === 'bird') {
+        } else if (this.type === 'bird') { // 수정된 부분
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
                 this.lastFrameTime = timestamp;
