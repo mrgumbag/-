@@ -476,22 +476,16 @@ function endGame() {
     gameBGM.pause();
     gameBGM.currentTime = 0;
     cancelAnimationFrame(game.gameLoopId);
-    // 이 줄을 제거하여 게임 오버 화면이 사라지는 문제를 해결
-    // document.getElementById('game-container').style.display = 'none';
 }
 
 function backToStartScreen() {
     game.gameState = 'start';
     gameOverScreen.style.display = 'none';
     shopPage.style.display = 'none';
-    document.getElementById('game-container').style.display = 'none';
 
     startScreen.style.display = 'block';
 
     coinDisplayStart.textContent = `Coins: ${getCoins()}`;
-
-    //initGame() 함수에서 모든 화면을 숨기고 게임 컨테이너를 표시하는 대신,
-    //메인 화면으로 돌아갈 때는 메인 화면만 표시되도록 수정
 }
 
 // 상점 관련 함수 수정
