@@ -57,7 +57,7 @@ const game = {
     difficulty: 1,
     danaImage: null,
     currentBGMIndex: 0,
-    originalDanaImages: null // 원래 dana 이미지들을 저장할 변수 추가
+    originalDanaImages: null
 };
 const currentPatchNotes = `0.5.5V
 더블 점프 추가
@@ -216,7 +216,6 @@ class StaticImage {
     }
 
     draw(timestamp) {
-        // frameImages가 1개 이상일 때만 애니메이션 적용
         if (this.frameImages.length > 1) {
             if (timestamp - this.lastFrameTime > ANIMATION_SPEED) {
                 this.animationFrame = (this.animationFrame + 1) % this.frameImages.length;
@@ -475,7 +474,6 @@ function backToStartScreen() {
     startScreen.style.display = 'flex';
 }
 
-// Dana의 이미지를 원래 애니메이션으로 되돌리는 함수 추가
 function revertDanaImage() {
     game.danaImage.frameImages = game.originalDanaImages;
 }
@@ -567,8 +565,7 @@ function gameLoop(timestamp) {
                 console.log("Dana collided with a ground obstacle!");
                 game.danaImage.frameImages = [assets.dana_shocked];
                 game.danaImage.animationFrame = 0;
-                // 0.5초 후에 원래 이미지로 되돌리기
-                setTimeout(revertDanaImage, 500);
+                setTimeout(revertDanaImage, 300); // 0.3초 후 원래 이미지로 되돌리기
             } else {
                 newObstacles.push(obstacle);
             }
@@ -767,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadAssets().then(() => {
-        game.originalDanaImages = [assets.dana_image, assets.dana_image_2]; // 원래 이미지 저장
+        game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
         initGame();
         startScreen.style.display = 'flex';
