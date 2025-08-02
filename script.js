@@ -16,7 +16,7 @@ const rankingList = document.getElementById('ranking-list');
 const gameBGM = document.getElementById('gameBGM');
 const volumeSlider = document.getElementById('volume-slider');
 const changeSongButton = document.getElementById('music-selection-button');
-const musicSelectionModal = document = document.getElementById('music-selection-modal');
+const musicSelectionModal = document.getElementById('music-selection-modal');
 const musicList = document.getElementById('music-list');
 const settingsButton = document.getElementById('settings-button');
 const settingsModal = document.getElementById('settings-modal');
@@ -28,6 +28,7 @@ const patchNotesText = document.getElementById('patch-notes-text');
 const coinSound = document.getElementById('coinSound');
 const rankingButtonGameover = document.getElementById('ranking-button-gameover');
 const themeToggleButton = document.getElementById('theme-toggle-button');
+const gameContainer = document.getElementById('game-container');
 
 // 상점 관련 변수 추가 및 수정
 const shopButtonStart = document.getElementById('shop-button-start');
@@ -430,6 +431,35 @@ function saveCoins(newCoins) {
     localStorage.setItem('coins', newCoins);
 }
 
+// 모든 화면을 관리하는 새로운 함수 추가
+function switchScreen(screenId) {
+    // 모든 화면 숨기기
+    startScreen.style.display = 'none';
+    gameOverScreen.style.display = 'none';
+    shopPage.style.display = 'none';
+    gameContainer.style.display = 'none';
+
+    // 요청된 화면만 표시
+    switch (screenId) {
+        case 'start-screen':
+            startScreen.style.display = 'block';
+            game.gameState = 'start';
+            break;
+        case 'game-container':
+            gameContainer.style.display = 'block';
+            game.gameState = 'playing';
+            break;
+        case 'game-over-screen':
+            gameOverScreen.style.display = 'block';
+            game.gameState = 'gameOver';
+            break;
+        case 'shop-page':
+            shopPage.style.display = 'flex';
+            game.gameState = 'shop';
+            break;
+    }
+}
+
 function initGame() {
     game.player = new Player();
     game.obstacles = [];
@@ -453,56 +483,40 @@ function initGame() {
     difficultyDisplay.textContent = `Difficulty: ${game.difficulty.toFixed(1)}`;
     gameBGM.src = bgmPaths[game.currentBGMIndex].path;
     updateCurrentSongDisplay();
-
-    gameOverScreen.style.display = 'none';
-    startScreen.style.display = 'none';
-    shopPage.style.display = 'none';
 }
 
 function startGame() {
     initGame();
-    document.getElementById('game-container').style.display = 'block';
-    game.gameState = 'playing';
+    switchScreen('game-container'); // 게임 컨테이너 화면 표시
     gameBGM.play();
     game.lastFrameTime = performance.now();
     gameLoop();
 }
 
 function endGame() {
-    game.gameState = 'gameOver';
+    cancelAnimationFrame(game.gameLoopId);
+    switchScreen('game-over-screen'); // 게임 오버 화면 표시
     finalScore.textContent = Math.floor(game.score);
-    gameOverScreen.style.display = 'block';
     saveHighScore(game.score);
     gameBGM.pause();
     gameBGM.currentTime = 0;
-    cancelAnimationFrame(game.gameLoopId);
 }
 
 function backToStartScreen() {
-    game.gameState = 'start';
-    gameOverScreen.style.display = 'none';
-    shopPage.style.display = 'none';
-    document.getElementById('game-container').style.display = 'none';
-    startScreen.style.display = 'block';
-
+    switchScreen('start-screen'); // 메인 화면으로 돌아가기
     coinDisplayStart.textContent = `Coins: ${getCoins()}`;
 }
 
 // 상점 관련 함수 수정
 function showShopScreen() {
-    game.gameState = 'shop';
-    startScreen.style.display = 'none';
-    gameOverScreen.style.display = 'none';
-    document.getElementById('game-container').style.display = 'none';
-    shopPage.style.display = 'flex';
+    switchScreen('shop-page'); // 상점 페이지 화면 표시
     if (game.gameLoopId) {
         cancelAnimationFrame(game.gameLoopId);
     }
 }
 
 function backToStartFromShop() {
-    shopPage.style.display = 'none';
-    backToStartScreen();
+    backToStartScreen(); // 상점에서 메인 화면으로 돌아가기
 }
 
 function revertDanaImage() {
@@ -769,10 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAssets().then(() => {
         game.originalDanaImages = [assets.dana_image, assets.dana_image_2];
         game.danaImage = new StaticImage(DANA_X, DANA_Y, DANA_WIDTH, DANA_HEIGHT, game.originalDanaImages);
-        gameOverScreen.style.display = 'none';
-        shopPage.style.display = 'none';
-        document.getElementById('game-container').style.display = 'none';
-        startScreen.style.display = 'block';
+        // 초기 로드 시 메인 화면을 명확하게 표시
+        switchScreen('start-screen');
         if (coinDisplayStart) {
             coinDisplayStart.textContent = `Coins: ${getCoins()}`;
         }
