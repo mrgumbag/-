@@ -81,7 +81,8 @@ const bgmPaths = [
     { name: 'A Hat in Time', path: 'assets/audio/bgm2.mp3' },
     { name: 'ウワサのあの', path: 'assets/audio/bgm3.mp3' },
     { name: 'SOS', path: 'assets/audio/bgm4.mp3' },
-    { name: '도꺠비꽃', path: 'assets/audio/bgm5.mp3' }
+    { name: '도꺠비꽃', path: 'assets/audio/bgm5.mp3' },
+    { name: 'Trainwreck Of Electro Swing', path: 'assets/audio/bgm6.mp3' }
 ];
 
 // ===================================
