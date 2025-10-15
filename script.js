@@ -69,12 +69,8 @@ const game = {
     originalDanaImages: null
 };
 
-const currentPatchNotes = `0.5.5V
-더블 점프 추가
-조류 장애물 추가
-음악 추가 및 변경 추가
-음악 볼륨 상세 조절 추가
-기타 버그 수정`;
+const currentPatchNotes = `0.5.6V
+새로운 노래 추가!`;
 
 const bgmPaths = [
     { name: 'RUN', path: 'assets/audio/bgm.mp3' },
